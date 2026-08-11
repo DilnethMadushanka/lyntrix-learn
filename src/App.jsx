@@ -1,6 +1,5 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import { RoleSwitcherBar } from './components/common/RoleSwitcherBar';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
 import { LandingPage } from './components/landing/LandingPage';
@@ -27,10 +26,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 bg-mesh selection:bg-blue-600 selection:text-white">
-      {/* 1. Multi-Tenant Role Switcher Bar (Public Modes Only) */}
-      <RoleSwitcherBar />
-
-      {/* 2. Context Branded Navbar */}
+      {/* 1. Context Branded Navbar */}
       <Navbar />
 
       {/* 3. Main Workspace Layout */}
