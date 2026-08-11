@@ -29,11 +29,11 @@ export const Navbar = () => {
     currentStudent,
     bankSlips,
     setShowIdCardModal,
+    setShowAuthModal,
     lang
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const pendingSlipsCount = bankSlips.filter(
     s => s.instructorId === currentTeacher.id && s.status === 'pending'
@@ -193,13 +193,6 @@ export const Navbar = () => {
           </div>
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        defaultRole={currentRole === 'teacher' ? 'teacher' : 'student'}
-      />
     </nav>
   );
 };

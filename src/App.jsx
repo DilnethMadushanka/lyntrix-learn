@@ -10,10 +10,18 @@ import { AttendanceScannerTerminal } from './components/scanner/AttendanceScanne
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
 import { AuthPage } from './components/auth/AuthPage';
+import { AuthModal } from './components/auth/AuthModal';
 import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const AppContent = () => {
-  const { currentRole, setCurrentRole, isAdminAuthenticated, toast } = useApp();
+  const { 
+    currentRole, 
+    setCurrentRole, 
+    isAdminAuthenticated, 
+    toast,
+    showAuthModal,
+    setShowAuthModal
+  } = useApp();
 
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
 
@@ -64,7 +72,13 @@ const AppContent = () => {
         </div>
       )}
 
-      {/* 5. Modern LMS Footer with Protected Admin Access link */}
+      {/* 5. Root Level Portal Auth Modal (Prevents Stacking Context Clipping) */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+
+      {/* 6. Modern LMS Footer with Protected Admin Access link */}
       <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 shadow-inner">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">

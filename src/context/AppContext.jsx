@@ -55,6 +55,7 @@ export const AppProvider = ({ children }) => {
   const [paymentModalData, setPaymentModalData] = useState(null);
   const [selectedSlipForReview, setSelectedSlipForReview] = useState(null);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
@@ -434,6 +435,8 @@ export const AppProvider = ({ children }) => {
         setSelectedSlipForReview,
         showIdCardModal,
         setShowIdCardModal,
+        showAuthModal,
+        setShowAuthModal,
         platformMetrics: PLATFORM_METRICS
       }}
     >
