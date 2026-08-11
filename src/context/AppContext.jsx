@@ -10,7 +10,7 @@ import {
 } from '../data/mockData';
 import { sound } from '../utils/soundEffects';
 import confetti from 'canvas-confetti';
-import { supabaseDbService, isSupabaseConfigured } from '../lib/supabaseClient';
+import { supabase, supabaseDbService, isSupabaseConfigured } from '../lib/supabaseClient';
 
 const AppContext = createContext();
 

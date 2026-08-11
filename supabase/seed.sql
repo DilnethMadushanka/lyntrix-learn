@@ -489,3 +489,16 @@ INSERT INTO public.tute_deliveries (
 VALUES
   ('80000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'August Combined Maths Theory + Paper Pack', 'PromptX Express', 'PRX-998822', 'Dispatched', 'No 45, Temple Road, Maharagama')
 ON CONFLICT (id) DO NOTHING;
+
+-- RLS Policies for Teachers Table
+ALTER TABLE public.teachers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Teachers viewable by all" ON public.teachers;
+CREATE POLICY "Teachers viewable by all" ON public.teachers FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public insert teachers" ON public.teachers;
+CREATE POLICY "Public insert teachers" ON public.teachers FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public update teachers" ON public.teachers;
+CREATE POLICY "Public update teachers" ON public.teachers FOR UPDATE USING (true);
+

@@ -205,15 +205,17 @@ CREATE POLICY "Profiles viewable by everyone" ON public.profiles FOR SELECT USIN
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Teachers & Batches: Viewable by all students & public
 DROP POLICY IF EXISTS "Teachers viewable by all" ON public.teachers;
 CREATE POLICY "Teachers viewable by all" ON public.teachers FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Batches viewable by all" ON public.batches;
-CREATE POLICY "Batches viewable by all" ON public.batches FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public insert teachers" ON public.teachers;
+CREATE POLICY "Public insert teachers" ON public.teachers FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public update teachers" ON public.teachers;
+CREATE POLICY "Public update teachers" ON public.teachers FOR UPDATE USING (true);
 
 DROP POLICY IF EXISTS "Teachers can update own profile" ON public.teachers;
-CREATE POLICY "Teachers can update own profile" ON public.teachers FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Teachers can update own profile" ON public.teachers FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
 
 -- Lessons: Students can only view lessons if enrolled and paid
 DROP POLICY IF EXISTS "Lessons accessible to paid students and author teacher" ON public.lessons;
