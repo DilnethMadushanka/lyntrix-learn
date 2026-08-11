@@ -13,7 +13,9 @@ import {
   BookOpen,
   CheckCircle2,
   AlertCircle,
-  LogIn
+  LogIn,
+  UserCheck,
+  UserPlus
 } from 'lucide-react';
 import { AuthModal } from '../auth/AuthModal';
 
