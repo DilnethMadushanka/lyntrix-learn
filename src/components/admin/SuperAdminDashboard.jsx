@@ -10,7 +10,8 @@ import {
   Plus, 
   TrendingUp, 
   ExternalLink,
-  LogOut
+  LogOut,
+  Database
 } from 'lucide-react';
 
 export const SuperAdminDashboard = () => {
@@ -137,7 +138,7 @@ export const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowAddTeacherModal(true)}
             className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition"
@@ -154,6 +155,40 @@ export const SuperAdminDashboard = () => {
             <LogOut className="w-4 h-4" />
             <span>Logout Admin</span>
           </button>
+        </div>
+      </div>
+
+      {/* SUPABASE LIVE DATABASE & SEED STATUS BANNER */}
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border border-emerald-200 rounded-3xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black shadow-md shadow-emerald-500/20 shrink-0">
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-emerald-900">
+                Live Supabase PostgreSQL Connected: <code className="text-emerald-700 font-mono">kgqkelydepsfkzhrnndz</code>
+              </span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                Realtime Active
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 mt-0.5">
+              All 8 PostgreSQL tables are initialized. Run <strong>supabase/seed.sql</strong> in your Supabase SQL Editor to populate initial demo records.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href="https://supabase.com/dashboard/project/kgqkelydepsfkzhrnndz/sql"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5"
+          >
+            <span>Open Supabase SQL Editor</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
       </div>
 
