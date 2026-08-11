@@ -1,127 +1,209 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Environment variables from Vite .env
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://xyzcompany.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'public-anon-key-placeholder';
+// Live Supabase project credentials for Lyntrix Learn
+const SUPABASE_PROJECT_URL = import.meta.env.VITE_SUPABASE_URL || 'https://kgqkelydepsfkzhrnndz.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_bgL8mZm7AsKCY0OijP_vNw_So-6HiwN';
 
-// Create Supabase client instance
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create Supabase client instance with realtime enabled
+export const supabase = createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
   }
 });
 
-// Helper check to verify if actual live Supabase credentials are configured
+// Helper check to verify if live Supabase is active
 export const isSupabaseConfigured = () => {
   return (
-    import.meta.env.VITE_SUPABASE_URL && 
-    import.meta.env.VITE_SUPABASE_URL !== 'https://xyzcompany.supabase.co' &&
-    import.meta.env.VITE_SUPABASE_ANON_KEY &&
-    import.meta.env.VITE_SUPABASE_ANON_KEY !== 'public-anon-key-placeholder'
+    SUPABASE_PROJECT_URL && 
+    SUPABASE_PROJECT_URL.includes('supabase.co') &&
+    SUPABASE_ANON_KEY &&
+    !SUPABASE_ANON_KEY.includes('placeholder')
   );
 };
 
-// Authentication & Role-Based Access API Helpers
+// ----------------------------------------------------
+// 1. Authentication & Role-Based Access Services
+// ----------------------------------------------------
 export const supabaseAuthService = {
   // Sign up new user (Teacher or Student)
   async signUp(email, password, role = 'student', metadata = {}) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          role, // 'super_admin' | 'teacher' | 'student'
-          name: metadata.name || '',
-          phone: metadata.phone || '',
-          index_number: metadata.indexNumber || '',
-          subject: metadata.subject || ''
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role, // 'super_admin' | 'teacher' | 'student'
+            name: metadata.name || '',
+            phone: metadata.phone || '',
+            index_number: metadata.indexNumber || '',
+            subject: metadata.subject || ''
+          }
         }
-      }
-    });
-    return { data, error };
+      });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
   // Log in user
   async signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { data, error };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
   // Sign out
   async signOut() {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    try {
+      const { error } = await supabase.auth.signOut();
+      return { error };
+    } catch (err) {
+      return { error: err };
+    }
   },
 
   // Get current user session
   async getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    } catch (err) {
+      return null;
+    }
   }
 };
 
-// Database CRUD Services
+// ----------------------------------------------------
+// 2. Live Database & Realtime Services
+// ----------------------------------------------------
 export const supabaseDbService = {
   // 1. Fetch all teachers/academies
   async getTeachers() {
-    const { data, error } = await supabase
-      .from('teachers')
-      .select('*, batches(*)');
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('*, batches(*)');
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
   // 2. Fetch video lessons for a batch
   async getLessons(batchId) {
-    const { data, error } = await supabase
-      .from('lessons')
-      .select('*')
-      .eq('batch_id', batchId)
-      .order('created_at', { ascending: false });
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('batch_id', batchId)
+        .order('created_at', { ascending: false });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
-  // 3. Upload bank slip
+  // 3. Add video lesson
+  async createLesson(lessonData) {
+    try {
+      const { data, error } = await supabase
+        .from('lessons')
+        .insert([lessonData])
+        .select();
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // 4. Upload bank slip
   async submitBankSlip(slipData) {
-    const { data, error } = await supabase
-      .from('bank_slips')
-      .insert([slipData])
-      .select();
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('bank_slips')
+        .insert([slipData])
+        .select();
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
-  // 4. Approve bank slip (Updates slip status and student enrollment)
+  // 5. Approve bank slip
   async approveBankSlip(slipId, studentId, batchId) {
-    const { data: slipData, error: slipError } = await supabase
-      .from('bank_slips')
-      .update({ status: 'approved', approved_at: new Date().toISOString() })
-      .eq('id', slipId);
+    try {
+      const { data: slipData, error: slipError } = await supabase
+        .from('bank_slips')
+        .update({ status: 'approved', approved_at: new Date().toISOString() })
+        .eq('id', slipId)
+        .select();
 
-    if (slipError) return { error: slipError };
+      if (slipError) return { error: slipError };
 
-    // Update or insert active enrollment
-    const { data: enrData, error: enrError } = await supabase
-      .from('enrollments')
-      .upsert({
-        student_id: studentId,
-        batch_id: batchId,
-        payment_status: 'Paid',
-        paid_date: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      });
+      // Update or insert active enrollment
+      const { data: enrData, error: enrError } = await supabase
+        .from('enrollments')
+        .upsert({
+          student_id: studentId,
+          batch_id: batchId,
+          payment_status: 'Paid',
+          paid_date: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        });
 
-    return { data: { slipData, enrData }, error: enrError };
+      return { data: { slipData, enrData }, error: enrError };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
-  // 5. Mark Attendance
+  // 6. Mark Attendance
   async recordAttendance(attendanceRecord) {
-    const { data, error } = await supabase
-      .from('attendance_logs')
-      .insert([attendanceRecord])
-      .select();
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('attendance_logs')
+        .insert([attendanceRecord])
+        .select();
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // 7. Realtime Subscription Listeners
+  subscribeToRealtime(table, onEvent) {
+    try {
+      const channel = supabase
+        .channel(`public:${table}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table },
+          (payload) => {
+            if (onEvent) onEvent(payload);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (err) {
+      console.warn('Realtime subscription fallback:', err);
+      return () => {};
+    }
   }
 };

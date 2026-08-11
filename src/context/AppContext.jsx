@@ -10,6 +10,7 @@ import {
 } from '../data/mockData';
 import { sound } from '../utils/soundEffects';
 import confetti from 'canvas-confetti';
+import { supabaseDbService, isSupabaseConfigured } from '../lib/supabaseClient';
 
 const AppContext = createContext();
 
@@ -44,6 +45,46 @@ export const AppProvider = ({ children }) => {
   const [bankSlips, setBankSlips] = useState(INITIAL_BANK_SLIPS);
   const [attendanceLogs, setAttendanceLogs] = useState(INITIAL_ATTENDANCE_LOGS);
   const [quizzes, setQuizzes] = useState(INITIAL_QUIZZES);
+
+  // ----------------------------------------------------
+  // Live Supabase Realtime Listeners (Instant Multi-Tab Sync)
+  // ----------------------------------------------------
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    // Realtime Bank Slips
+    const unsubSlips = supabaseDbService.subscribeToRealtime('bank_slips', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setBankSlips(prev => [payload.new, ...prev]);
+        sound.playChimeApproved();
+        showToast('⚡ Realtime: New Bank Slip received via Supabase!', 'info');
+      } else if (payload.eventType === 'UPDATE') {
+        setBankSlips(prev => prev.map(s => s.id === payload.new.id ? { ...s, ...payload.new } : s));
+      }
+    });
+
+    // Realtime Attendance
+    const unsubAttendance = supabaseDbService.subscribeToRealtime('attendance_logs', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setAttendanceLogs(prev => [payload.new, ...prev]);
+        showToast('⚡ Realtime: Entrance Attendance Logged!', 'info');
+      }
+    });
+
+    // Realtime Video Lessons
+    const unsubLessons = supabaseDbService.subscribeToRealtime('lessons', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setLessons(prev => [payload.new, ...prev]);
+        showToast('⚡ Realtime: New Video Lecture Added!', 'success');
+      }
+    });
+
+    return () => {
+      if (unsubSlips) unsubSlips();
+      if (unsubAttendance) unsubAttendance();
+      if (unsubLessons) unsubLessons();
+    };
+  }, []);
   
   // UI & Localization
   const [lang, setLang] = useState('en');
@@ -305,6 +346,11 @@ export const AppProvider = ({ children }) => {
 
       showToast(`Bank Slip Approved! SMS notification sent to ${slip.studentName} (+94 7X...)`, 'success');
       setSelectedSlipForReview(null);
+
+      // Async live Supabase synchronization
+      if (isSupabaseConfigured()) {
+        supabaseDbService.approveBankSlip(slip.id, slip.studentId, slip.batchId).catch(() => {});
+      }
     }
   };
 
@@ -345,6 +391,20 @@ export const AppProvider = ({ children }) => {
     };
 
     setBankSlips(prev => [newSlip, ...prev]);
+
+    // Async live Supabase insertion
+    if (isSupabaseConfigured()) {
+      supabaseDbService.submitBankSlip({
+        student_id: studentId,
+        teacher_id: teacher?.id,
+        batch_id: batchId,
+        amount: Number(amount) || 3500,
+        bank_name: bank || 'Commercial Bank',
+        reference_no: newSlip.referenceNo,
+        slip_url: newSlip.slipImage,
+        status: 'pending'
+      }).catch(() => {});
+    }
 
     setStudents(prevStudents => prevStudents.map(std => {
       if (std.id === studentId) {
