@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { SUBJECT_CATEGORIES, GRADE_STREAMS, SAAS_PRICING_PLANS } from '../../data/mockData';
 import { sound } from '../../utils/soundEffects';
+import { AnimatedSection } from '../common/AnimatedSection';
 
 const HERO_BACKGROUND_IMAGES = [
   {
@@ -276,7 +277,7 @@ export const LandingPage = () => {
       </section>
 
       {/* 2. LIVE LECTURE COUNTDOWN RADAR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection delay={100} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-slate-900 via-rose-950/40 to-slate-900 border border-rose-500/40 p-6 sm:p-7 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl backdrop-blur-xl text-white">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
@@ -314,10 +315,10 @@ export const LandingPage = () => {
             </button>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* 3. LMS MASTERCLASS CATALOG / COURSES GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection delay={150} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-xs font-bold mb-2">
@@ -335,111 +336,110 @@ export const LandingPage = () => {
 
         {/* Master Course Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredInstructors.map(ins => {
+          {filteredInstructors.map((ins, idx) => {
             const primaryBatch = ins.batches[0];
             return (
-              <div
-                key={ins.id}
-                className="bg-slate-900/90 rounded-3xl overflow-hidden border border-slate-800 hover:border-blue-500/60 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl text-white hover:shadow-2xl hover:shadow-blue-500/10"
-              >
-                {/* Course Cover Banner */}
-                <div className="relative h-44 bg-slate-950 overflow-hidden">
-                  <img
-                    src={ins.cover}
-                    alt={ins.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold shadow">
-                      {ins.subject}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900/90 text-white text-[10px] font-mono font-bold shadow border border-slate-700">
-                      {primaryBatch?.grade}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-3 right-3 bg-slate-900/90 backdrop-blur-md border border-slate-700 px-2 py-1 rounded-lg text-amber-400 text-xs font-bold flex items-center gap-1 shadow">
-                    <Star className="w-3 h-3 fill-current text-amber-400" />
-                    <span>{ins.rating}</span>
-                  </div>
-
-                  {/* Instructor Pill at bottom */}
-                  <div className="absolute bottom-3 left-3 flex items-center gap-2.5">
+              <AnimatedSection key={ins.id} delay={idx * 100}>
+                <div className="bg-slate-900/90 rounded-3xl overflow-hidden border border-slate-800 hover:border-blue-500/60 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl text-white hover:shadow-2xl hover:shadow-blue-500/10 h-full">
+                  {/* Course Cover Banner */}
+                  <div className="relative h-44 bg-slate-950 overflow-hidden">
                     <img
-                      src={ins.avatar}
+                      src={ins.cover}
                       alt={ins.name}
-                      className="w-10 h-10 rounded-xl object-cover border-2 border-slate-700 shadow-md"
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     />
-                    <div>
-                      <div className="text-white font-bold text-xs leading-tight flex items-center gap-1">
-                        <span>{ins.name}</span>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold shadow">
+                        {ins.subject}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-slate-900/90 text-white text-[10px] font-mono font-bold shadow border border-slate-700">
+                        {primaryBatch?.grade}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-3 right-3 bg-slate-900/90 backdrop-blur-md border border-slate-700 px-2 py-1 rounded-lg text-amber-400 text-xs font-bold flex items-center gap-1 shadow">
+                      <Star className="w-3 h-3 fill-current text-amber-400" />
+                      <span>{ins.rating}</span>
+                    </div>
+
+                    {/* Instructor Pill at bottom */}
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2.5">
+                      <img
+                        src={ins.avatar}
+                        alt={ins.name}
+                        className="w-10 h-10 rounded-xl object-cover border-2 border-slate-700 shadow-md"
+                      />
+                      <div>
+                        <div className="text-white font-bold text-xs leading-tight flex items-center gap-1">
+                          <span>{ins.name}</span>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                        </div>
+                        <div className="text-[10px] text-slate-300 font-medium">{ins.title}</div>
                       </div>
-                      <div className="text-[10px] text-slate-300 font-medium">{ins.title}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Course Body */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition line-clamp-1">
-                      {primaryBatch?.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                      {primaryBatch?.description}
-                    </p>
-                  </div>
-
-                  {/* Course Syllabus Features */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[11px] text-slate-300">
-                    <div className="flex items-center gap-1.5">
-                      <Video className="w-3.5 h-3.5 text-blue-400" />
-                      <span>{primaryBatch?.recordingCount}+ HD Lectures</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Package className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Printed Tute Delivery</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Moving Watermark</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <QrCode className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Hall QR Card Marking</span>
                     </div>
                   </div>
 
-                  {/* Footer with Price & Actions */}
-                  <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                  {/* Course Body */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Monthly Class Fee</div>
-                      <div className="text-lg font-black text-emerald-400">LKR {ins.monthlyFee.toLocaleString()}</div>
+                      <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition line-clamp-1">
+                        {primaryBatch?.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                        {primaryBatch?.description}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleProtectedEnroll(ins)}
-                        className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-blue-500/20 flex items-center gap-1.5 active:scale-95"
-                      >
-                        <Lock className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Enroll in Batch</span>
-                      </button>
+                    {/* Course Syllabus Features */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[11px] text-slate-300">
+                      <div className="flex items-center gap-1.5">
+                        <Video className="w-3.5 h-3.5 text-blue-400" />
+                        <span>{primaryBatch?.recordingCount}+ HD Lectures</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Package className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Printed Tute Delivery</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Moving Watermark</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <QrCode className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Hall QR Card Marking</span>
+                      </div>
+                    </div>
+
+                    {/* Footer with Price & Actions */}
+                    <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Monthly Class Fee</div>
+                        <div className="text-lg font-black text-emerald-400">LKR {ins.monthlyFee.toLocaleString()}</div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleProtectedEnroll(ins)}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-blue-500/20 flex items-center gap-1.5 active:scale-95"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Enroll in Batch</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </AnimatedSection>
             );
           })}
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* 4. HOW LYNTRIX LMS WORKS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection delay={200} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-900/80 p-8 sm:p-12 rounded-3xl border border-slate-800 shadow-2xl backdrop-blur-xl text-white">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h3 className="text-2xl sm:text-3xl font-black text-white">How the Lyntrix LMS Ecosystem Works</h3>
@@ -488,10 +488,10 @@ export const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* 5. SAAS SUBSCRIPTION PLANS FOR TUITION MASTERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection delay={250} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -502,52 +502,53 @@ export const LandingPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {SAAS_PRICING_PLANS.map(plan => (
-            <div
-              key={plan.id}
-              className={`p-6 rounded-3xl flex flex-col justify-between backdrop-blur-xl border ${
-                plan.popular 
-                  ? 'bg-gradient-to-b from-blue-950/90 via-slate-900/95 to-slate-900 border-2 border-blue-500 shadow-2xl shadow-blue-500/20 relative' 
-                  : 'bg-slate-900/90 border-slate-800 shadow-xl'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
-                  Most Popular
-                </div>
-              )}
-
-              <div>
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{plan.name}</span>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-xs text-slate-400 font-semibold">LKR</span>
-                  <span className="text-3xl font-black text-white">{plan.priceLKR}</span>
-                  <span className="text-xs text-slate-400">{plan.billingCycle}</span>
-                </div>
-
-                <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                  {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <button
-                onClick={() => openPlanCheckout(plan)}
-                className={`mt-6 w-full py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg active:scale-95 ${
-                  plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/30' : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+          {SAAS_PRICING_PLANS.map((plan, idx) => (
+            <AnimatedSection key={plan.id} delay={idx * 120}>
+              <div
+                className={`p-6 rounded-3xl flex flex-col justify-between backdrop-blur-xl border h-full ${
+                  plan.popular 
+                    ? 'bg-gradient-to-b from-blue-950/90 via-slate-900/95 to-slate-900 border-2 border-blue-500 shadow-2xl shadow-blue-500/20 relative' 
+                    : 'bg-slate-900/90 border-slate-800 shadow-xl'
                 }`}
               >
-                <span>Create Your Sir Portal</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+                {plan.popular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
+                    Most Popular
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{plan.name}</span>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-xs text-slate-400 font-semibold">LKR</span>
+                    <span className="text-3xl font-black text-white">{plan.priceLKR}</span>
+                    <span className="text-xs text-slate-400">{plan.billingCycle}</span>
+                  </div>
+
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => openPlanCheckout(plan)}
+                  className={`mt-6 w-full py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg active:scale-95 ${
+                    plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/30' : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                  }`}
+                >
+                  <span>Create Your Sir Portal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </AnimatedSection>
           ))}
         </div>
-      </section>
+      </AnimatedSection>
     </div>
   );
 };
