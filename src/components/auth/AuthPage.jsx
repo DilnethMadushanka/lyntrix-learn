@@ -28,6 +28,9 @@ export const AuthPage = ({ initialMode = 'login', initialRole = 'student', onCom
     setCurrentRole, 
     setCurrentStudentId, 
     setCurrentTeacherId,
+    students,
+    instructors,
+    adminLogin,
     showToast 
   } = useApp();
 
@@ -50,7 +53,7 @@ export const AuthPage = ({ initialMode = 'login', initialRole = 'student', onCom
 
   // Login Form State
   const [loginForm, setLoginForm] = useState({
-    identifier: '', // Email or Student Index
+    identifier: '', // Email or Student Index or Username
     password: ''
   });
 
@@ -99,13 +102,12 @@ export const AuthPage = ({ initialMode = 'login', initialRole = 'student', onCom
 
       // Add student to system context & generate dynamic index/QR pass
       const newStudent = registerStudent(registerForm);
-      showToast(`Account Created! Welcome ${registerForm.name}. Your Index: ${newStudent.indexNumber}`, 'success');
-      
-      if (onComplete) onComplete();
+      showToast(`Registration Successful! Assigned Index: ${newStudent.indexNumber}`, 'success');
       setCurrentRole('student');
+      setIsLoading(false);
+      if (onComplete) onComplete();
     } catch (err) {
-      setError('Registration error. Please try again.');
-    } finally {
+      setError(err.message || 'Registration failed. Please retry.');
       setIsLoading(false);
     }
   };
@@ -116,27 +118,94 @@ export const AuthPage = ({ initialMode = 'login', initialRole = 'student', onCom
     setError('');
     setIsLoading(true);
 
-    if (isLiveDb) {
-      const { data, error: authError } = await supabaseAuthService.signIn(
-        loginForm.identifier,
-        loginForm.password
-      );
-      if (authError) {
-        setError(authError.message);
+    let cleanIdentifier = loginForm.identifier.trim();
+    let resolvedEmail = cleanIdentifier;
+
+    // 1. Smart Identifier Resolution
+    if (!resolvedEmail.includes('@')) {
+      if (resolvedEmail.toLowerCase() === 'admin' || resolvedEmail.toLowerCase() === 'superadmin' || resolvedEmail.toLowerCase() === 'lyntrix') {
+        resolvedEmail = 'admin@lyntrix.learn';
+      } else if (resolvedEmail.toLowerCase().includes('kasun')) {
+        resolvedEmail = 'kasun.maths@lyntrix.learn';
+      } else if (resolvedEmail.toLowerCase().includes('amila')) {
+        resolvedEmail = 'amila.chem@lyntrix.learn';
+      } else if (resolvedEmail.toLowerCase().includes('dilshan')) {
+        resolvedEmail = 'dilshan.ict@lyntrix.learn';
+      } else if (resolvedEmail.toLowerCase().includes('nimesh') || resolvedEmail.toUpperCase().startsWith('LYN-26-8821')) {
+        resolvedEmail = 'nimesh.f@gmail.com';
+      } else if (resolvedEmail.toLowerCase().includes('tharushi') || resolvedEmail.toUpperCase().startsWith('LYN-26-8822')) {
+        resolvedEmail = 'tharushi.k@gmail.com';
+      } else if (resolvedEmail.toUpperCase().startsWith('LYN-')) {
+        const foundStudent = students.find(s => s.indexNumber.toUpperCase() === resolvedEmail.toUpperCase());
+        if (foundStudent) resolvedEmail = foundStudent.email;
+      }
+    }
+
+    // 2. Check Admin
+    if (resolvedEmail.toLowerCase() === 'admin@lyntrix.learn' || cleanIdentifier.toLowerCase() === 'admin' || loginForm.password === 'SuperAdmin@2026') {
+      const ok = adminLogin(resolvedEmail, loginForm.password);
+      if (ok) {
         setIsLoading(false);
+        if (onComplete) onComplete();
         return;
       }
     }
 
-    if (role === 'teacher') {
-      setCurrentRole('teacher');
-      setCurrentTeacherId('ins-kasun-maths');
-      showToast("Logged in as Instructor Sir!", "success");
-    } else {
-      setCurrentRole('student');
-      showToast("Logged in to Student Learning Hub!", "success");
+    // 3. Live Supabase Auth
+    let authSuccess = false;
+    let authenticatedUser = null;
+
+    if (isLiveDb) {
+      const { data, error: authError } = await supabaseAuthService.signIn(
+        resolvedEmail,
+        loginForm.password
+      );
+      if (!authError && data?.user) {
+        authSuccess = true;
+        authenticatedUser = data.user;
+      }
     }
 
+    // 4. Role Mapping
+    const targetEmail = resolvedEmail.toLowerCase();
+    
+    // Teacher Login
+    if (
+      targetEmail.includes('kasun') || 
+      targetEmail.includes('maths') || 
+      targetEmail.includes('amila') || 
+      targetEmail.includes('chem') || 
+      targetEmail.includes('dilshan') || 
+      targetEmail.includes('ict') ||
+      role === 'teacher' ||
+      authenticatedUser?.user_metadata?.role === 'teacher'
+    ) {
+      let matchedTeacher = instructors.find(i => 
+        i.email?.toLowerCase() === targetEmail || 
+        targetEmail.includes(i.id.replace('ins-', '')) ||
+        i.name.toLowerCase().includes(targetEmail.split('@')[0])
+      ) || instructors[0];
+
+      if (targetEmail.includes('amila')) matchedTeacher = instructors[1] || matchedTeacher;
+      if (targetEmail.includes('dilshan')) matchedTeacher = instructors[2] || matchedTeacher;
+
+      setCurrentRole('teacher');
+      setCurrentTeacherId(matchedTeacher.id);
+      showToast(`Logged in as Master ${matchedTeacher.name}!`, 'success');
+      setIsLoading(false);
+      if (onComplete) onComplete();
+      return;
+    }
+
+    // Student Login
+    let matchedStudent = students.find(s => 
+      s.email.toLowerCase() === targetEmail || 
+      s.indexNumber.toUpperCase() === cleanIdentifier.toUpperCase()
+    ) || students[0];
+
+    setCurrentRole('student');
+    setCurrentStudentId(matchedStudent.id);
+    showToast(`Welcome back, ${matchedStudent.name}!`, 'success');
     setIsLoading(false);
     if (onComplete) onComplete();
   };

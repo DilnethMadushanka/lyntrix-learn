@@ -96,33 +96,77 @@ export const StudentPortal = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Enrolled Courses & Live Classes */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Live Class Timetable Banner */}
+            {/* Live Class Timetable Banner - STRICTLY FILTERED BY STUDENT'S REGISTERED SIRS & BATCHES */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping"></span>
-                  <h3 className="font-bold text-slate-900 text-sm">Upcoming Live Class Schedule</h3>
+                  <h3 className="font-bold text-slate-900 text-sm">My Upcoming Live Class Timetable</h3>
                 </div>
-                <span className="text-xs text-blue-600 font-bold">August 2026</span>
+                <span className="text-xs text-blue-600 font-bold">Only Registered Classes ({currentStudent.enrollments.length})</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs text-rose-700 font-bold">Sunday 7:30 AM (Live Broadcast)</div>
-                  <h4 className="font-bold text-slate-900 text-sm mt-0.5">2025 A/L Combined Maths — Theory Masterclass</h4>
-                  <div className="text-xs text-slate-600 mt-1">Instructor: Eng. Kasun Ranasinghe</div>
+              {currentStudent.enrollments.length === 0 ? (
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500">
+                  You are not currently enrolled in any class batches. Browse the Course Catalog to register.
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  {currentStudent.enrollments.map((enr, idx) => {
+                    const teacher = instructors.find(i => i.id === enr.instructorId) || instructors[0];
+                    const batch = teacher.batches.find(b => b.id === enr.batchId) || teacher.batches[0];
+                    const isPaid = enr.paymentStatus === 'Paid';
 
-                <a
-                  href="https://zoom.us"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0"
-                >
-                  <Video className="w-3.5 h-3.5" />
-                  <span>Join Live Zoom</span>
-                </a>
-              </div>
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition ${
+                          isPaid ? 'bg-rose-50/60 border-rose-200' : 'bg-amber-50/60 border-amber-200'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${isPaid ? 'text-rose-700' : 'text-amber-700'}`}>
+                              {batch.schedule || 'Weekly Live Broadcast'}
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {isPaid ? '✓ Fee Paid' : '⚠️ Fee Pending'}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-slate-900 text-sm">{batch.title}</h4>
+                          <div className="text-xs text-slate-600">
+                            Instructor: <strong>{teacher.name}</strong> • Medium: <span>{batch.medium}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          {isPaid ? (
+                            <a
+                              href={batch.zoomLink || "https://zoom.us"}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0"
+                            >
+                              <Video className="w-3.5 h-3.5" />
+                              <span>Join Live Zoom</span>
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => handleOpenPayment(batch, teacher)}
+                              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-amber-600/20 shrink-0"
+                            >
+                              <CreditCard className="w-3.5 h-3.5" />
+                              <span>Pay Fee to Join</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* My Enrolled Batches */}
