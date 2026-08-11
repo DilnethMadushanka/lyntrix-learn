@@ -9,7 +9,18 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Auto-migrate columns if tables already existed in Supabase
+-- Comprehensive Auto-migration for all tables (Handles all past schema states)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'student';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS index_number TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS district TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address TEXT;
+
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subject_category TEXT NOT NULL DEFAULT 'maths';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS rating NUMERIC(3,2) DEFAULT 5.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS monthly_fee NUMERIC(10,2) NOT NULL DEFAULT 3500.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_tier TEXT NOT NULL DEFAULT 'Pro Academy';
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'trialing';
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMPTZ DEFAULT NOW();
@@ -18,9 +29,15 @@ ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_renews_at TIME
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS saas_monthly_price NUMERIC(10,2) DEFAULT 22500.00;
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS is_verified_master BOOLEAN DEFAULT TRUE;
 
+ALTER TABLE public.batches ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active';
+
 ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS views_count INTEGER DEFAULT 0;
 ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS has_quiz BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS chapters JSONB DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS remarks TEXT;
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
 
 -- 1. SEED AUTH USERS (Satisfies foreign key constraint profiles_id_fkey)
 INSERT INTO auth.users (

@@ -124,10 +124,39 @@ CREATE TABLE IF NOT EXISTS public.bank_slips (
   reference_no TEXT NOT NULL,
   slip_image_url TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  remarks TEXT,
   rejection_reason TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   approved_at TIMESTAMPTZ
 );
+
+-- Comprehensive Column Migration Safety (Handles all schema versions)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'student';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS index_number TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS district TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address TEXT;
+
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subject_category TEXT NOT NULL DEFAULT 'maths';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS rating NUMERIC(3,2) DEFAULT 5.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS monthly_fee NUMERIC(10,2) NOT NULL DEFAULT 3500.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_tier TEXT NOT NULL DEFAULT 'Pro Academy';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'trialing';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days');
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_renews_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days');
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS saas_monthly_price NUMERIC(10,2) DEFAULT 22500.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS is_verified_master BOOLEAN DEFAULT TRUE;
+
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS views_count INTEGER DEFAULT 0;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS has_quiz BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS chapters JSONB DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS remarks TEXT;
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+ALTER TABLE public.bank_slips ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
 
 -- 7. QR CODE ATTENDANCE LOGS
 CREATE TABLE IF NOT EXISTS public.attendance_logs (
