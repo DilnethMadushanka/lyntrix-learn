@@ -31,6 +31,29 @@ import {
 import { SUBJECT_CATEGORIES, GRADE_STREAMS, SAAS_PRICING_PLANS } from '../../data/mockData';
 import { sound } from '../../utils/soundEffects';
 
+const HERO_BACKGROUND_IMAGES = [
+  {
+    url: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1600&auto=format&fit=crop&q=80",
+    caption: "🎓 Professional Master Conducting Live Online Theory Lecture"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&auto=format&fit=crop&q=80",
+    caption: "💻 A/L Students Studying Together via HD Video Classroom"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&auto=format&fit=crop&q=80",
+    caption: "📐 Interactive Smartboard Mathematics Masterclass"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&auto=format&fit=crop&q=80",
+    caption: "🎧 High-Speed HD Video Replays with Anti-Piracy Protection"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&auto=format&fit=crop&q=80",
+    caption: "🏢 Modern Hall Gate QR Attendance Terminal"
+  }
+];
+
 export const LandingPage = () => {
   const { 
     instructors, 
@@ -51,6 +74,16 @@ export const LandingPage = () => {
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTeacherModal, setSelectedTeacherModal] = useState(null);
+
+  // Rotating Background Images Slideshow State
+  const [currentHeroImgIndex, setCurrentHeroImgIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHeroImgIndex(prev => (prev + 1) % HERO_BACKGROUND_IMAGES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
 
   // Protected Zoom Admission Check
   const handleProtectedZoomAccess = ({ batchId, title, instructor }) => {
@@ -112,31 +145,55 @@ export const LandingPage = () => {
 
   return (
     <div className="space-y-16 pb-28">
-      {/* 1. LMS ACADEMIC HERO & SEARCH HUB */}
-      <section className="relative pt-10 lg:pt-16 pb-8 overflow-hidden bg-white border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 1. LMS ACADEMIC HERO & ROTATING BACKGROUND SLIDESHOW */}
+      <section className="relative pt-12 lg:pt-20 pb-12 overflow-hidden bg-slate-950 text-white border-b border-slate-800 shadow-2xl">
+        {/* Dynamic Rotating Background Images Carousel */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {HERO_BACKGROUND_IMAGES.map((img, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                idx === currentHeroImgIndex ? 'opacity-100 scale-105 transition-transform duration-[7500ms] ease-out' : 'opacity-0 scale-100'
+              }`}
+            >
+              <img
+                src={img.url}
+                alt={img.caption}
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+          ))}
+
+          {/* Premium Dark Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-900/80 to-slate-950/95 backdrop-blur-[2px]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-slate-950/90"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top LMS Pill Badge */}
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold shadow-sm">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-xs font-bold backdrop-blur-md shadow-lg shadow-blue-500/10">
+              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
               <span>Sri Lanka's #1 Multi-Instructor Tuition & LMS Platform</span>
             </div>
           </div>
 
           {/* Main Headline */}
           <div className="text-center max-w-4xl mx-auto space-y-4">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight drop-shadow-lg">
               Master Your A/L Syllabus with <br />
-              <span className="text-blue-600">Top Tuition Masters & Smart LMS</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+                Top Tuition Masters & Smart LMS
+              </span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-200 max-w-2xl mx-auto leading-relaxed drop-shadow">
               Watch protected HD video lectures with dynamic watermarks, download printed theory tutes, attend live interactive Zoom classes, and track hall entrance attendance.
             </p>
           </div>
 
           {/* LMS Smart Search & Filter Bar */}
           <div className="mt-8 max-w-3xl mx-auto">
-            <div className="bg-slate-50 p-2 rounded-2xl border border-slate-200 shadow-md flex flex-col sm:flex-row gap-2">
+            <div className="bg-slate-900/90 p-2 rounded-2xl border border-slate-700/80 shadow-2xl backdrop-blur-xl flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
                 <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -144,14 +201,14 @@ export const LandingPage = () => {
                   placeholder="Search by Master (e.g. Kasun Maths), Subject, or Batch..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent border-0 pl-11 pr-4 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
+                  className="w-full bg-transparent border-0 pl-11 pr-4 py-3 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none"
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentRole('student')}
-                  className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-500/30 transition flex items-center justify-center gap-2 active:scale-95"
                 >
                   <GraduationCap className="w-4 h-4" />
                   <span>Student Portal</span>
@@ -166,10 +223,10 @@ export const LandingPage = () => {
               <button
                 key={grade.id}
                 onClick={() => setSelectedGrade(grade.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 backdrop-blur-md ${
                   selectedGrade === grade.id
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 border border-blue-400'
+                    : 'bg-slate-900/80 text-slate-300 hover:text-white border border-slate-800 hover:bg-slate-800'
                 }`}
               >
                 <span>{grade.name}</span>
@@ -183,15 +240,37 @@ export const LandingPage = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedSubject(cat.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 backdrop-blur-md ${
                   selectedSubject === cat.id
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200'
+                    ? 'bg-white text-slate-950 shadow-md'
+                    : 'bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
                 <span>{cat.name}</span>
               </button>
             ))}
+          </div>
+
+          {/* Live Background Image Slider Indicators & Caption */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-800/80 text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span className="font-medium text-slate-300">{HERO_BACKGROUND_IMAGES[currentHeroImgIndex].caption}</span>
+            </div>
+
+            {/* Slide Navigation Dots */}
+            <div className="flex items-center gap-1.5">
+              {HERO_BACKGROUND_IMAGES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentHeroImgIndex(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === currentHeroImgIndex ? 'w-6 bg-blue-500' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                  }`}
+                  title={`Slide ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
