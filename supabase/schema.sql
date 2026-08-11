@@ -41,6 +41,14 @@ CREATE TABLE IF NOT EXISTS public.teachers (
   bank_account_name TEXT,
   bank_account_number TEXT,
   bank_branch TEXT,
+  -- SaaS Subscription & Free Trial Management
+  subscription_tier TEXT NOT NULL DEFAULT 'Pro Academy' CHECK (subscription_tier IN ('Starter Master', 'Pro Academy', 'Enterprise Titan')),
+  subscription_status TEXT NOT NULL DEFAULT 'trialing' CHECK (subscription_status IN ('trialing', 'active', 'past_due', 'canceled')),
+  trial_started_at TIMESTAMPTZ DEFAULT NOW(),
+  trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
+  subscription_renews_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
+  saas_monthly_price NUMERIC(10,2) DEFAULT 22500.00,
+  is_verified_master BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

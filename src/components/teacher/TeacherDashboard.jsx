@@ -22,9 +22,10 @@ import {
   Send,
   Calendar,
   Sparkles,
-  BookOpen,
-  UserPlus
+  UserPlus,
+  Zap
 } from 'lucide-react';
+import { TeacherSubscriptionModal } from './TeacherSubscriptionModal';
 
 export const TeacherDashboard = () => {
   const { 
@@ -46,6 +47,7 @@ export const TeacherDashboard = () => {
   const [studentSearch, setStudentSearch] = useState('');
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [selectedSlipModal, setSelectedSlipModal] = useState(null);
 
   const [newStudentForm, setNewStudentForm] = useState({
@@ -115,7 +117,37 @@ export const TeacherDashboard = () => {
   };
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-6 pb-24">
+      {/* 0. SAAS SUBSCRIPTION & FREE TRIAL BANNER */}
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20 shrink-0">
+            <Sparkles className="w-5 h-5 text-amber-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-blue-900">
+                14-Day Free Trial Active ({currentTeacher.subscription?.trialDaysLeft || 12} Days Remaining)
+              </span>
+              <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">
+                Full Pro Studio
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 mt-0.5">
+              Enjoy unlimited video uploads, moving anti-piracy watermark, and QR hall scanner.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setShowSubscriptionModal(true)}
+          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0"
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-300" />
+          <span>SaaS Subscription & Plans</span>
+        </button>
+      </div>
+
       {/* 1. TEACHER HERO BANNER */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
@@ -882,6 +914,12 @@ export const TeacherDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* TEACHER SAAS SUBSCRIPTION & UPGRADE MODAL */}
+      <TeacherSubscriptionModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+      />
     </div>
   );
 };

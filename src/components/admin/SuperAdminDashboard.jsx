@@ -20,7 +20,9 @@ export const SuperAdminDashboard = () => {
     platformMetrics, 
     setCurrentTeacherId, 
     setCurrentRole,
-    adminLogout, 
+    adminLogout,
+    extendTeacherTrial,
+    upgradeTeacherSubscription,
     showToast 
   } = useApp();
 
@@ -191,25 +193,52 @@ export const SuperAdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-xs text-slate-700">
+                <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs text-slate-700">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Enrolled Students:</span>
-                    <strong className="text-slate-900">{ins.studentsCount.toLocaleString()}</strong>
+                    <span className="text-slate-500">SaaS Plan Tier:</span>
+                    <span className="font-bold text-purple-700">{ins.subscription?.tier || 'Pro Academy (Trial)'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Class Fee:</span>
-                    <strong className="text-emerald-600">LKR {ins.monthlyFee} / mo</strong>
+                    <span className="text-slate-500">Trial / Sub Status:</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      ins.subscription?.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {ins.subscription?.status === 'active' ? 'Active Paid' : `Trial (${ins.subscription?.trialDaysLeft || 12}d left)`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-slate-200">
+                    <span className="text-slate-500">Enrolled Students:</span>
+                    <strong className="text-slate-900">{ins.studentsCount.toLocaleString()}</strong>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => extendTeacherTrial(ins.id, 14)}
+                    className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition text-center"
+                    title="Give 14 additional trial days"
+                  >
+                    +14d Trial
+                  </button>
+                  <button
+                    onClick={() => {
+                      upgradeTeacherSubscription(ins.id, 'pro');
+                      showToast(`Activated Pro Subscription for ${ins.name}`, 'success');
+                    }}
+                    className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold transition text-center"
+                  >
+                    Activate Pro
+                  </button>
+                </div>
+
                 <button
                   onClick={() => {
                     setCurrentTeacherId(ins.id);
                     setCurrentRole('teacher');
                   }}
-                  className="flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm"
+                  className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm"
                 >
                   <span>Open Teacher Hub</span>
                   <ExternalLink className="w-3.5 h-3.5" />

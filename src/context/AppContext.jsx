@@ -170,6 +170,48 @@ export const AppProvider = ({ children }) => {
     return newStudent;
   };
 
+  // Upgrade Teacher SaaS Subscription
+  const upgradeTeacherSubscription = (teacherId, planId) => {
+    const tierName = planId === 'starter' ? 'Starter Master' : planId === 'enterprise' ? 'Enterprise Titan' : 'Pro Academy';
+    const price = planId === 'starter' ? 9500 : planId === 'enterprise' ? 45000 : 22500;
+
+    setInstructors(prev => prev.map(ins => {
+      if (ins.id === teacherId) {
+        return {
+          ...ins,
+          subscription: {
+            tier: tierName,
+            status: 'active',
+            trialDaysLeft: 0,
+            renewalDate: 'September 26, 2026',
+            monthlyPriceLKR: price
+          }
+        };
+      }
+      return ins;
+    }));
+  };
+
+  // Extend Teacher Trial (Super Admin action)
+  const extendTeacherTrial = (teacherId, additionalDays = 14) => {
+    setInstructors(prev => prev.map(ins => {
+      if (ins.id === teacherId) {
+        const currentDays = ins.subscription?.trialDaysLeft || 0;
+        return {
+          ...ins,
+          subscription: {
+            ...ins.subscription,
+            status: 'trialing',
+            trialDaysLeft: currentDays + additionalDays
+          }
+        };
+      }
+      return ins;
+    }));
+    sound.playChimeApproved();
+    showToast(`Free trial extended by +${additionalDays} days for Master!`, 'success');
+  };
+
   const adminLogout = () => {
     setIsAdminAuthenticated(false);
     setCurrentRole('landing');
@@ -425,6 +467,8 @@ export const AppProvider = ({ children }) => {
         addLesson,
         registerStudent,
         addStudentByTeacher,
+        upgradeTeacherSubscription,
+        extendTeacherTrial,
         activeLesson,
         setActiveLesson,
         activeQuiz,
