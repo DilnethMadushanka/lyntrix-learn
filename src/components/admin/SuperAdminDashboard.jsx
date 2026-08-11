@@ -256,7 +256,7 @@ export const SuperAdminDashboard = () => {
                   <img src={ins.avatar} alt={ins.name} className="w-14 h-14 rounded-2xl object-cover border border-purple-200 shadow-sm" />
                   <div>
                     <h3 className="font-bold text-slate-900 text-base">{ins.name}</h3>
-                    <div className="text-xs text-slate-500 font-mono">Subdomain: {ins.id.replace('ins-', '')}.lyntrix.learn</div>
+                    <div className="text-xs text-slate-500 font-mono">Subdomain: {ins.id.replace('ins-', '')}.dilnethmadushanka.online</div>
                   </div>
                 </div>
 

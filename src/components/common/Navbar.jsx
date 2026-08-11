@@ -115,7 +115,9 @@ export const Navbar = () => {
               <div className="hidden lg:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-xs text-emerald-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Subdomain:</span>
-                <code className="text-emerald-900 font-mono font-bold">{currentTeacher.id.replace('ins-', '')}.lyntrix.learn</code>
+                <code className="text-emerald-900 font-mono font-bold">
+                  {currentTeacher.id.replace('ins-', '')}.{window.location.hostname.includes('dilnethmadushanka.online') ? 'dilnethmadushanka.online' : 'dilnethmadushanka.online'}
+                </code>
               </div>
             )}
 
