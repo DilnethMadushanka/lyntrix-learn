@@ -21,6 +21,18 @@
   --badge-emerald: #059669;
 }
 
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
+#root {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
 @layer base {
   * {
     border-color: #e2e8f0;
@@ -30,6 +42,7 @@
     background-color: #f8fafc;
     color: #0f172a;
     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden !important;
   }
 }
 

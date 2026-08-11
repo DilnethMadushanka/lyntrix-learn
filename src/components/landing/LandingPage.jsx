@@ -144,7 +144,7 @@ export const LandingPage = () => {
   });
 
   return (
-    <div className="space-y-16 pb-28 bg-slate-950 text-white selection:bg-blue-600 selection:text-white">
+    <div className="space-y-16 pb-28 bg-slate-950 text-white selection:bg-blue-600 selection:text-white overflow-x-hidden w-full max-w-full">
       {/* 1. LMS ACADEMIC HERO & ROTATING BACKGROUND SLIDESHOW */}
       <section className="relative pt-12 lg:pt-20 pb-12 overflow-hidden bg-slate-950 text-white border-b border-slate-800/80 shadow-2xl">
         {/* Dynamic Rotating Background Images Carousel */}

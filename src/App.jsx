@@ -31,7 +31,7 @@ const AppContent = () => {
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 bg-mesh selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 bg-mesh selection:bg-blue-600 selection:text-white overflow-x-hidden w-full max-w-full relative">
       {/* 1. Context Branded Navbar */}
       <Navbar />
 
