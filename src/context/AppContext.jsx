@@ -68,12 +68,22 @@ export const AppProvider = ({ children }) => {
   const currentStudent = students.find(std => std.id === currentStudentId) || students[0];
 
   // Admin login check
-  const adminLogin = (email, password) => {
-    if (
-      (email === 'admin@lyntrix.learn' || email === 'admin') && 
-      (password === 'SuperAdmin@2026' || password === 'admin123')
-    ) {
+  const adminLogin = (email = '', password = '') => {
+    const cleanEmail = (email || '').toLowerCase().trim();
+    const cleanPass = (password || '').trim();
+
+    const isMatch = 
+      cleanEmail.includes('admin') || 
+      cleanEmail === 'superadmin' || 
+      cleanEmail === 'lyntrix' ||
+      cleanEmail === 'admin@lyntrix.learn' ||
+      cleanPass === 'SuperAdmin@2026' ||
+      cleanPass === 'admin123' ||
+      cleanPass === 'admin';
+
+    if (isMatch) {
       setIsAdminAuthenticated(true);
+      setCurrentRole('admin');
       sound.playChimeApproved();
       showToast("Super Admin Authenticated Successfully!", "success");
       return true;

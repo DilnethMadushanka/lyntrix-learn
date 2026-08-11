@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
-  const { setCurrentRole, setCurrentTeacherId, showToast } = useApp();
+  const { setCurrentRole, setCurrentTeacherId, adminLogin, showToast } = useApp();
 
   const [activeRole, setActiveRole] = useState(defaultRole); // 'teacher' | 'student'
   const [email, setEmail] = useState('');
@@ -30,6 +30,16 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
+
+    // Check if user is logging in as Super Admin
+    if (email.toLowerCase().includes('admin') || email.toLowerCase() === 'superadmin' || email.toLowerCase() === 'lyntrix') {
+      const ok = adminLogin(email, password);
+      if (ok) {
+        setIsLoading(false);
+        onClose();
+        return;
+      }
+    }
 
     if (isLiveDb) {
       const { data, error } = await supabaseAuthService.signIn(email, password);
@@ -193,20 +203,44 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
           <div className="text-[11px] font-bold text-slate-500">
             <span>⚡ 1-Click Test Credentials:</span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => handleFillDemoCredentials('teacher')}
-              className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 rounded-lg text-[11px] font-semibold text-center transition"
+              className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 rounded-lg text-[11px] font-semibold text-center transition truncate"
             >
-              👨‍🏫 Fill Sir (Kasun Maths)
+              👨‍🏫 Sir
             </button>
             <button
               type="button"
               onClick={() => handleFillDemoCredentials('student')}
-              className="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-800 rounded-lg text-[11px] font-semibold text-center transition"
+              className="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-800 rounded-lg text-[11px] font-semibold text-center transition truncate"
             >
-              🎓 Fill Student (Nimesh)
+              🎓 Student
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                adminLogin('admin@lyntrix.learn', 'SuperAdmin@2026');
+                onClose();
+              }}
+              className="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 font-bold rounded-lg text-[11px] text-center transition truncate"
+            >
+              👑 Admin
+            </button>
+          </div>
+
+          <div className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                setCurrentRole('admin');
+              }}
+              className="text-[11px] text-purple-600 hover:text-purple-800 font-bold hover:underline inline-flex items-center gap-1"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Platform Owner? Open Super Admin Console →</span>
             </button>
           </div>
         </div>

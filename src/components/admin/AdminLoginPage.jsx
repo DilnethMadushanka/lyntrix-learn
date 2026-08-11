@@ -121,15 +121,17 @@ export const AdminLoginPage = () => {
         {/* Fast Credentials Helper for Testing */}
         <div className="pt-4 border-t border-slate-100 text-center space-y-2">
           <div className="text-[11px] text-slate-500 font-medium">
-            Authorized Master Account: <code className="text-purple-700 font-mono font-bold">admin@lyntrix.learn</code>
+            Authorized Account: <code className="text-purple-700 font-mono font-bold">admin@lyntrix.learn</code>
           </div>
           <button
             type="button"
-            onClick={handleFillAdminDemo}
-            className="w-full py-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+            onClick={() => {
+              adminLogin('admin@lyntrix.learn', 'SuperAdmin@2026');
+            }}
+            className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 transition flex items-center justify-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Auto-Fill Admin Credentials</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>⚡ 1-Click Instant Unlock Admin Console</span>
           </button>
         </div>
       </div>

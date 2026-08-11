@@ -137,6 +137,19 @@ export const RoleSwitcherBar = () => {
             <Languages className="w-3.5 h-3.5 text-blue-600" />
             <span>{lang === 'en' ? 'EN' : 'සිං'}</span>
           </button>
+
+          {/* Quick Admin Portal Access */}
+          <button
+            onClick={() => setCurrentRole('admin')}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition font-bold text-xs ${
+              currentRole === 'admin' 
+                ? 'bg-purple-600 text-white border-purple-600 shadow-sm' 
+                : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+            }`}
+            title="Open Lyntrix Super Admin Console"
+          >
+            <span>👑 Admin</span>
+          </button>
         </div>
       </div>
     </header>
