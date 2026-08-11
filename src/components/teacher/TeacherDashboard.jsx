@@ -118,23 +118,46 @@ export const TeacherDashboard = () => {
 
   return (
     <div className="space-y-6 pb-24">
-      {/* 0. SAAS SUBSCRIPTION & FREE TRIAL BANNER */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+      {/* 0. SAAS SUBSCRIPTION & FREE TRIAL BANNER (ADMIN AUTHORIZED) */}
+      <div className={`p-4 sm:p-5 rounded-3xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
+        currentTeacher.subscription?.status === 'active' 
+          ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border-emerald-200' :
+        currentTeacher.subscription?.status === 'trialing'
+          ? 'bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200' :
+          'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+      }`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20 shrink-0">
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-md shrink-0 ${
+            currentTeacher.subscription?.status === 'active' ? 'bg-emerald-600 text-white shadow-emerald-500/20' :
+            currentTeacher.subscription?.status === 'trialing' ? 'bg-blue-600 text-white shadow-blue-500/20' :
+            'bg-amber-600 text-white shadow-amber-500/20'
+          }`}>
             <Sparkles className="w-5 h-5 text-amber-300" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-blue-900">
-                14-Day Free Trial Active ({currentTeacher.subscription?.trialDaysLeft || 12} Days Remaining)
+              <span className="text-xs font-bold text-slate-900">
+                {currentTeacher.subscription?.status === 'active' 
+                  ? `⭐ Active ${currentTeacher.subscription.tier} Subscription` :
+                 currentTeacher.subscription?.status === 'trialing'
+                  ? `🟢 Admin Authorized Trial (${currentTeacher.subscription.trialDaysLeft} Days Remaining)` :
+                  '🔒 Trial Access Pending Admin Authorization'}
               </span>
-              <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">
-                Full Pro Studio
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                currentTeacher.subscription?.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
+                currentTeacher.subscription?.status === 'trialing' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                'bg-amber-100 text-amber-800 border-amber-200'
+              }`}>
+                {currentTeacher.subscription?.status === 'active' ? 'Paid Active' :
+                 currentTeacher.subscription?.status === 'trialing' ? 'Free Trial Granted' : 'Approval Required'}
               </span>
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              Enjoy unlimited video uploads, moving anti-piracy watermark, and QR hall scanner.
+              {currentTeacher.subscription?.status === 'active'
+                ? 'Your academy portal is running with full bandwidth and verified security.' :
+               currentTeacher.subscription?.status === 'trialing'
+                ? 'Super Admin has granted you a full-featured 14-day evaluation trial with watermark anti-piracy.' :
+                'Free trial for this Academy must be authorized by Lyntrix Platform Admin.'}
             </p>
           </div>
         </div>

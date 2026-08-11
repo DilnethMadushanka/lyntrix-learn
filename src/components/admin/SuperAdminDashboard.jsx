@@ -22,6 +22,8 @@ export const SuperAdminDashboard = () => {
     setCurrentRole,
     adminLogout,
     extendTeacherTrial,
+    grantTeacherTrial,
+    revokeTeacherAccess,
     upgradeTeacherSubscription,
     showToast 
   } = useApp();
@@ -32,6 +34,7 @@ export const SuperAdminDashboard = () => {
     title: 'B.Sc. Lecturer',
     subject: 'Biology',
     monthlyFee: 3500,
+    trialStatus: 'grant_14d', // 'grant_14d' | 'pending' | 'direct_pro'
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
     cover: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&auto=format&fit=crop&q=80',
     bio: 'Experienced A/L teacher dedicated to student success.'
@@ -45,6 +48,34 @@ export const SuperAdminDashboard = () => {
     }
 
     const newId = `ins-${newTeacherForm.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    
+    let subObject;
+    if (newTeacherForm.trialStatus === 'grant_14d') {
+      subObject = {
+        tier: 'Pro Academy (Trial)',
+        status: 'trialing',
+        isTrialGranted: true,
+        trialDaysLeft: 14,
+        renewalDate: '14 Days Remaining'
+      };
+    } else if (newTeacherForm.trialStatus === 'direct_pro') {
+      subObject = {
+        tier: 'Pro Academy',
+        status: 'active',
+        isTrialGranted: true,
+        trialDaysLeft: 0,
+        renewalDate: 'September 2026'
+      };
+    } else {
+      subObject = {
+        tier: 'Pro Academy',
+        status: 'pending_approval',
+        isTrialGranted: false,
+        trialDaysLeft: 0,
+        renewalDate: 'Awaiting Admin Approval'
+      };
+    }
+
     const newInstructor = {
       id: newId,
       name: newTeacherForm.name,
@@ -60,6 +91,7 @@ export const SuperAdminDashboard = () => {
       monthlyFee: Number(newTeacherForm.monthlyFee) || 3500,
       activeBatchesCount: 1,
       bio: newTeacherForm.bio,
+      subscription: subObject,
       batches: [
         {
           id: `batch-${newId}-2025`,
@@ -78,7 +110,7 @@ export const SuperAdminDashboard = () => {
 
     setInstructors(prev => [...prev, newInstructor]);
     setShowAddTeacherModal(false);
-    showToast(`Master ${newTeacherForm.name} onboarded to Lyntrix SaaS successfully!`, 'success');
+    showToast(`Master ${newTeacherForm.name} onboarded! (Access: ${subObject.status.toUpperCase()})`, 'success');
   };
 
   return (
@@ -215,21 +247,40 @@ export const SuperAdminDashboard = () => {
 
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => extendTeacherTrial(ins.id, 14)}
-                    className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition text-center"
-                    title="Give 14 additional trial days"
-                  >
-                    +14d Trial
-                  </button>
+                  {ins.subscription?.status === 'trialing' ? (
+                    <button
+                      onClick={() => extendTeacherTrial(ins.id, 14)}
+                      className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition text-center"
+                      title="Extend trial by +14 days"
+                    >
+                      +14d Trial
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => grantTeacherTrial(ins.id, 14)}
+                      className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold transition text-center"
+                      title="Grant 14-day Free Trial to this Master"
+                    >
+                      Grant 14d Trial
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       upgradeTeacherSubscription(ins.id, 'pro');
                       showToast(`Activated Pro Subscription for ${ins.name}`, 'success');
                     }}
-                    className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold transition text-center"
+                    className="flex-1 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 rounded-lg text-[11px] font-bold transition text-center"
                   >
                     Activate Pro
+                  </button>
+
+                  <button
+                    onClick={() => revokeTeacherAccess(ins.id)}
+                    className="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition"
+                    title="Suspend or Revoke Access"
+                  >
+                    Revoke
                   </button>
                 </div>
 
@@ -307,13 +358,16 @@ export const SuperAdminDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Bio / Profile Description:</label>
-                <textarea
-                  rows={2}
-                  value={newTeacherForm.bio}
-                  onChange={(e) => setNewTeacherForm({ ...newTeacherForm, bio: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
-                />
+                <label className="block text-xs font-bold text-slate-700 mb-1">Trial & Access Authorization Policy:</label>
+                <select
+                  value={newTeacherForm.trialStatus}
+                  onChange={(e) => setNewTeacherForm({ ...newTeacherForm, trialStatus: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold"
+                >
+                  <option value="grant_14d">🟢 Grant 14-Day Free Trial (Full Access Authorized)</option>
+                  <option value="pending">🔒 Pending Approval (Do not grant trial yet - wait for confirmation)</option>
+                  <option value="direct_pro">⭐ Direct Pro Plan Active (Paid Client)</option>
+                </select>
               </div>
 
               <div className="flex items-center gap-3 pt-2">

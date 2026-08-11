@@ -192,6 +192,28 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  // Admin Grants Free Trial (Only Admin has authority)
+  const grantTeacherTrial = (teacherId, durationDays = 14) => {
+    setInstructors(prev => prev.map(ins => {
+      if (ins.id === teacherId) {
+        return {
+          ...ins,
+          subscription: {
+            tier: 'Pro Academy (Trial)',
+            status: 'trialing',
+            isTrialGranted: true,
+            trialDaysLeft: durationDays,
+            grantedAt: new Date().toLocaleDateString(),
+            renewalDate: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toLocaleDateString()
+          }
+        };
+      }
+      return ins;
+    }));
+    sound.playChimeApproved();
+    showToast(`${durationDays}-Day Free Trial Authorized by Admin!`, 'success');
+  };
+
   // Extend Teacher Trial (Super Admin action)
   const extendTeacherTrial = (teacherId, additionalDays = 14) => {
     setInstructors(prev => prev.map(ins => {
@@ -202,6 +224,7 @@ export const AppProvider = ({ children }) => {
           subscription: {
             ...ins.subscription,
             status: 'trialing',
+            isTrialGranted: true,
             trialDaysLeft: currentDays + additionalDays
           }
         };
@@ -210,6 +233,25 @@ export const AppProvider = ({ children }) => {
     }));
     sound.playChimeApproved();
     showToast(`Free trial extended by +${additionalDays} days for Master!`, 'success');
+  };
+
+  // Revoke / Suspend Teacher Access (Super Admin action)
+  const revokeTeacherAccess = (teacherId) => {
+    setInstructors(prev => prev.map(ins => {
+      if (ins.id === teacherId) {
+        return {
+          ...ins,
+          subscription: {
+            ...ins.subscription,
+            status: 'suspended',
+            trialDaysLeft: 0
+          }
+        };
+      }
+      return ins;
+    }));
+    sound.playBuzzerError();
+    showToast(`Access suspended for Master`, 'error');
   };
 
   const adminLogout = () => {
@@ -469,6 +511,8 @@ export const AppProvider = ({ children }) => {
         addStudentByTeacher,
         upgradeTeacherSubscription,
         extendTeacherTrial,
+        grantTeacherTrial,
+        revokeTeacherAccess,
         activeLesson,
         setActiveLesson,
         activeQuiz,
