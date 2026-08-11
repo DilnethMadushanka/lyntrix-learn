@@ -52,30 +52,129 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
-    // Realtime Bank Slips
+    // 1. Initial live fetch from Supabase
+    const fetchLiveSupabaseData = async () => {
+      try {
+        const { data: dbSlips } = await supabase.from('bank_slips').select('*').order('created_at', { ascending: false });
+        if (dbSlips && dbSlips.length > 0) {
+          const formattedSlips = dbSlips.map(s => ({
+            id: s.id,
+            studentId: s.student_id,
+            studentName: s.student_name,
+            studentIndex: s.student_index,
+            studentPhone: s.student_phone,
+            instructorId: s.teacher_id,
+            batchId: s.batch_id,
+            batchTitle: 'Combined Maths / Theory Batch',
+            amount: Number(s.amount),
+            depositDate: s.created_at ? s.created_at.split('T')[0] : '2026-08-01',
+            uploadedAt: new Date(s.created_at || Date.now()).toLocaleString(),
+            bank: s.bank_name,
+            referenceNo: s.reference_no,
+            slipImage: s.slip_image_url,
+            status: s.status,
+            remarks: s.remarks || ''
+          }));
+          setBankSlips(formattedSlips);
+        }
+
+        const { data: dbAttendance } = await supabase.from('attendance_logs').select('*').order('created_at', { ascending: false });
+        if (dbAttendance && dbAttendance.length > 0) {
+          const formattedLogs = dbAttendance.map(a => ({
+            id: a.id,
+            studentId: a.student_id,
+            studentName: a.student_name,
+            studentIndex: a.student_index,
+            batchId: a.batch_id,
+            batchCode: 'ATT-LOG',
+            timestamp: new Date(a.created_at || Date.now()).toLocaleTimeString(),
+            type: a.scan_type || 'Hall Laser Scanner',
+            status: a.status || 'Present',
+            feeStatus: a.fee_status || 'Paid'
+          }));
+          setAttendanceLogs(formattedLogs);
+        }
+      } catch (err) {
+        console.warn('Initial Supabase fetch fallback:', err);
+      }
+    };
+
+    fetchLiveSupabaseData();
+
+    // 2. Realtime Bank Slips
     const unsubSlips = supabaseDbService.subscribeToRealtime('bank_slips', (payload) => {
       if (payload.eventType === 'INSERT') {
-        setBankSlips(prev => [payload.new, ...prev]);
+        const newSlip = {
+          id: payload.new.id,
+          studentId: payload.new.student_id,
+          studentName: payload.new.student_name,
+          studentIndex: payload.new.student_index,
+          studentPhone: payload.new.student_phone,
+          instructorId: payload.new.teacher_id,
+          batchId: payload.new.batch_id,
+          batchTitle: 'Tuition Batch',
+          amount: Number(payload.new.amount),
+          depositDate: new Date().toISOString().split('T')[0],
+          uploadedAt: new Date().toLocaleString(),
+          bank: payload.new.bank_name,
+          referenceNo: payload.new.reference_no,
+          slipImage: payload.new.slip_image_url,
+          status: payload.new.status,
+          remarks: payload.new.remarks
+        };
+        setBankSlips(prev => [newSlip, ...prev.filter(s => s.id !== newSlip.id)]);
         sound.playChimeApproved();
-        showToast('⚡ Realtime: New Bank Slip received via Supabase!', 'info');
+        showToast('⚡ Realtime: New Bank Slip received in Supabase!', 'info');
       } else if (payload.eventType === 'UPDATE') {
-        setBankSlips(prev => prev.map(s => s.id === payload.new.id ? { ...s, ...payload.new } : s));
+        setBankSlips(prev => prev.map(s => s.id === payload.new.id ? { ...s, status: payload.new.status } : s));
       }
     });
 
-    // Realtime Attendance
+    // 3. Realtime Attendance
     const unsubAttendance = supabaseDbService.subscribeToRealtime('attendance_logs', (payload) => {
       if (payload.eventType === 'INSERT') {
-        setAttendanceLogs(prev => [payload.new, ...prev]);
-        showToast('⚡ Realtime: Entrance Attendance Logged!', 'info');
+        const newLog = {
+          id: payload.new.id,
+          studentId: payload.new.student_id,
+          studentName: payload.new.student_name,
+          studentIndex: payload.new.student_index,
+          batchId: payload.new.batch_id,
+          batchCode: 'HALL-GATE',
+          timestamp: new Date().toLocaleTimeString(),
+          type: payload.new.scan_type || 'Hall Scanner',
+          status: payload.new.status || 'Present',
+          feeStatus: payload.new.fee_status || 'Paid'
+        };
+        setAttendanceLogs(prev => [newLog, ...prev.filter(a => a.id !== newLog.id)]);
+        showToast('⚡ Realtime: Entrance Attendance Recorded!', 'info');
       }
     });
 
-    // Realtime Video Lessons
+    // 4. Realtime Video Lessons
     const unsubLessons = supabaseDbService.subscribeToRealtime('lessons', (payload) => {
       if (payload.eventType === 'INSERT') {
         setLessons(prev => [payload.new, ...prev]);
-        showToast('⚡ Realtime: New Video Lecture Added!', 'success');
+        showToast('⚡ Realtime: New Video Lecture Added to Supabase!', 'success');
+      }
+    });
+
+    // 5. Realtime Teachers / Subscription Status
+    const unsubTeachers = supabaseDbService.subscribeToRealtime('teachers', (payload) => {
+      if (payload.eventType === 'UPDATE') {
+        setInstructors(prev => prev.map(ins => {
+          if (ins.id === payload.new.id || ins.id.replace('ins-', '') === payload.new.subdomain) {
+            return {
+              ...ins,
+              subscription: {
+                ...ins.subscription,
+                tier: payload.new.subscription_tier,
+                status: payload.new.subscription_status
+              }
+            };
+          }
+          return ins;
+        }));
+        showToast(`⚡ Realtime: Academy Subscription updated to ${payload.new.subscription_status}!`, 'info');
       }
     });
 
@@ -83,6 +182,7 @@ export const AppProvider = ({ children }) => {
       if (unsubSlips) unsubSlips();
       if (unsubAttendance) unsubAttendance();
       if (unsubLessons) unsubLessons();
+      if (unsubTeachers) unsubTeachers();
     };
   }, []);
   
