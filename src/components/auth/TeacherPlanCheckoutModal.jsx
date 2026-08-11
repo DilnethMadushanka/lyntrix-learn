@@ -57,6 +57,10 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const rootDomain = window.location.hostname.includes('dilnethmadushanka.online') 
+    ? 'dilnethmadushanka.online' 
+    : 'lyntrix.learn';
+
   if (!isOpen) return null;
 
   const handleSubdomainChange = (val) => {
@@ -173,13 +177,13 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
                   className="flex-1 bg-transparent px-2.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-none"
                 />
                 <span className="bg-slate-200 text-slate-700 px-3 py-2.5 text-xs font-mono font-bold border-l border-slate-300">
-                  .lyntrix.learn
+                  .{rootDomain}
                 </span>
               </div>
               {formData.subdomain && (
                 <div className="text-[11px] font-bold text-emerald-600 mt-1 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>https://{formData.subdomain}.lyntrix.learn is available!</span>
+                  <span>https://{formData.subdomain}.{rootDomain} is available!</span>
                 </div>
               )}
             </div>
@@ -410,7 +414,7 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
             <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 max-w-md mx-auto text-left space-y-2 text-xs">
               <div className="flex justify-between border-b border-slate-200 pb-2">
                 <span className="text-slate-500">Live Academy Subdomain:</span>
-                <strong className="text-blue-700 font-mono">https://{formData.subdomain}.lyntrix.learn</strong>
+                <strong className="text-blue-700 font-mono">https://{formData.subdomain}.{rootDomain}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-2">
                 <span className="text-slate-500">Subscribed Package:</span>
