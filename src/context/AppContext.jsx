@@ -63,6 +63,41 @@ export const AppProvider = ({ children }) => {
   ]);
 
   // ----------------------------------------------------
+  // Automatic Subdomain & Hostname Resolver (kasun.lyntrix.learn or ?subdomain=kasun)
+  // ----------------------------------------------------
+  useEffect(() => {
+    try {
+      const hostname = window.location.hostname;
+      const searchParams = new URLSearchParams(window.location.search);
+      const subParam = searchParams.get('subdomain') || searchParams.get('teacher') || searchParams.get('sir');
+      
+      let targetSubdomain = null;
+
+      if (subParam) {
+        targetSubdomain = subParam.toLowerCase();
+      } else if (hostname.includes('.') && !hostname.startsWith('www') && !hostname.startsWith('localhost') && !hostname.includes('vercel.app')) {
+        targetSubdomain = hostname.split('.')[0].toLowerCase();
+      } else if (hostname.includes('.vercel.app')) {
+        const firstPart = hostname.split('.')[0];
+        if (firstPart.includes('-')) {
+          targetSubdomain = firstPart.split('-')[0].toLowerCase();
+        }
+      }
+
+      if (targetSubdomain) {
+        const matched = instructors.find(i => 
+          i.id.toLowerCase().includes(targetSubdomain) || 
+          i.name.toLowerCase().includes(targetSubdomain) ||
+          targetSubdomain.includes(i.subjectCategory)
+        );
+        if (matched) {
+          setCurrentTeacherId(matched.id);
+        }
+      }
+    } catch (e) {}
+  }, [instructors]);
+
+  // ----------------------------------------------------
   // Live Supabase Realtime Listeners (Instant Multi-Tab Sync)
   // ----------------------------------------------------
   useEffect(() => {
