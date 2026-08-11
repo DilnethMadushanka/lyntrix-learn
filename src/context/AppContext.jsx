@@ -145,6 +145,61 @@ export const AppProvider = ({ children }) => {
           }));
           setAttendanceLogs(formattedLogs);
         }
+
+        // Live Supabase Teachers Fetch
+        const { data: dbTeachers } = await supabase.from('teachers').select('*').order('created_at', { ascending: false });
+        if (dbTeachers && dbTeachers.length > 0) {
+          const fetchedTeachers = dbTeachers.map(t => ({
+            id: `ins-${t.subdomain || t.id}`,
+            name: t.name,
+            title: t.title,
+            subject: t.subject,
+            subjectCategory: t.subject_category || 'maths',
+            avatar: t.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+            cover: t.cover_url || "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&auto=format&fit=crop&q=80",
+            themeColor: "blue",
+            badge: "SaaS Master",
+            rating: Number(t.rating || 5.0),
+            reviewsCount: 1,
+            studentsCount: 0,
+            monthlyFee: Number(t.monthly_fee || 3500),
+            activeBatchesCount: 1,
+            email: `${t.subdomain}@lyntrix.learn`,
+            phone: '077 123 4567',
+            bankDetails: {
+              bank: t.bank_name || "Commercial Bank of Ceylon",
+              accountName: t.bank_account_name || t.name,
+              accountNumber: t.bank_account_number || "1009845231",
+              branch: t.bank_branch || "Colombo"
+            },
+            bio: t.bio,
+            features: ["Anti-Piracy Moving Watermark Player", "High-Speed Laser QR Attendance Terminal", "Automated Bank Slip Queue"],
+            batches: [
+              {
+                id: `batch-${t.subdomain}-2026-theory`,
+                code: `${(t.subdomain || 'TH').toUpperCase()}-2026-TH`,
+                title: `2026 A/L ${t.subject} — Full Theory & Revision`,
+                grade: "2026 A/L",
+                gradeYear: "2026",
+                medium: "Sinhala Medium",
+                schedule: "Every Sunday 8:00 AM - 1:30 PM",
+                status: "Active",
+                monthlyFee: Number(t.monthly_fee || 3500),
+                enrolledCount: 0,
+                nextLive: "2026-08-16T08:00:00",
+                zoomLink: "https://zoom.us/j/98712345678",
+                recordingCount: 0,
+                description: `Master ${t.subject} theory units and past papers with ${t.name}.`,
+                modules: []
+              }
+            ]
+          }));
+
+          setInstructors(prev => {
+            const fetchedIds = new Set(fetchedTeachers.map(ft => ft.id));
+            return [...fetchedTeachers, ...prev.filter(p => !fetchedIds.has(p.id))];
+          });
+        }
       } catch (err) {
         console.warn('Initial Supabase fetch fallback:', err);
       }
@@ -770,8 +825,36 @@ export const AppProvider = ({ children }) => {
     setInstructors(prev => [newInstructor, ...prev]);
     setCurrentTeacherId(teacherId);
     setCurrentRole('teacher');
+
+    if (isSupabaseConfigured()) {
+      supabase.from('teachers').insert([{
+        name: teacherData.name || 'Master Instructor',
+        title: teacherData.title || `Specialist in ${teacherData.subject || 'A/L Theory'}`,
+        subject: teacherData.subject || 'Combined Mathematics',
+        subject_category: (teacherData.subject || 'maths').toLowerCase().includes('chem') ? 'chemistry' : (teacherData.subject || '').toLowerCase().includes('phy') ? 'physics' : (teacherData.subject || '').toLowerCase().includes('ict') ? 'ict' : 'maths',
+        subdomain: cleanSubdomain,
+        avatar_url: teacherData.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+        cover_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&auto=format&fit=crop&q=80",
+        monthly_fee: teacherData.monthlyFee || 3500,
+        bio: `Official Lyntrix Learn Academy portal for ${teacherData.name}. HD Live Zoom Streams, Anti-Piracy Video Replays, & Printed Tutes.`,
+        bank_name: "Commercial Bank of Ceylon",
+        bank_account_name: teacherData.name,
+        bank_account_number: "1009845231",
+        bank_branch: "Colombo",
+        subscription_tier: "Pro Academy",
+        subscription_status: "trialing",
+        is_verified_master: true
+      }]).then(({ data, error }) => {
+        if (error) {
+          console.error("Error saving teacher to Supabase database:", error);
+        } else {
+          console.log("⚡ Teacher saved to Supabase teachers table successfully!");
+        }
+      });
+    }
+
     sound.playChimeApproved();
-    showToast(`🎉 Master ${teacherData.name} profile created! Live at ${cleanSubdomain}.lyntrix.learn`, 'success');
+    showToast(`🎉 Master ${teacherData.name} profile created! Saved to Database & Live at ${cleanSubdomain}.dilnethmadushanka.online`, 'success');
     return newInstructor;
   };
 
