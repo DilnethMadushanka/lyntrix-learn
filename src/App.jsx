@@ -10,6 +10,8 @@ import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
 import { AuthPage } from './components/auth/AuthPage';
 import { AuthModal } from './components/auth/AuthModal';
+import { FeePaymentModal } from './components/student/FeePaymentModal';
+import { DigitalStudentCard } from './components/student/DigitalStudentCard';
 import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const AppContent = () => {
@@ -68,11 +70,14 @@ const AppContent = () => {
         </div>
       )}
 
-      {/* 5. Root Level Portal Auth Modal (Prevents Stacking Context Clipping) */}
+      {/* 5. Root Level Portal Modals */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />
+
+      <FeePaymentModal />
+      <DigitalStudentCard />
 
       {/* 6. Modern LMS Footer with Protected Admin Access link */}
       <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 shadow-inner">

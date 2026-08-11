@@ -29,6 +29,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { SUBJECT_CATEGORIES, GRADE_STREAMS, SAAS_PRICING_PLANS } from '../../data/mockData';
+import { sound } from '../../utils/soundEffects';
 
 export const LandingPage = () => {
   const { 
@@ -36,6 +37,10 @@ export const LandingPage = () => {
     setCurrentRole, 
     setCurrentTeacherId,
     setActiveLesson,
+    currentRole,
+    currentStudent,
+    setPaymentModalData,
+    setShowAuthModal,
     lessons,
     platformMetrics,
     showToast
@@ -45,6 +50,55 @@ export const LandingPage = () => {
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTeacherModal, setSelectedTeacherModal] = useState(null);
+
+  // Protected Zoom Admission Check
+  const handleProtectedZoomAccess = ({ batchId, title, instructor }) => {
+    // 1. Must be logged in as a student
+    if (currentRole !== 'student') {
+      sound.playBuzzerError();
+      showToast("🔒 Student Login Required: Please login to your Student Account to join Sir's Live Zoom class.", "error");
+      setShowAuthModal(true);
+      return;
+    }
+
+    // 2. Must have paid class fee for this batch
+    const enrollment = currentStudent?.enrollments?.find(e => e.batchId === batchId || e.instructorId === instructor.id);
+    if (!enrollment || enrollment.paymentStatus !== 'Paid') {
+      sound.playBuzzerError();
+      showToast("🔒 Class Fee Required: Monthly tuition fee payment needed to enter Live Zoom room.", "error");
+      setPaymentModalData({
+        batch: { id: batchId, title: title || '2025 A/L Combined Maths', monthlyFee: instructor.monthlyFee || 3500 },
+        instructor: instructor
+      });
+      return;
+    }
+
+    // 3. Authenticated & Paid
+    sound.playChimeApproved();
+    window.open(instructor.batches[0]?.zoomLink || "https://zoom.us/j/9988221100", "_blank");
+    showToast("✅ Verified Student Pass: Connecting to Live Zoom Room...", "success");
+  };
+
+  // Protected Course Enrollment Check
+  const handleProtectedEnroll = (instructor) => {
+    setCurrentTeacherId(instructor.id);
+    if (currentRole !== 'student') {
+      sound.playClick();
+      showToast(`To enroll in ${instructor.name}'s batch, please login or register your student account.`, 'info');
+      setShowAuthModal(true);
+    } else {
+      const primaryBatch = instructor.batches[0];
+      const isPaid = currentStudent.enrollments.some(e => e.batchId === primaryBatch.id && e.paymentStatus === 'Paid');
+      if (!isPaid) {
+        setPaymentModalData({
+          batch: primaryBatch,
+          instructor: instructor
+        });
+      } else {
+        setCurrentRole('student');
+      }
+    }
+  };
 
   const filteredInstructors = instructors.filter(ins => {
     const matchesSubject = selectedSubject === 'all' || ins.subjectCategory === selectedSubject;
@@ -167,15 +221,17 @@ export const LandingPage = () => {
               <Clock className="w-4 h-4 text-amber-500" />
               <span>Starts in: 02h 45m</span>
             </div>
-            <a
-              href="https://zoom.us"
-              target="_blank"
-              rel="noreferrer"
-              className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition flex items-center gap-2"
+            <button
+              onClick={() => handleProtectedZoomAccess({
+                batchId: 'd0000000-0000-0000-0000-000000000001',
+                title: '2025 A/L Combined Maths — Theory Masterclass (අනුකලනය)',
+                instructor: instructors[0]
+              })}
+              className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition flex items-center gap-2 active:scale-95"
             >
+              <Lock className="w-3.5 h-3.5 text-amber-300" />
               <span>Enter Zoom Room</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -287,23 +343,11 @@ export const LandingPage = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {
-                          setCurrentTeacherId(ins.id);
-                          setCurrentRole('student');
-                        }}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                        onClick={() => handleProtectedEnroll(ins)}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center gap-1.5"
                       >
-                        Enroll Now
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentTeacherId(ins.id);
-                          setCurrentRole('teacher');
-                        }}
-                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
-                        title="Open Teacher Hub"
-                      >
-                        Sir Portal
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Enroll in Batch</span>
                       </button>
                     </div>
                   </div>

@@ -35,12 +35,21 @@ export const FeePaymentModal = () => {
 
   if (!paymentModalData) return null;
 
-  const { batch, instructor } = paymentModalData;
+  const batch = paymentModalData.batch || {
+    id: paymentModalData.batchId || 'd0000000-0000-0000-0000-000000000001',
+    title: paymentModalData.title || '2025 A/L Combined Maths — Full Theory Masterclass',
+    monthlyFee: paymentModalData.amount || 3500
+  };
+
+  const instructor = paymentModalData.instructor || {
+    name: 'Eng. Kasun Ranasinghe',
+    subject: 'Combined Mathematics'
+  };
 
   const handleCardSubmit = (e) => {
     e.preventDefault();
     processInstantCardPayment({
-      studentId: currentStudent.id,
+      studentId: currentStudent?.id || 'b0000000-0000-0000-0000-000000000001',
       batchId: batch.id,
       amount: batch.monthlyFee
     });
@@ -54,7 +63,7 @@ export const FeePaymentModal = () => {
     }
 
     submitBankSlip({
-      studentId: currentStudent.id,
+      studentId: currentStudent?.id || 'b0000000-0000-0000-0000-000000000001',
       batchId: batch.id,
       amount: slipForm.amount,
       bank: slipForm.bank,
@@ -66,8 +75,8 @@ export const FeePaymentModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
