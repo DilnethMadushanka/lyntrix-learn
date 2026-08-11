@@ -3,15 +3,130 @@
 -- =========================================================================
 -- Copy and paste this script directly into your Supabase Dashboard SQL Editor
 -- (https://app.supabase.com/project/_/sql) and click "Run".
--- This will populate all tables with Sri Lankan tuition masters, batches,
--- video lessons, student profiles, bank slips, and attendance logs.
 -- =========================================================================
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 1. SEED PROFILES (Users)
--- Fixed UUIDs for clean relationships
+-- 1. SEED AUTH USERS (Satisfies foreign key constraint profiles_id_fkey)
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  role,
+  aud,
+  confirmation_token
+)
+VALUES
+  (
+    'a0000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000000',
+    'admin@lyntrix.learn',
+    crypt('SuperAdmin@2026', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Lyntrix Super Admin","role":"super_admin"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'a0000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000000',
+    'kasun.maths@lyntrix.learn',
+    crypt('MasterKasun@2026', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Eng. Kasun Ranasinghe","role":"teacher","subject":"Combined Mathematics"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'a0000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000000',
+    'amila.chem@lyntrix.learn',
+    crypt('MasterAmila@2026', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Dr. Amila Fernando","role":"teacher","subject":"Chemistry"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'a0000000-0000-0000-0000-000000000004',
+    '00000000-0000-0000-0000-000000000000',
+    'dilshan.ict@lyntrix.learn',
+    crypt('MasterDilshan@2026', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Dilshan Wijesinghe","role":"teacher","subject":"ICT"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'b0000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000000',
+    'nimesh.f@gmail.com',
+    crypt('StudentNimesh@123', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Nimesh Fernando","role":"student","index_number":"LYN-26-8821"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'b0000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000000',
+    'tharushi.k@gmail.com',
+    crypt('StudentTharushi@123', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Tharushi Kaveesha","role":"student","index_number":"LYN-26-8822"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  ),
+  (
+    'b0000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000000',
+    'kavindu.d@gmail.com',
+    crypt('StudentKavindu@123', gen_salt('bf')),
+    NOW(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Kavindu Dilshan","role":"student","index_number":"LYN-25-7719"}'::jsonb,
+    NOW(),
+    NOW(),
+    'authenticated',
+    'authenticated',
+    ''
+  )
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email;
+
+-- 2. SEED PROFILES
 INSERT INTO public.profiles (id, name, email, phone, role, avatar_url, index_number, district, address)
 VALUES
   ('a0000000-0000-0000-0000-000000000001', 'Lyntrix Super Admin', 'admin@lyntrix.learn', '+94 11 200 9900', 'super_admin', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200', 'ADMIN-01', 'Colombo', 'Lyntrix Head Office, Colombo 03'),
@@ -25,8 +140,28 @@ ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   email = EXCLUDED.email;
 
--- 2. SEED TEACHERS (Masters)
-INSERT INTO public.teachers (id, user_id, name, title, subject, subject_category, subdomain, avatar_url, cover_url, rating, monthly_fee, bio, subscription_tier, subscription_status, trial_days_left, saas_monthly_price)
+-- 3. SEED TEACHERS (Masters)
+INSERT INTO public.teachers (
+  id, 
+  user_id, 
+  name, 
+  title, 
+  subject, 
+  subject_category, 
+  subdomain, 
+  avatar_url, 
+  cover_url, 
+  rating, 
+  monthly_fee, 
+  bio, 
+  subscription_tier, 
+  subscription_status, 
+  trial_started_at,
+  trial_ends_at,
+  subscription_renews_at,
+  saas_monthly_price,
+  is_verified_master
+)
 VALUES
   (
     'c0000000-0000-0000-0000-000000000001',
@@ -43,8 +178,11 @@ VALUES
     'Top Combined Maths lecturer in Sri Lanka with island 1st rank results.',
     'Pro Academy',
     'trialing',
-    12,
-    22500.00
+    NOW(),
+    NOW() + INTERVAL '12 days',
+    NOW() + INTERVAL '12 days',
+    22500.00,
+    TRUE
   ),
   (
     'c0000000-0000-0000-0000-000000000002',
@@ -61,8 +199,11 @@ VALUES
     'Simplified Organic Chemistry mechanisms with graphical memory tricks.',
     'Pro Academy',
     'active',
-    0,
-    22500.00
+    NOW(),
+    NOW() + INTERVAL '30 days',
+    NOW() + INTERVAL '30 days',
+    22500.00,
+    TRUE
   ),
   (
     'c0000000-0000-0000-0000-000000000003',
@@ -79,15 +220,30 @@ VALUES
     'Master ICT syllabus from Python programming to Database Systems.',
     'Pro Academy',
     'trialing',
-    14,
-    22500.00
+    NOW(),
+    NOW() + INTERVAL '14 days',
+    NOW() + INTERVAL '14 days',
+    22500.00,
+    TRUE
   )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   subject = EXCLUDED.subject;
 
--- 3. SEED BATCHES
-INSERT INTO public.batches (id, teacher_id, code, title, grade_year, medium, schedule, monthly_fee, zoom_link, description)
+-- 4. SEED BATCHES
+INSERT INTO public.batches (
+  id, 
+  teacher_id, 
+  code, 
+  title, 
+  grade_year, 
+  medium, 
+  schedule, 
+  monthly_fee, 
+  zoom_link, 
+  description,
+  status
+)
 VALUES
   (
     'd0000000-0000-0000-0000-000000000001',
@@ -99,7 +255,8 @@ VALUES
     'Every Sunday 7:30 AM - 1:00 PM',
     3500.00,
     'https://zoom.us/j/9988221100',
-    'Comprehensive pure and applied mathematics syllabus coverage with step-by-step past paper discussion.'
+    'Comprehensive pure and applied mathematics syllabus coverage with step-by-step past paper discussion.',
+    'active'
   ),
   (
     'd0000000-0000-0000-0000-000000000002',
@@ -111,7 +268,8 @@ VALUES
     'Every Saturday 8:00 AM - 12:30 PM',
     3500.00,
     'https://zoom.us/j/9988221101',
-    'New batch start for 2026 A/L students covering quadratic equations, trigonometry, and calculus basics.'
+    'New batch start for 2026 A/L students covering quadratic equations, trigonometry, and calculus basics.',
+    'active'
   ),
   (
     'd0000000-0000-0000-0000-000000000003',
@@ -123,7 +281,8 @@ VALUES
     'Every Tuesday 3:30 PM - 7:30 PM',
     3500.00,
     'https://zoom.us/j/9988221102',
-    'Speed revision with fast theory summaries and unit-by-unit MCQ paper evaluations.'
+    'Speed revision with fast theory summaries and unit-by-unit MCQ paper evaluations.',
+    'active'
   ),
   (
     'd0000000-0000-0000-0000-000000000004',
@@ -135,14 +294,28 @@ VALUES
     'Every Thursday 3:00 PM - 6:30 PM',
     3000.00,
     'https://zoom.us/j/9988221103',
-    'Hands-on coding, ER diagrams, SQL database normalization, and network topology masterclass.'
+    'Hands-on coding, ER diagrams, SQL database normalization, and network topology masterclass.',
+    'active'
   )
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title,
   schedule = EXCLUDED.schedule;
 
--- 4. SEED VIDEO LESSONS (Classroom Recordings)
-INSERT INTO public.lessons (id, batch_id, teacher_id, title, unit, duration, video_url, thumbnail_url, notes_pdf_url, description, views_count, has_quiz)
+-- 5. SEED VIDEO LESSONS (Classroom Recordings)
+INSERT INTO public.lessons (
+  id, 
+  batch_id, 
+  teacher_id, 
+  title, 
+  unit, 
+  duration, 
+  video_url, 
+  thumbnail_url, 
+  notes_pdf_url, 
+  description, 
+  views_count, 
+  has_quiz
+)
 VALUES
   (
     'e0000000-0000-0000-0000-000000000001',
@@ -156,7 +329,7 @@ VALUES
     'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     'Comprehensive breakdown of trigonometric substitutions, partial fractions, and integration by parts.',
     284,
-    true
+    TRUE
   ),
   (
     'e0000000-0000-0000-0000-000000000002',
@@ -170,7 +343,7 @@ VALUES
     'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     'Argand diagrams, roots of unity, and polar form representation simplified.',
     192,
-    false
+    FALSE
   ),
   (
     'e0000000-0000-0000-0000-000000000003',
@@ -184,22 +357,44 @@ VALUES
     'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     'Electrophilic additions, Grignard reagent pathways, and aromatic substitution reactions.',
     310,
-    true
+    TRUE
   )
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title;
 
--- 5. SEED ENROLLMENTS
-INSERT INTO public.enrollments (student_id, batch_id, payment_status, paid_date, syllabus_progress, attendance_rate)
+-- 6. SEED ENROLLMENTS
+INSERT INTO public.enrollments (
+  id,
+  student_id, 
+  batch_id, 
+  payment_status, 
+  paid_date, 
+  syllabus_progress, 
+  attendance_rate
+)
 VALUES
-  ('b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Paid', '2026-08-01', 65, 100),
-  ('b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'Pending', NULL, 20, 92),
-  ('b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000001', 'Paid', '2026-08-02', 80, 98)
+  ('11000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Paid', '2026-08-01', 65, 100),
+  ('11000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'Pending', NULL, 20, 92),
+  ('11000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000001', 'Paid', '2026-08-02', 80, 98)
 ON CONFLICT (student_id, batch_id) DO UPDATE SET
   payment_status = EXCLUDED.payment_status;
 
--- 6. SEED BANK DEPOSIT SLIPS
-INSERT INTO public.bank_slips (id, student_id, teacher_id, batch_id, student_name, student_index, student_phone, amount, bank_name, reference_no, slip_image_url, status, remarks)
+-- 7. SEED BANK DEPOSIT SLIPS
+INSERT INTO public.bank_slips (
+  id, 
+  student_id, 
+  teacher_id, 
+  batch_id, 
+  student_name, 
+  student_index, 
+  student_phone, 
+  amount, 
+  bank_name, 
+  reference_no, 
+  slip_image_url, 
+  status, 
+  remarks
+)
 VALUES
   (
     'f0000000-0000-0000-0000-000000000001',
@@ -233,15 +428,34 @@ VALUES
   )
 ON CONFLICT (id) DO NOTHING;
 
--- 7. SEED ATTENDANCE LOGS
-INSERT INTO public.attendance_logs (id, student_id, teacher_id, batch_id, student_name, student_index, scan_type, status, fee_status)
+-- 8. SEED ATTENDANCE LOGS
+INSERT INTO public.attendance_logs (
+  id, 
+  student_id, 
+  teacher_id, 
+  batch_id, 
+  student_name, 
+  student_index, 
+  scan_type, 
+  status, 
+  fee_status
+)
 VALUES
   ('70000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Nimesh Fernando', 'LYN-26-8821', 'Hall Scanner Gate 01', 'Present', 'Paid'),
   ('70000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Tharushi Kaveesha', 'LYN-26-8822', 'Hall Scanner Gate 01', 'Present', 'Paid')
 ON CONFLICT (id) DO NOTHING;
 
--- 8. SEED TUTE DELIVERIES
-INSERT INTO public.tute_deliveries (id, student_id, batch_id, pack_title, courier_name, tracking_number, delivery_status, destination_address)
+-- 9. SEED TUTE DELIVERIES
+INSERT INTO public.tute_deliveries (
+  id, 
+  student_id, 
+  batch_id, 
+  pack_title, 
+  courier_name, 
+  tracking_number, 
+  delivery_status, 
+  destination_address
+)
 VALUES
   ('80000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'August Combined Maths Theory + Paper Pack', 'PromptX Express', 'PRX-998822', 'Dispatched', 'No 45, Temple Road, Maharagama')
 ON CONFLICT (id) DO NOTHING;
