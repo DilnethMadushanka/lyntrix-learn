@@ -19,7 +19,9 @@ import {
   LogOut,
   ShieldCheck,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  Menu,
+  X
 } from 'lucide-react';
 import { sound } from '../../utils/soundEffects';
 
@@ -40,6 +42,7 @@ export const Navbar = () => {
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const pendingSlipsCount = bankSlips.filter(
     s => s.instructorId === currentTeacher.id && s.status === 'pending'
@@ -328,8 +331,92 @@ export const Navbar = () => {
               </>
             )}
 
+            {/* Mobile Hamburger Menu Toggle Button */}
+            <div className="flex md:hidden items-center ml-2">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 transition"
+                title="Toggle Mobile Menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5 text-slate-900" />}
+              </button>
+            </div>
+
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 py-4 px-2 space-y-3 bg-white/95 backdrop-blur-xl animate-in slide-in-from-top-3">
+            {/* Student Actions on Mobile */}
+            {currentRole === 'student' && (
+              <div className="space-y-2">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs">
+                  <span className="font-bold text-blue-900">Enrolled Student</span>
+                  <span className="font-mono text-blue-600 font-bold">Index: {currentStudent.indexNumber}</span>
+                </div>
+                <button
+                  onClick={() => { setShowIdCardModal(true); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-md"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>My Digital Student ID</span>
+                </button>
+                <button
+                  onClick={() => { handleStudentLogout(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold py-2.5 rounded-xl"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Logout from Student Hub</span>
+                </button>
+              </div>
+            )}
+
+            {/* Teacher Actions on Mobile */}
+            {currentRole === 'teacher' && (
+              <div className="space-y-2">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs">
+                  <div className="font-bold text-emerald-900">{currentTeacher.name}</div>
+                  <div className="text-emerald-700 text-[11px]">Subdomain: {currentTeacher.id.replace('ins-', '')}.dilnethmadushanka.online</div>
+                </div>
+                <button
+                  onClick={() => { setCurrentRole('scanner'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-md"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>QR Gate Scanner Terminal</span>
+                </button>
+                <button
+                  onClick={() => { handleTeacherLogout(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold py-2.5 rounded-xl"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Exit Sir Studio</span>
+                </button>
+              </div>
+            )}
+
+            {/* Public Visitors on Mobile */}
+            {(currentRole === 'landing' || currentRole === 'auth') && (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { setCurrentRole('auth'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold py-2.5 rounded-xl"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Register</span>
+                </button>
+                <button
+                  onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-1.5 bg-blue-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-md"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Student Login</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );
