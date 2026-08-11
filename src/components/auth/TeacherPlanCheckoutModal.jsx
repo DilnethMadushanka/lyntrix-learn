@@ -17,7 +17,7 @@ import {
 import { sound } from '../../utils/soundEffects';
 
 export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }) => {
-  const { setCurrentRole, showToast } = useApp();
+  const { registerTeacherSaaS, setCurrentRole, showToast } = useApp();
 
   const defaultPlan = initialPlan || {
     id: 'pro-master',
@@ -80,9 +80,15 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
 
     setTimeout(() => {
       setIsLoading(false);
-      sound.playChimeApproved();
-      
-      showToast(`🎉 Academy Portal Activated! Welcome Master ${formData.name}`, 'success');
+      // Register teacher profile dynamically into system
+      registerTeacherSaaS({
+        name: formData.name,
+        subject: formData.subject,
+        subdomain: formData.subdomain,
+        email: formData.email,
+        phone: formData.phone
+      });
+
       setStep(3);
     }, 1200);
   };

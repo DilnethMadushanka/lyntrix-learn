@@ -682,6 +682,64 @@ export const AppProvider = ({ children }) => {
     showToast(`Exam Submitted! You scored ${newSub.score}/${newSub.totalMarks} (${newSub.percentage}%)`, 'success');
   };
 
+  const registerTeacherSaaS = (teacherData) => {
+    const cleanSubdomain = (teacherData.subdomain || 'master').toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const teacherId = `ins-${cleanSubdomain}`;
+    
+    const newInstructor = {
+      id: teacherId,
+      name: teacherData.name || 'Master Instructor',
+      title: teacherData.title || `Specialist in ${teacherData.subject || 'A/L Theory'}`,
+      subject: teacherData.subject || 'Combined Mathematics',
+      subjectCategory: (teacherData.subject || 'maths').toLowerCase().includes('chem') ? 'chemistry' : (teacherData.subject || '').toLowerCase().includes('phy') ? 'physics' : (teacherData.subject || '').toLowerCase().includes('ict') ? 'ict' : 'maths',
+      avatar: teacherData.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+      cover: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&auto=format&fit=crop&q=80",
+      themeColor: "blue",
+      badge: "Newly Activated SaaS Master",
+      rating: 5.0,
+      reviewsCount: 1,
+      studentsCount: 0,
+      monthlyFee: teacherData.monthlyFee || 3500,
+      activeBatchesCount: 1,
+      email: teacherData.email,
+      phone: teacherData.phone,
+      bankDetails: {
+        bank: "Commercial Bank of Ceylon",
+        accountName: teacherData.name,
+        accountNumber: "1009845231",
+        branch: "Colombo"
+      },
+      bio: `Official Lyntrix Learn Academy portal for ${teacherData.name}. HD Live Zoom Streams, Anti-Piracy Video Replays, & Printed Tutes.`,
+      features: ["Anti-Piracy Moving Watermark Player", "High-Speed Laser QR Attendance Terminal", "Automated Bank Slip Queue"],
+      batches: [
+        {
+          id: `batch-${cleanSubdomain}-2026-theory`,
+          code: `${cleanSubdomain.toUpperCase()}-2026-TH`,
+          title: `2026 A/L ${teacherData.subject} — Full Theory & Revision`,
+          grade: "2026 A/L",
+          gradeYear: "2026",
+          medium: "Sinhala / English Medium",
+          schedule: "Every Sunday 8:00 AM - 1:30 PM",
+          status: "Active",
+          monthlyFee: 3500,
+          enrolledCount: 0,
+          nextLive: "2026-08-16T08:00:00",
+          zoomLink: "https://zoom.us/j/98712345678",
+          recordingCount: 0,
+          description: `Master ${teacherData.subject} theory units and past papers with ${teacherData.name}.`,
+          modules: []
+        }
+      ]
+    };
+
+    setInstructors(prev => [newInstructor, ...prev]);
+    setCurrentTeacherId(teacherId);
+    setCurrentRole('teacher');
+    sound.playChimeApproved();
+    showToast(`🎉 Master ${teacherData.name} profile created! Live at ${cleanSubdomain}.lyntrix.learn`, 'success');
+    return newInstructor;
+  };
+
   const updateBatchLiveLink = (teacherId, batchId, newZoomLink, newSchedule, nextLiveDateTime) => {
     setInstructors(prev => prev.map(ins => {
       if (ins.id !== teacherId) return ins;
@@ -783,6 +841,7 @@ export const AppProvider = ({ children }) => {
         selectedCheckoutPlan,
         setSelectedCheckoutPlan,
         openPlanCheckout,
+        registerTeacherSaaS,
         platformMetrics: PLATFORM_METRICS
       }}
     >
