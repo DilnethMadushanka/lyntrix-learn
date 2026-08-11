@@ -9,6 +9,7 @@ import { StudentPortal } from './components/student/StudentPortal';
 import { AttendanceScannerTerminal } from './components/scanner/AttendanceScannerTerminal';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
+import { AuthPage } from './components/auth/AuthPage';
 import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const AppContent = () => {
@@ -39,6 +40,7 @@ const AppContent = () => {
       ) : (
         <main className="flex-1">
           {currentRole === 'landing' && <LandingPage />}
+          {currentRole === 'auth' && <AuthPage />}
           {currentRole === 'scanner' && <AttendanceScannerTerminal />}
           {currentRole === 'admin' && (
             isAdminAuthenticated ? <SuperAdminDashboard /> : <AdminLoginPage />

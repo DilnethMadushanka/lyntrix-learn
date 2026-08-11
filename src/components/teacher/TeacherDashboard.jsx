@@ -22,7 +22,8 @@ import {
   Send,
   Calendar,
   Sparkles,
-  BookOpen
+  BookOpen,
+  UserPlus
 } from 'lucide-react';
 
 export const TeacherDashboard = () => {
@@ -36,6 +37,7 @@ export const TeacherDashboard = () => {
     approveBankSlip, 
     rejectBankSlip, 
     students,
+    addStudentByTeacher,
     attendanceLogs,
     setActiveLesson,
     showToast
@@ -43,7 +45,17 @@ export const TeacherDashboard = () => {
 
   const [studentSearch, setStudentSearch] = useState('');
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [selectedSlipModal, setSelectedSlipModal] = useState(null);
+
+  const [newStudentForm, setNewStudentForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    batchId: currentTeacher.batches[0]?.id || '',
+    district: 'Colombo',
+    paymentStatus: 'Paid'
+  });
 
   const [newLessonForm, setNewLessonForm] = useState({
     title: '',
@@ -80,6 +92,25 @@ export const TeacherDashboard = () => {
       thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format&fit=crop&q=80',
       notesPdf: 'Lecture_Notes.pdf',
       description: ''
+    });
+  };
+
+  const handleRegisterStudentSubmit = (e) => {
+    e.preventDefault();
+    if (!newStudentForm.name || !newStudentForm.phone) {
+      showToast("Please enter student name and phone number", "error");
+      return;
+    }
+
+    addStudentByTeacher(newStudentForm);
+    setShowAddStudentModal(false);
+    setNewStudentForm({
+      name: '',
+      phone: '',
+      email: '',
+      batchId: currentTeacher.batches[0]?.id || '',
+      district: 'Colombo',
+      paymentStatus: 'Paid'
     });
   };
 
@@ -483,15 +514,25 @@ export const TeacherDashboard = () => {
               <p className="text-xs text-slate-500">View payment records, attendance percentages, and dynamic QR tokens.</p>
             </div>
 
-            <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search by Name or Index..."
-                value={studentSearch}
-                onChange={(e) => setStudentSearch(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
-              />
+            <div className="flex items-center gap-3">
+              <div className="relative w-full sm:w-56">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search by Name or Index..."
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
+                />
+              </div>
+
+              <button
+                onClick={() => setShowAddStudentModal(true)}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition shrink-0"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>+ Register Student</span>
+              </button>
             </div>
           </div>
 
@@ -729,6 +770,115 @@ export const TeacherDashboard = () => {
                 Reject Slip
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* DIRECT STUDENT ENROLLMENT MODAL BY TEACHER */}
+      {showAddStudentModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <UserPlus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">Enroll Student to Class</h3>
+                  <p className="text-xs text-slate-500">Assign Index Number & Generate Dynamic QR Card</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+
+            <form onSubmit={handleRegisterStudentSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Student Full Name:</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Kasun Fernando"
+                  value={newStudentForm.name}
+                  onChange={(e) => setNewStudentForm({ ...newStudentForm, name: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp / Phone:</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="077 123 4567"
+                    value={newStudentForm.phone}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, phone: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">District:</label>
+                  <select
+                    value={newStudentForm.district}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, district: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
+                  >
+                    <option value="Colombo">Colombo</option>
+                    <option value="Gampaha">Gampaha</option>
+                    <option value="Kandy">Kandy</option>
+                    <option value="Galle">Galle</option>
+                    <option value="Kurunegala">Kurunegala</option>
+                    <option value="Kalutara">Kalutara</option>
+                    <option value="Matara">Matara</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Assign Batch:</label>
+                  <select
+                    value={newStudentForm.batchId}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, batchId: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
+                  >
+                    {currentTeacher.batches.map(b => (
+                      <option key={b.id} value={b.id}>{b.code} - {b.title.slice(0, 18)}...</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Fee Payment Status:</label>
+                  <select
+                    value={newStudentForm.paymentStatus}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, paymentStatus: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
+                  >
+                    <option value="Paid">Paid (Active Full Pass)</option>
+                    <option value="Pending">Pending Slip Verification</option>
+                    <option value="Free / Scholarship">Free / Scholarship</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddStudentModal(false)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20"
+                >
+                  Enroll & Generate QR Pass
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

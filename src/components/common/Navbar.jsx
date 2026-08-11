@@ -80,13 +80,21 @@ export const Navbar = () => {
 
           {/* Right Action buttons */}
           <div className="flex items-center gap-3">
-            {/* Login / Auth Button */}
+            {/* Register & Login Action buttons */}
+            <button
+              onClick={() => setCurrentRole('auth')}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition border border-blue-200 shadow-sm"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Student Register</span>
+            </button>
+
             <button
               onClick={() => setShowAuthModal(true)}
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition border border-slate-200"
             >
               <LogIn className="w-3.5 h-3.5 text-blue-600" />
-              <span>Portal Login</span>
+              <span>Login</span>
             </button>
 
             {/* Student ID Pass Fast Button */}

@@ -80,6 +80,95 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
+  // Register New Student (Self-signup)
+  const registerStudent = (studentData) => {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const indexNumber = `LYN-26-${randomSuffix}`;
+    const qrToken = `QR-LYN-${randomSuffix}`;
+
+    const newStudent = {
+      id: `std-${Date.now()}`,
+      name: studentData.name,
+      email: studentData.email,
+      phone: studentData.phone,
+      batch: studentData.batchYear || '2026 A/L',
+      stream: studentData.stream || 'Physical Science (Maths)',
+      district: studentData.district || 'Colombo',
+      address: studentData.address || 'Sri Lanka',
+      indexNumber,
+      qrToken,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      activeMonth: 'August 2026',
+      enrollments: [
+        {
+          instructorId: 'ins-kasun-maths',
+          batchId: 'batch-kasun-2025',
+          paymentStatus: 'Pending',
+          progress: 0,
+          attendanceRate: 100,
+          tuteDelivery: {
+            packTitle: `${studentData.batchYear || '2026 A/L'} August Theory Pack`,
+            courier: 'PromptX Express',
+            trackingNumber: `PRX-${Math.floor(100000 + Math.random() * 900000)}`,
+            status: 'Packed'
+          }
+        }
+      ]
+    };
+
+    setStudents(prev => [newStudent, ...prev]);
+    setCurrentStudentId(newStudent.id);
+    sound.playChimeApproved();
+
+    try {
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+    } catch (e) {}
+
+    return newStudent;
+  };
+
+  // Add Student by Teacher / Staff (Manual enrollment)
+  const addStudentByTeacher = (studentData) => {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const indexNumber = `LYN-26-${randomSuffix}`;
+    const qrToken = `QR-LYN-${randomSuffix}`;
+
+    const newStudent = {
+      id: `std-${Date.now()}`,
+      name: studentData.name,
+      email: studentData.email || `${studentData.name.toLowerCase().replace(/[^a-z]/g, '')}@student.lk`,
+      phone: studentData.phone,
+      batch: studentData.batchYear || '2025 A/L',
+      stream: studentData.stream || 'Combined Maths',
+      district: studentData.district || 'Colombo',
+      address: studentData.address || 'Classroom Hall Attendance',
+      indexNumber,
+      qrToken,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      activeMonth: 'August 2026',
+      enrollments: [
+        {
+          instructorId: currentTeacherId,
+          batchId: studentData.batchId || currentTeacher.batches[0]?.id,
+          paymentStatus: studentData.paymentStatus || 'Paid',
+          progress: 0,
+          attendanceRate: 100,
+          tuteDelivery: {
+            packTitle: 'August Theory Pack',
+            courier: 'Hand Delivery',
+            trackingNumber: `DIR-${randomSuffix}`,
+            status: 'Delivered'
+          }
+        }
+      ]
+    };
+
+    setStudents(prev => [newStudent, ...prev]);
+    sound.playChimeApproved();
+    showToast(`Student ${studentData.name} enrolled with Index ${indexNumber}!`, 'success');
+    return newStudent;
+  };
+
   const adminLogout = () => {
     setIsAdminAuthenticated(false);
     setCurrentRole('landing');
@@ -333,6 +422,8 @@ export const AppProvider = ({ children }) => {
         processInstantCardPayment,
         markAttendanceByQR,
         addLesson,
+        registerStudent,
+        addStudentByTeacher,
         activeLesson,
         setActiveLesson,
         activeQuiz,

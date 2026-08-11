@@ -16,6 +16,14 @@ export const GRADE_STREAMS = [
   { id: "2027", name: "2027 A/L (New Batch)" }
 ];
 
+export const SRI_LANKA_DISTRICTS = [
+  "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
+  "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
+  "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
+  "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
+  "Monaragala", "Ratnapura", "Kegalle"
+];
+
 export const INITIAL_INSTRUCTORS = [
   {
     id: "ins-kasun-maths",
