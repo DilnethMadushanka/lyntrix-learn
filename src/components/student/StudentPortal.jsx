@@ -292,6 +292,128 @@ export const StudentPortal = () => {
         </div>
       )}
 
+      {/* EXPLORE MASTERS & ENROLL TAB */}
+      {activeTab === 'explore' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold mb-2">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Multi-Master Academy Catalog</span>
+              </div>
+              <h2 className="text-2xl font-black text-slate-900">Explore Tuition Masters & Enroll in Classes</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Select your A/L teacher, enroll in your batch, and upload your monthly bank deposit slip for instant admission.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {instructors.map((ins) => (
+              <div
+                key={ins.id}
+                className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between hover:border-blue-300 transition duration-300"
+              >
+                {/* Master Header */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <img
+                      src={ins.avatar}
+                      alt={ins.name}
+                      className="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-md"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                          {ins.subject}
+                        </span>
+                        <span className="text-xs font-bold text-amber-600 flex items-center gap-1">
+                          ★ {ins.rating}
+                        </span>
+                      </div>
+                      <h3 className="font-black text-slate-900 text-base mt-1">{ins.name}</h3>
+                      <p className="text-xs text-slate-500">{ins.title}</p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Monthly Fee</div>
+                    <div className="text-base font-black text-emerald-600">LKR {ins.monthlyFee.toLocaleString()}</div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  {ins.bio}
+                </p>
+
+                {/* Batches Offered by this Master */}
+                <div className="space-y-3">
+                  <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>Available Class Batches ({ins.batches.length}):</span>
+                    <span className="text-[11px] text-blue-600 font-normal">Syllabus & Recordings Included</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {ins.batches.map((b) => {
+                      const enrolled = currentStudent.enrollments.find(e => e.batchId === b.id);
+                      const isPaid = enrolled?.paymentStatus === 'Paid';
+                      const isPending = enrolled?.paymentStatus === 'Pending';
+
+                      return (
+                        <div
+                          key={b.id}
+                          className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 text-xs">{b.title}</span>
+                              <span className="text-[10px] font-mono font-bold bg-white text-slate-700 px-1.5 py-0.5 rounded border">
+                                {b.grade}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 font-medium">
+                              Schedule: <strong>{b.schedule}</strong>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            {isPaid ? (
+                              <button
+                                onClick={() => setActiveTab('videos')}
+                                className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Access Active (Watch)</span>
+                              </button>
+                            ) : isPending ? (
+                              <button
+                                onClick={() => handleOpenPayment(b, ins)}
+                                className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+                              >
+                                <Clock className="w-3.5 h-3.5 animate-spin" />
+                                <span>Pending Sir Approval</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenPayment(b, ins)}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-blue-500/20 active:scale-95"
+                              >
+                                <CreditCard className="w-3.5 h-3.5" />
+                                <span>Enroll & Upload Slip</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* DELIVERIES TAB */}
       {activeTab === 'deliveries' && (
         <div className="space-y-6">

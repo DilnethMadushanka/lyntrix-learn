@@ -67,8 +67,25 @@ export const Sidebar = () => {
               >
                 <div className="flex items-center gap-2.5">
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>My Courses & Timetable</span>
+                  <span>My Enrolled Classes</span>
                 </div>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('explore')}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                  activeTab === 'explore'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20'
+                    : 'text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Explore Masters & Enroll</span>
+                </div>
+                <span className="text-[10px] bg-white text-blue-800 font-extrabold px-1.5 py-0.5 rounded shadow-sm">
+                  New
+                </span>
               </button>
 
               <button
