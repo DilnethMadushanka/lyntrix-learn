@@ -460,6 +460,18 @@ export const LandingPage = () => {
             </div>
           ))}
         </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="/proposal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xl transition active:scale-95 border border-slate-700"
+          >
+            <FileText className="w-4 h-4 text-blue-400" />
+            <span>📄 Download Official Teacher SaaS Proposal PDF (Ctrl+P)</span>
+          </a>
+        </div>
       </section>
     </div>
   );
