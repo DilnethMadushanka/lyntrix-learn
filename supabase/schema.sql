@@ -53,6 +53,15 @@ CREATE TABLE IF NOT EXISTS public.teachers (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Migration safety for existing tables
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_tier TEXT NOT NULL DEFAULT 'Pro Academy';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'trialing';
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days');
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS subscription_renews_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days');
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS saas_monthly_price NUMERIC(10,2) DEFAULT 22500.00;
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS is_verified_master BOOLEAN DEFAULT TRUE;
+
 -- 3. BATCHES / CLASSES (e.g. 2025 Theory, 2026 Revision)
 CREATE TABLE IF NOT EXISTS public.batches (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
