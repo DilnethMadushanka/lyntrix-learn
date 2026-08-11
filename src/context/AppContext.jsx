@@ -675,6 +675,34 @@ export const AppProvider = ({ children }) => {
     showToast(`Exam Submitted! You scored ${newSub.score}/${newSub.totalMarks} (${newSub.percentage}%)`, 'success');
   };
 
+  const updateBatchLiveLink = (teacherId, batchId, newZoomLink, newSchedule, nextLiveDateTime) => {
+    setInstructors(prev => prev.map(ins => {
+      if (ins.id !== teacherId) return ins;
+      return {
+        ...ins,
+        batches: ins.batches.map(b => {
+          if (b.id !== batchId) return b;
+          return {
+            ...b,
+            zoomLink: newZoomLink || b.zoomLink,
+            schedule: newSchedule || b.schedule,
+            nextLive: nextLiveDateTime || b.nextLive
+          };
+        })
+      };
+    }));
+
+    if (isSupabaseConfigured()) {
+      supabase.from('batches').update({
+        zoom_link: newZoomLink,
+        schedule: newSchedule
+      }).eq('id', batchId).then(() => {});
+    }
+
+    sound.playChimeApproved();
+    showToast("Live Scheduled Class Zoom Link updated successfully!", "success");
+  };
+
   const switchRole = (role) => {
     sound.playClick();
     setCurrentRole(role);
@@ -734,6 +762,7 @@ export const AppProvider = ({ children }) => {
         setQuizSubmissions,
         addQuizByTeacher,
         submitQuizAnswers,
+        updateBatchLiveLink,
         paymentModalData,
         setPaymentModalData,
         selectedSlipForReview,

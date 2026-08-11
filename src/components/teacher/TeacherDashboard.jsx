@@ -45,6 +45,7 @@ export const TeacherDashboard = () => {
     quizzes,
     addQuizByTeacher,
     quizSubmissions,
+    updateBatchLiveLink,
     setActiveLesson,
     showToast
   } = useApp();
@@ -55,6 +56,11 @@ export const TeacherDashboard = () => {
   const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [selectedSlipModal, setSelectedSlipModal] = useState(null);
+
+  // Live Scheduled Class Editor State
+  const [selectedLiveBatchId, setSelectedLiveBatchId] = useState(currentTeacher.batches[0]?.id || '');
+  const [liveZoomInput, setLiveZoomInput] = useState(currentTeacher.batches[0]?.zoomLink || 'https://zoom.us/j/98712345678');
+  const [liveScheduleInput, setLiveScheduleInput] = useState(currentTeacher.batches[0]?.schedule || 'Every Sunday 8:00 AM - 1:30 PM');
 
   const [newQuizForm, setNewQuizForm] = useState({
     title: '',
@@ -747,39 +753,154 @@ export const TeacherDashboard = () => {
         </div>
       )}
 
-      {/* LIVE STREAM TAB */}
+      {/* LIVE STREAM TAB & LINK MANAGER */}
       {activeTab === 'live' && (
         <div className="space-y-6">
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm text-center space-y-6 max-w-3xl mx-auto">
-            <div className="w-16 h-16 rounded-3xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mx-auto">
-              <Video className="w-8 h-8" />
-            </div>
-
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Live Classroom Broadcasting Studio</h2>
-              <p className="text-xs text-slate-500 mt-2 max-w-lg mx-auto">
-                Schedule your next live Zoom lecture or unlisted YouTube stream. Students will automatically receive live notification alerts.
-              </p>
+              <h2 className="text-xl font-bold text-slate-900">Live Classroom Broadcasting & Scheduled Links</h2>
+              <p className="text-xs text-slate-500">Update Zoom, YouTube Live, or Google Meet links and schedules for your batches.</p>
             </div>
+          </div>
 
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left space-y-3">
-              <label className="text-xs font-bold text-slate-700">Classroom Direct Zoom / Stream URL:</label>
-              <input
-                type="text"
-                defaultValue={currentTeacher.batches[0]?.zoomLink || "https://zoom.us/j/98712345678"}
-                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-mono shadow-sm"
-              />
-              <div className="text-[11px] text-slate-500">
-                Lyntrix Learn embeds custom watermarks and validates monthly fee status before redirecting students.
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Cols: Edit Live Link Form */}
+            <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+                  <Video className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">Edit Live Scheduled Class Link</h3>
+                  <p className="text-xs text-slate-500">Students with paid fees will immediately get this updated link.</p>
+                </div>
               </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  updateBatchLiveLink(
+                    currentTeacher.id,
+                    selectedLiveBatchId,
+                    liveZoomInput,
+                    liveScheduleInput
+                  );
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Select Batch to Update:</label>
+                  <select
+                    value={selectedLiveBatchId}
+                    onChange={(e) => {
+                      const newId = e.target.value;
+                      setSelectedLiveBatchId(newId);
+                      const targetBatch = currentTeacher.batches.find(b => b.id === newId);
+                      if (targetBatch) {
+                        setLiveZoomInput(targetBatch.zoomLink);
+                        setLiveScheduleInput(targetBatch.schedule);
+                      }
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-rose-500"
+                  >
+                    {currentTeacher.batches.map(b => (
+                      <option key={b.id} value={b.id}>
+                        {b.code} — {b.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Live Zoom / Broadcast URL:
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://zoom.us/j/98712345678 or https://youtube.com/live/..."
+                    value={liveZoomInput}
+                    onChange={(e) => setLiveZoomInput(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-none focus:border-rose-500"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Lyntrix automatically protects this URL behind the student fee paywall & dynamic student watermark.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Weekly Timetable Schedule Text:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Every Sunday 8:00 AM - 1:30 PM"
+                    value={liveScheduleInput}
+                    onChange={(e) => setLiveScheduleInput(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                  <button
+                    type="submit"
+                    className="w-full sm:flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>💾 Save & Update Live Link</span>
+                  </button>
+
+                  <a
+                    href={liveZoomInput}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full sm:flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition flex items-center justify-center gap-2 text-center"
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>🚀 Launch Live Zoom Room</span>
+                  </a>
+                </div>
+              </form>
             </div>
 
-            <button
-              onClick={() => showToast("Live session broadcasted to 1,840 students!", "success")}
-              className="px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition"
-            >
-              Start Live Broadcast Now
-            </button>
+            {/* Right 1 Col: Live Schedule Summary Cards */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-slate-900">Current Batch Live Links ({currentTeacher.batches.length})</h3>
+
+              {currentTeacher.batches.map(b => (
+                <div key={b.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 text-xs">{b.code}</span>
+                    <span className="text-[10px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200">
+                      Live Stream
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-slate-700 font-medium">{b.title}</div>
+                  
+                  <div className="text-[11px] text-slate-500">
+                    Schedule: <strong className="text-slate-800">{b.schedule}</strong>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] font-mono text-blue-700 truncate">
+                    {b.zoomLink}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedLiveBatchId(b.id);
+                      setLiveZoomInput(b.zoomLink);
+                      setLiveScheduleInput(b.schedule);
+                      showToast(`Loaded ${b.code} into editor above.`, 'info');
+                    }}
+                    className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
+                  >
+                    <span>✏️ Edit This Link</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
