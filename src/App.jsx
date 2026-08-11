@@ -10,6 +10,7 @@ import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
 import { AuthPage } from './components/auth/AuthPage';
 import { AuthModal } from './components/auth/AuthModal';
+import { TeacherPlanCheckoutModal } from './components/auth/TeacherPlanCheckoutModal';
 import { FeePaymentModal } from './components/student/FeePaymentModal';
 import { DigitalStudentCard } from './components/student/DigitalStudentCard';
 import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
@@ -21,7 +22,10 @@ const AppContent = () => {
     isAdminAuthenticated, 
     toast,
     showAuthModal,
-    setShowAuthModal
+    setShowAuthModal,
+    showPlanCheckoutModal,
+    setShowPlanCheckoutModal,
+    selectedCheckoutPlan
   } = useApp();
 
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
@@ -74,6 +78,12 @@ const AppContent = () => {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+      />
+
+      <TeacherPlanCheckoutModal
+        isOpen={showPlanCheckoutModal}
+        onClose={() => setShowPlanCheckoutModal(false)}
+        initialPlan={selectedCheckoutPlan}
       />
 
       <FeePaymentModal />

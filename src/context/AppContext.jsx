@@ -213,6 +213,13 @@ export const AppProvider = ({ children }) => {
   const [selectedSlipForReview, setSelectedSlipForReview] = useState(null);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showPlanCheckoutModal, setShowPlanCheckoutModal] = useState(false);
+  const [selectedCheckoutPlan, setSelectedCheckoutPlan] = useState(null);
+
+  const openPlanCheckout = (plan = null) => {
+    setSelectedCheckoutPlan(plan);
+    setShowPlanCheckoutModal(true);
+  };
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
@@ -771,6 +778,11 @@ export const AppProvider = ({ children }) => {
         setShowIdCardModal,
         showAuthModal,
         setShowAuthModal,
+        showPlanCheckoutModal,
+        setShowPlanCheckoutModal,
+        selectedCheckoutPlan,
+        setSelectedCheckoutPlan,
+        openPlanCheckout,
         platformMetrics: PLATFORM_METRICS
       }}
     >

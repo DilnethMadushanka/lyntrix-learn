@@ -73,30 +73,30 @@ export const VideoClassroom = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md overflow-y-auto flex flex-col">
-      {/* Top Bar */}
-      <div className="border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center gap-3">
+    <div className="fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-2xl overflow-y-auto flex flex-col">
+      {/* Top Bar - Solid Dark Cinema Bar */}
+      <div className="border-b border-slate-800 bg-slate-900 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-xl">
+        <div className="flex items-center gap-3.5">
           <button
             onClick={() => setActiveLesson(null)}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition border border-slate-200"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition border border-slate-700 flex items-center gap-1.5 active:scale-95"
           >
-            ← Back to Classroom
+            <span>← Back to Classroom</span>
           </button>
           <div>
-            <h2 className="font-bold text-slate-900 text-sm line-clamp-1">{activeLesson.title}</h2>
-            <div className="text-[11px] text-blue-600 font-bold">{activeLesson.unit} • {activeLesson.duration}</div>
+            <h2 className="font-bold text-white text-sm line-clamp-1">{activeLesson.title}</h2>
+            <div className="text-[11px] text-cyan-400 font-bold">{activeLesson.unit} • {activeLesson.duration}</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-blue-700 text-xs font-bold">
-            <ShieldAlert className="w-3.5 h-3.5 text-emerald-600" />
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 bg-emerald-950/80 border border-emerald-800/80 px-3 py-1 rounded-full text-emerald-400 text-xs font-bold">
+            <ShieldAlert className="w-3.5 h-3.5 text-emerald-400" />
             <span>Anti-Piracy Watermark Protected</span>
           </div>
           <button
             onClick={() => setActiveLesson(null)}
-            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-bold"
+            className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold hover:bg-slate-700 transition"
           >
             ✕
           </button>

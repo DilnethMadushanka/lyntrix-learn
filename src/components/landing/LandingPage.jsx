@@ -41,6 +41,7 @@ export const LandingPage = () => {
     currentStudent,
     setPaymentModalData,
     setShowAuthModal,
+    openPlanCheckout,
     lessons,
     platformMetrics,
     showToast
@@ -448,15 +449,13 @@ export const LandingPage = () => {
               </div>
 
               <button
-                onClick={() => {
-                  showToast(`Started 14-day trial for ${plan.name}`, 'success');
-                  setCurrentRole('teacher');
-                }}
-                className={`mt-6 w-full py-2.5 rounded-xl text-xs font-bold transition ${
-                  plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                onClick={() => openPlanCheckout(plan)}
+                className={`mt-6 w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95 ${
+                  plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
                 }`}
               >
-                Create Your Sir Portal
+                <span>Create Your Sir Portal</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
