@@ -3,6 +3,7 @@
 -- =========================================================================
 -- Copy and paste this script directly into your Supabase Dashboard SQL Editor
 -- (https://app.supabase.com/project/_/sql) and click "Run".
+-- Safe to re-run multiple times (Idempotent script).
 -- =========================================================================
 
 -- Enable UUID Extension
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.teachers (
   bank_branch TEXT,
   -- SaaS Subscription & Free Trial Management
   subscription_tier TEXT NOT NULL DEFAULT 'Pro Academy' CHECK (subscription_tier IN ('Starter Master', 'Pro Academy', 'Enterprise Titan')),
-  subscription_status TEXT NOT NULL DEFAULT 'trialing' CHECK (subscription_status IN ('trialing', 'active', 'past_due', 'canceled')),
+  subscription_status TEXT NOT NULL DEFAULT 'trialing' CHECK (subscription_status IN ('trialing', 'active', 'past_due', 'canceled', 'suspended', 'pending_approval')),
   trial_started_at TIMESTAMPTZ DEFAULT NOW(),
   trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
   subscription_renews_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
@@ -148,7 +149,7 @@ CREATE TABLE IF NOT EXISTS public.tute_deliveries (
 );
 
 -- =========================================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
+-- ROW LEVEL SECURITY (RLS) POLICIES (Idempotent: Drops Existing First)
 -- =========================================================================
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teachers ENABLE ROW LEVEL SECURITY;
@@ -160,15 +161,24 @@ ALTER TABLE public.attendance_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tute_deliveries ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Anyone authenticated can view profiles, users can edit their own profile
+DROP POLICY IF EXISTS "Profiles viewable by everyone" ON public.profiles;
 CREATE POLICY "Profiles viewable by everyone" ON public.profiles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Teachers & Batches: Viewable by all students & public
+DROP POLICY IF EXISTS "Teachers viewable by all" ON public.teachers;
 CREATE POLICY "Teachers viewable by all" ON public.teachers FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Batches viewable by all" ON public.batches;
 CREATE POLICY "Batches viewable by all" ON public.batches FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Teachers can update own profile" ON public.teachers;
 CREATE POLICY "Teachers can update own profile" ON public.teachers FOR ALL USING (auth.uid() = user_id);
 
 -- Lessons: Students can only view lessons if enrolled and paid
+DROP POLICY IF EXISTS "Lessons accessible to paid students and author teacher" ON public.lessons;
 CREATE POLICY "Lessons accessible to paid students and author teacher" ON public.lessons
   FOR SELECT USING (
     EXISTS (
@@ -185,8 +195,13 @@ CREATE POLICY "Lessons accessible to paid students and author teacher" ON public
   );
 
 -- Bank Slips: Students can insert & view their own slips; Teachers can view & approve their own slips
+DROP POLICY IF EXISTS "Students can insert own slip" ON public.bank_slips;
 CREATE POLICY "Students can insert own slip" ON public.bank_slips FOR INSERT WITH CHECK (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Students view own slips" ON public.bank_slips;
 CREATE POLICY "Students view own slips" ON public.bank_slips FOR SELECT USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Teachers view and manage their class slips" ON public.bank_slips;
 CREATE POLICY "Teachers view and manage their class slips" ON public.bank_slips FOR ALL USING (
   EXISTS (
     SELECT 1 FROM public.teachers WHERE teachers.id = bank_slips.teacher_id AND teachers.user_id = auth.uid()
@@ -208,7 +223,8 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'role', 'student'),
     COALESCE(new.raw_user_meta_data->>'phone', ''),
     COALESCE(new.raw_user_meta_data->>'index_number', 'LYN-26-' || floor(random() * 9000 + 1000)::text)
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
