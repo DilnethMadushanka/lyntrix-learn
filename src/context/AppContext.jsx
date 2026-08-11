@@ -19,7 +19,10 @@ export const AppProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('overview');
   
   // Theme State: 'royal' | 'emerald' | 'light' | 'cyber'
-  const [theme, setTheme] = useState('royal');
+  const [theme, setTheme] = useState('light');
+
+  // Super Admin Authentication State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -62,6 +65,27 @@ export const AppProvider = ({ children }) => {
 
   const currentTeacher = instructors.find(ins => ins.id === currentTeacherId) || instructors[0];
   const currentStudent = students.find(std => std.id === currentStudentId) || students[0];
+
+  // Admin login check
+  const adminLogin = (email, password) => {
+    if (
+      (email === 'admin@lyntrix.learn' || email === 'admin') && 
+      (password === 'SuperAdmin@2026' || password === 'admin123')
+    ) {
+      setIsAdminAuthenticated(true);
+      sound.playChimeApproved();
+      showToast("Super Admin Authenticated Successfully!", "success");
+      return true;
+    }
+    return false;
+  };
+
+  const adminLogout = () => {
+    setIsAdminAuthenticated(false);
+    setCurrentRole('landing');
+    sound.playClick();
+    showToast("Super Admin Logged Out", "info");
+  };
 
   const approveBankSlip = (slipId) => {
     sound.playChimeApproved();
@@ -280,6 +304,9 @@ export const AppProvider = ({ children }) => {
         setActiveTab,
         theme,
         setTheme,
+        isAdminAuthenticated,
+        adminLogin,
+        adminLogout,
         instructors,
         setInstructors,
         currentTeacherId,

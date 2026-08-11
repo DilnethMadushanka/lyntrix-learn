@@ -9,7 +9,8 @@ import {
   Activity, 
   Plus, 
   TrendingUp, 
-  ExternalLink
+  ExternalLink,
+  LogOut
 } from 'lucide-react';
 
 export const SuperAdminDashboard = () => {
@@ -18,7 +19,8 @@ export const SuperAdminDashboard = () => {
     setInstructors, 
     platformMetrics, 
     setCurrentTeacherId, 
-    setCurrentRole, 
+    setCurrentRole,
+    adminLogout, 
     showToast 
   } = useApp();
 
@@ -79,7 +81,7 @@ export const SuperAdminDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-24">
-      {/* 1. ADMIN HERO BANNER */}
+      {/* 1. ADMIN HERO BANNER WITH LOGOUT */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 shadow-sm">
@@ -89,25 +91,36 @@ export const SuperAdminDashboard = () => {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
               <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
-                Lyntrix Platform Owner Console
+                Protected Master Console
               </span>
             </div>
             <h1 className="text-2xl font-black text-slate-900 mt-0.5">
-              Multi-Tenant Global SaaS Infrastructure
+              Super Admin SaaS Infrastructure
             </h1>
             <p className="text-xs text-slate-500">
-              Managing <strong>{instructors.length} Tuition Academies</strong> across Sri Lanka.
+              Authenticated Session • Managing <strong>{instructors.length} Tuition Academies</strong>
             </p>
           </div>
         </div>
 
-        <button
-          onClick={() => setShowAddTeacherModal(true)}
-          className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Onboard New Tuition Master</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowAddTeacherModal(true)}
+            className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Onboard New Tuition Master</span>
+          </button>
+
+          <button
+            onClick={adminLogout}
+            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+            title="Log out of Super Admin"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout Admin</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. GLOBAL SAAS METRICS */}

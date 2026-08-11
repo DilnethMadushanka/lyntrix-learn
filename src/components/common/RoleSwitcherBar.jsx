@@ -2,12 +2,10 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Globe, 
-  ShieldCheck, 
   GraduationCap, 
   UserCheck, 
   QrCode, 
   Sparkles,
-  ChevronDown,
   Languages
 } from 'lucide-react';
 
@@ -41,11 +39,11 @@ export const RoleSwitcherBar = () => {
           </div>
         </div>
 
-        {/* Middle: Role Selector Tabs */}
+        {/* Middle: Role Selector Tabs (Super Admin removed as requested) */}
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 overflow-x-auto">
           <button
             onClick={() => setCurrentRole('landing')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
               currentRole === 'landing'
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -57,7 +55,7 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('student')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
               currentRole === 'student'
                 ? 'bg-cyan-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -69,7 +67,7 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('teacher')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
               currentRole === 'teacher'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -81,7 +79,7 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('scanner')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
               currentRole === 'scanner'
                 ? 'bg-rose-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -89,18 +87,6 @@ export const RoleSwitcherBar = () => {
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>QR Scanner</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentRole('admin')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
-              currentRole === 'admin'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Super Admin</span>
           </button>
         </div>
 

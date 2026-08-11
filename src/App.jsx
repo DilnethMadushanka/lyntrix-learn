@@ -8,16 +8,17 @@ import { TeacherDashboard } from './components/teacher/TeacherDashboard';
 import { StudentPortal } from './components/student/StudentPortal';
 import { AttendanceScannerTerminal } from './components/scanner/AttendanceScannerTerminal';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
-import { CheckCircle2, AlertCircle, Info, GraduationCap } from 'lucide-react';
+import { AdminLoginPage } from './components/admin/AdminLoginPage';
+import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const AppContent = () => {
-  const { currentRole, toast } = useApp();
+  const { currentRole, setCurrentRole, isAdminAuthenticated, toast } = useApp();
 
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 bg-mesh selection:bg-blue-600 selection:text-white">
-      {/* 1. Multi-Tenant Role Switcher Bar */}
+      {/* 1. Multi-Tenant Role Switcher Bar (Public Modes Only) */}
       <RoleSwitcherBar />
 
       {/* 2. Context Branded Navbar */}
@@ -39,7 +40,9 @@ const AppContent = () => {
         <main className="flex-1">
           {currentRole === 'landing' && <LandingPage />}
           {currentRole === 'scanner' && <AttendanceScannerTerminal />}
-          {currentRole === 'admin' && <SuperAdminDashboard />}
+          {currentRole === 'admin' && (
+            isAdminAuthenticated ? <SuperAdminDashboard /> : <AdminLoginPage />
+          )}
         </main>
       )}
 
@@ -59,18 +62,30 @@ const AppContent = () => {
         </div>
       )}
 
-      {/* 5. Modern LMS Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 shadow-inner">
+      {/* 5. Modern LMS Footer with Protected Admin Access link */}
+      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 shadow-inner">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
               <GraduationCap className="w-3.5 h-3.5" />
             </div>
             <span className="font-extrabold text-slate-800">Lyntrix Learn</span>
-            <span>— Next-Gen Tuition & LMS Ecosystem</span>
+            <span>— Multi-Tenant Tuition & LMS SaaS</span>
           </div>
-          <div className="text-slate-600 font-medium">
-            Crafted with modern excellence for Sri Lankan Tuition Masters & Students
+          
+          <div className="flex items-center gap-4">
+            <span className="text-slate-500">
+              Crafted for Sri Lankan Tuition Masters & Academies
+            </span>
+            {/* Protected Admin Access trigger */}
+            <button
+              onClick={() => setCurrentRole('admin')}
+              className="inline-flex items-center gap-1 text-slate-400 hover:text-purple-600 font-bold transition px-2 py-1 rounded hover:bg-purple-50"
+              title="Platform Administrator Login"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin Login</span>
+            </button>
           </div>
         </div>
       </footer>
