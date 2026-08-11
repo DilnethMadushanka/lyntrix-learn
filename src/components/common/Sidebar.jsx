@@ -223,6 +223,23 @@ export const Sidebar = () => {
                   <span>Live Stream Studio</span>
                 </div>
               </button>
+
+              <button
+                onClick={() => setActiveTab('exams')}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                  activeTab === 'exams'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Award className="w-4 h-4 text-purple-600" />
+                  <span>MCQ Papers & Exams</span>
+                </div>
+                <span className="text-[10px] bg-purple-100 text-purple-800 font-bold px-1.5 py-0.5 rounded">
+                  MCQ
+                </span>
+              </button>
             </>
           )}
         </div>

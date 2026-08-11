@@ -14,7 +14,7 @@ import confetti from 'canvas-confetti';
 import { sound } from '../../utils/soundEffects';
 
 export const QuizExamPlayer = () => {
-  const { activeQuiz, setActiveQuiz, showToast } = useApp();
+  const { activeQuiz, setActiveQuiz, submitQuizAnswers, showToast } = useApp();
 
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -58,6 +58,7 @@ export const QuizExamPlayer = () => {
     });
 
     const finalScore = Math.round(calculatedScore);
+    const percentage = Math.round((finalScore / activeQuiz.totalMarks) * 100);
     setScore(finalScore);
     setIsSubmitted(true);
     sound.playChimeApproved();
@@ -70,7 +71,15 @@ export const QuizExamPlayer = () => {
       });
     } catch (e) {}
 
-    showToast(`Quiz completed! You scored ${finalScore}/${activeQuiz.totalMarks}`, 'success');
+    submitQuizAnswers({
+      quizId: activeQuiz.id,
+      quizTitle: activeQuiz.title,
+      batchId: activeQuiz.batchId,
+      instructorId: activeQuiz.instructorId,
+      score: finalScore,
+      totalMarks: activeQuiz.totalMarks,
+      percentage
+    });
   };
 
   const handleResetQuiz = () => {

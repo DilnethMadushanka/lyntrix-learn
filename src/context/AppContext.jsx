@@ -45,6 +45,22 @@ export const AppProvider = ({ children }) => {
   const [bankSlips, setBankSlips] = useState(INITIAL_BANK_SLIPS);
   const [attendanceLogs, setAttendanceLogs] = useState(INITIAL_ATTENDANCE_LOGS);
   const [quizzes, setQuizzes] = useState(INITIAL_QUIZZES);
+  const [quizSubmissions, setQuizSubmissions] = useState([
+    {
+      id: "sub-001",
+      quizId: "quiz-km-integration",
+      quizTitle: "Integration Speed Challenge & ILATE Technique (අනුකලනය)",
+      studentId: "std-8821",
+      studentName: "Nimesh Fernando",
+      studentIndex: "LYN-26-8821",
+      batchId: "batch-km-2025-theory",
+      instructorId: "ins-kasun-maths",
+      score: 50,
+      totalMarks: 50,
+      percentage: 100,
+      submittedAt: "2026-08-11 14:30"
+    }
+  ]);
 
   // ----------------------------------------------------
   // Live Supabase Realtime Listeners (Instant Multi-Tab Sync)
@@ -632,6 +648,33 @@ export const AppProvider = ({ children }) => {
     showToast("New video lecture uploaded & published to students!", "success");
   };
 
+  const addQuizByTeacher = (quizData) => {
+    const newQuiz = {
+      id: `quiz-${Date.now()}`,
+      instructorId: currentTeacher.id,
+      subject: currentTeacher.subject,
+      ...quizData
+    };
+    setQuizzes(prev => [newQuiz, ...prev]);
+    sound.playChimeApproved();
+    showToast(`MCQ Exam Paper "${newQuiz.title}" published to students!`, "success");
+    return newQuiz;
+  };
+
+  const submitQuizAnswers = (submissionData) => {
+    const newSub = {
+      id: `sub-${Date.now()}`,
+      studentId: currentStudent.id,
+      studentName: currentStudent.name,
+      studentIndex: currentStudent.indexNumber,
+      submittedAt: new Date().toLocaleString(),
+      ...submissionData
+    };
+    setQuizSubmissions(prev => [newSub, ...prev]);
+    sound.playChimeApproved();
+    showToast(`Exam Submitted! You scored ${newSub.score}/${newSub.totalMarks} (${newSub.percentage}%)`, 'success');
+  };
+
   const switchRole = (role) => {
     sound.playClick();
     setCurrentRole(role);
@@ -687,6 +730,10 @@ export const AppProvider = ({ children }) => {
         setActiveLesson,
         activeQuiz,
         setActiveQuiz,
+        quizSubmissions,
+        setQuizSubmissions,
+        addQuizByTeacher,
+        submitQuizAnswers,
         paymentModalData,
         setPaymentModalData,
         selectedSlipForReview,

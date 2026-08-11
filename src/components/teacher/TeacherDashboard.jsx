@@ -22,6 +22,8 @@ import {
   Send,
   Calendar,
   Sparkles,
+  Award,
+  BookOpen,
   UserPlus,
   Zap
 } from 'lucide-react';
@@ -40,6 +42,9 @@ export const TeacherDashboard = () => {
     students,
     addStudentByTeacher,
     attendanceLogs,
+    quizzes,
+    addQuizByTeacher,
+    quizSubmissions,
     setActiveLesson,
     showToast
   } = useApp();
@@ -47,8 +52,25 @@ export const TeacherDashboard = () => {
   const [studentSearch, setStudentSearch] = useState('');
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [selectedSlipModal, setSelectedSlipModal] = useState(null);
+
+  const [newQuizForm, setNewQuizForm] = useState({
+    title: '',
+    batchId: currentTeacher.batches[0]?.id || '',
+    durationMinutes: 15,
+    totalMarks: 50,
+    questions: [
+      {
+        id: 'q1',
+        question: '',
+        options: ['', '', '', ''],
+        correctIndex: 0,
+        explanation: ''
+      }
+    ]
+  });
 
   const [newStudentForm, setNewStudentForm] = useState({
     name: '',
@@ -73,9 +95,83 @@ export const TeacherDashboard = () => {
   const teacherLessons = lessons.filter(l => l.instructorId === currentTeacher.id);
   const teacherSlips = bankSlips.filter(s => s.instructorId === currentTeacher.id);
   const pendingSlips = teacherSlips.filter(s => s.status === 'pending');
+  const teacherQuizzes = quizzes.filter(q => q.instructorId === currentTeacher.id || q.subject.toLowerCase() === currentTeacher.subject.toLowerCase());
+  const teacherSubmissions = quizSubmissions.filter(s => s.instructorId === currentTeacher.id || s.quizTitle?.includes(currentTeacher.subject));
   
   const totalEnrolled = currentTeacher.batches.reduce((sum, b) => sum + b.enrolledCount, 0);
   const estimatedRevenue = (totalEnrolled * currentTeacher.monthlyFee);
+
+  const handlePublishQuizSubmit = (e) => {
+    e.preventDefault();
+    if (!newQuizForm.title) {
+      showToast("Please enter exam paper title", "error");
+      return;
+    }
+    const validQuestions = newQuizForm.questions.filter(q => q.question.trim() !== '');
+    if (validQuestions.length === 0) {
+      showToast("Please add at least 1 MCQ question", "error");
+      return;
+    }
+
+    addQuizByTeacher({
+      title: newQuizForm.title,
+      batchId: newQuizForm.batchId || currentTeacher.batches[0]?.id,
+      durationMinutes: Number(newQuizForm.durationMinutes) || 15,
+      totalMarks: Number(newQuizForm.totalMarks) || 50,
+      questions: validQuestions
+    });
+
+    setShowCreateQuizModal(false);
+    setNewQuizForm({
+      title: '',
+      batchId: currentTeacher.batches[0]?.id || '',
+      durationMinutes: 15,
+      totalMarks: 50,
+      questions: [
+        {
+          id: 'q1',
+          question: '',
+          options: ['', '', '', ''],
+          correctIndex: 0,
+          explanation: ''
+        }
+      ]
+    });
+  };
+
+  const handleAddQuestionField = () => {
+    setNewQuizForm(prev => ({
+      ...prev,
+      questions: [
+        ...prev.questions,
+        {
+          id: `q${prev.questions.length + 1}`,
+          question: '',
+          options: ['', '', '', ''],
+          correctIndex: 0,
+          explanation: ''
+        }
+      ]
+    }));
+  };
+
+  const handleUpdateQuestion = (qIndex, field, value) => {
+    setNewQuizForm(prev => {
+      const updated = [...prev.questions];
+      updated[qIndex] = { ...updated[qIndex], [field]: value };
+      return { ...prev, questions: updated };
+    });
+  };
+
+  const handleUpdateOption = (qIndex, optIndex, value) => {
+    setNewQuizForm(prev => {
+      const updated = [...prev.questions];
+      const newOptions = [...updated[qIndex].options];
+      newOptions[optIndex] = value;
+      updated[qIndex] = { ...updated[qIndex], options: newOptions };
+      return { ...prev, questions: updated };
+    });
+  };
 
   const handleCreateLesson = (e) => {
     e.preventDefault();
@@ -688,6 +784,135 @@ export const TeacherDashboard = () => {
         </div>
       )}
 
+      {/* EXAMS & MCQ PAPERS TAB */}
+      {activeTab === 'exams' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Online MCQ Exam Papers & Question Bank</h2>
+              <p className="text-xs text-slate-500">Create custom MCQ tests, set countdown timers, and evaluate student marks automatically.</p>
+            </div>
+
+            <button
+              onClick={() => setShowCreateQuizModal(true)}
+              className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Create New MCQ Paper</span>
+            </button>
+          </div>
+
+          {/* Metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <span className="text-xs text-slate-500 font-bold">Published Papers</span>
+              <div className="text-2xl font-black text-slate-900 mt-1">{teacherQuizzes.length}</div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <span className="text-xs text-slate-500 font-bold">Total Questions</span>
+              <div className="text-2xl font-black text-purple-600 mt-1">
+                {teacherQuizzes.reduce((sum, q) => sum + q.questions.length, 0)}
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <span className="text-xs text-slate-500 font-bold">Student Submissions</span>
+              <div className="text-2xl font-black text-blue-600 mt-1">{teacherSubmissions.length}</div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <span className="text-xs text-slate-500 font-bold">Avg Student Score</span>
+              <div className="text-2xl font-black text-emerald-600 mt-1">
+                {teacherSubmissions.length > 0 
+                  ? `${Math.round(teacherSubmissions.reduce((s, sub) => s + sub.percentage, 0) / teacherSubmissions.length)}%` 
+                  : '95%'}
+              </div>
+            </div>
+          </div>
+
+          {/* List of Sir's MCQ Papers */}
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-slate-900">Active Published MCQ Papers</h3>
+
+            {teacherQuizzes.length === 0 ? (
+              <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-xs text-slate-500 space-y-3">
+                <Award className="w-10 h-10 text-slate-300 mx-auto" />
+                <p>No MCQ papers created yet. Click <strong>"+ Create New MCQ Paper"</strong> to publish your first exam.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {teacherQuizzes.map((quiz) => (
+                  <div key={quiz.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                          {quiz.subject}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-slate-500 font-mono font-bold">
+                          <Clock className="w-3.5 h-3.5 text-amber-500" />
+                          <span>{quiz.durationMinutes} Mins</span>
+                        </div>
+                      </div>
+
+                      <h4 className="font-bold text-slate-900 text-sm mt-3">{quiz.title}</h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {quiz.questions.length} Questions • Total: {quiz.totalMarks} Marks
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-600">✓ Live for Students</span>
+                      <button
+                        onClick={() => showToast(`Opening Question Bank for ${quiz.title}`, 'info')}
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                      >
+                        View {quiz.questions.length} Questions
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Student Exam Marks Leaderboard */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+            <h3 className="text-base font-bold text-slate-900">Recent Student MCQ Marks & Submissions</h3>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
+                  <tr>
+                    <th className="p-3">Student Name</th>
+                    <th className="p-3">Index Number</th>
+                    <th className="p-3">Exam Paper</th>
+                    <th className="p-3">Score / Marks</th>
+                    <th className="p-3">Percentage</th>
+                    <th className="p-3">Submitted At</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {teacherSubmissions.map((sub) => (
+                    <tr key={sub.id} className="hover:bg-slate-50">
+                      <td className="p-3 font-bold text-slate-900">{sub.studentName}</td>
+                      <td className="p-3 font-mono text-blue-700 font-bold">{sub.studentIndex}</td>
+                      <td className="p-3 text-slate-700">{sub.quizTitle}</td>
+                      <td className="p-3 font-bold text-slate-900">{sub.score} / {sub.totalMarks}</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                          sub.percentage >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {sub.percentage}%
+                        </span>
+                      </td>
+                      <td className="p-3 text-slate-500 font-mono text-[11px]">{sub.submittedAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODALS */}
       {showAddLessonModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -931,6 +1156,160 @@ export const TeacherDashboard = () => {
                   className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20"
                 >
                   Enroll & Generate QR Pass
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM MCQ EXAM PAPER CREATOR MODAL */}
+      {showCreateQuizModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                  <Award className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">Create Custom MCQ Exam Paper</h3>
+                  <p className="text-xs text-slate-500">Publish timed multiple-choice papers for enrolled students</p>
+                </div>
+              </div>
+              <button onClick={() => setShowCreateQuizModal(false)} className="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+
+            <form onSubmit={handlePublishQuizSubmit} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Exam Paper Title:</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 2025 A/L Combined Maths — Trigonometric Integrals Test"
+                  value={newQuizForm.title}
+                  onChange={(e) => setNewQuizForm({ ...newQuizForm, title: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Target Batch:</label>
+                  <select
+                    value={newQuizForm.batchId}
+                    onChange={(e) => setNewQuizForm({ ...newQuizForm, batchId: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
+                  >
+                    {currentTeacher.batches.map(b => (
+                      <option key={b.id} value={b.id}>{b.code} - {b.title.slice(0, 18)}...</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Time Limit (Mins):</label>
+                  <input
+                    type="number"
+                    min="5"
+                    max="180"
+                    value={newQuizForm.durationMinutes}
+                    onChange={(e) => setNewQuizForm({ ...newQuizForm, durationMinutes: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Total Marks:</label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="100"
+                    value={newQuizForm.totalMarks}
+                    onChange={(e) => setNewQuizForm({ ...newQuizForm, totalMarks: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Dynamic Questions Builder */}
+              <div className="space-y-4 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800">MCQ Questions ({newQuizForm.questions.length}):</span>
+                  <button
+                    type="button"
+                    onClick={handleAddQuestionField}
+                    className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-purple-200"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Another Question</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {newQuizForm.questions.map((q, qIndex) => (
+                    <div key={q.id || qIndex} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-purple-700 font-mono">Question #{qIndex + 1}</span>
+                        <span className="text-[10px] text-slate-500 font-bold">Select radio button for Correct Answer</span>
+                      </div>
+
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter Question Text (e.g. ∫ x · e^(2x) dx අනුකලනයේ අගය කොපමණද?)"
+                        value={q.question}
+                        onChange={(e) => handleUpdateQuestion(qIndex, 'question', e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium"
+                      />
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {q.options.map((opt, optIndex) => (
+                          <div key={optIndex} className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                            <input
+                              type="radio"
+                              name={`correct-${qIndex}`}
+                              checked={q.correctIndex === optIndex}
+                              onChange={() => handleUpdateQuestion(qIndex, 'correctIndex', optIndex)}
+                              className="w-4 h-4 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              required
+                              placeholder={`Option ${optIndex + 1}`}
+                              value={opt}
+                              onChange={(e) => handleUpdateOption(qIndex, optIndex, e.target.value)}
+                              className="flex-1 bg-transparent border-0 text-xs text-slate-900 focus:outline-none"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <input
+                        type="text"
+                        placeholder="Answer Explanation / Working Steps (shown after submit)"
+                        value={q.explanation}
+                        onChange={(e) => handleUpdateQuestion(qIndex, 'explanation', e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-600 italic"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateQuizModal(false)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20"
+                >
+                  🚀 Publish MCQ Paper to Students
                 </button>
               </div>
             </form>
