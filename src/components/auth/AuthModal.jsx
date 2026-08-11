@@ -1,0 +1,246 @@
+import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
+import { supabaseAuthService, isSupabaseConfigured } from '../../lib/supabaseClient';
+import { 
+  Lock, 
+  Mail, 
+  UserCheck, 
+  GraduationCap, 
+  ShieldCheck, 
+  CheckCircle2, 
+  AlertCircle, 
+  Sparkles,
+  Database,
+  ArrowRight,
+  ExternalLink,
+  Key
+} from 'lucide-react';
+
+export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
+  const { setCurrentRole, setCurrentTeacherId, showToast } = useApp();
+
+  const [activeRole, setActiveRole] = useState(defaultRole); // 'teacher' | 'student' | 'super_admin'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  if (!isOpen) return null;
+
+  const isLiveDb = isSupabaseConfigured();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage('');
+
+    if (isLiveDb) {
+      const { data, error } = await supabaseAuthService.signIn(email, password);
+      if (error) {
+        setErrorMessage(error.message);
+        setIsLoading(false);
+        return;
+      }
+      showToast(`Welcome back! Logged in via Supabase as ${activeRole}`, 'success');
+    } else {
+      // Fallback demo simulation
+      setTimeout(() => {
+        showToast(`Logged in successfully as ${activeRole}! (Simulation Mode)`, 'success');
+      }, 500);
+    }
+
+    if (activeRole === 'teacher') {
+      setCurrentRole('teacher');
+      setCurrentTeacherId('ins-kasun-maths');
+    } else if (activeRole === 'student') {
+      setCurrentRole('student');
+    } else {
+      setCurrentRole('admin');
+    }
+
+    setIsLoading(false);
+    onClose();
+  };
+
+  const handleFillDemoCredentials = (role) => {
+    setActiveRole(role);
+    if (role === 'teacher') {
+      setEmail('kasun.maths@lyntrix.learn');
+      setPassword('MasterKasun@2026');
+    } else if (role === 'student') {
+      setEmail('nimesh.f@gmail.com');
+      setPassword('StudentNimesh@123');
+    } else {
+      setEmail('admin@lyntrix.learn');
+      setPassword('SuperAdmin@9921');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 relative">
+        {/* Top bar */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-sm">
+              LL
+            </div>
+            <div>
+              <h3 className="font-black text-slate-900 text-base">LMS Portal Authentication</h3>
+              <p className="text-[11px] text-slate-500">Secure Access for Masters & Students</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Supabase Status Banner */}
+        <div className={`p-3 rounded-2xl border flex items-center justify-between text-xs ${
+          isLiveDb 
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+            : 'bg-blue-50 border-blue-200 text-blue-800'
+        }`}>
+          <div className="flex items-center gap-2 font-medium">
+            <Database className="w-4 h-4 text-blue-600" />
+            <span>Database: <strong>{isLiveDb ? 'Supabase Connected' : 'Supabase Ready (Ready for .env)'}</strong></span>
+          </div>
+          <span className="text-[10px] font-bold bg-white px-2 py-0.5 rounded border shadow-sm">
+            PostgreSQL
+          </span>
+        </div>
+
+        {/* Role Picker Tabs */}
+        <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setActiveRole('teacher')}
+            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              activeRole === 'teacher'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Sir / Teacher</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveRole('student')}
+            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              activeRole === 'student'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>Student</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveRole('super_admin')}
+            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              activeRole === 'super_admin'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Super Admin</span>
+          </button>
+        </div>
+
+        {/* Error message */}
+        {errorMessage && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {/* Login Form */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              {activeRole === 'teacher' ? "Master's Email Address:" : activeRole === 'student' ? "Student Email or Index:" : "Platform Admin Email:"}
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                required
+                placeholder={activeRole === 'teacher' ? "kasun.maths@lyntrix.learn" : "nimesh.f@gmail.com"}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
+              />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Secure Password:</label>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
+              />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3 rounded-xl text-xs font-bold text-white shadow-md transition flex items-center justify-center gap-2 ${
+              activeRole === 'teacher' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' :
+              activeRole === 'student' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20' :
+              'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20'
+            }`}
+          >
+            <Key className="w-4 h-4" />
+            <span>{isLoading ? 'Authenticating...' : `Enter ${activeRole === 'teacher' ? 'Sir Studio' : activeRole === 'student' ? 'Student Hub' : 'Admin Console'}`}</span>
+          </button>
+        </form>
+
+        {/* 1-Click Fast Fill for Demo Testing */}
+        <div className="pt-3 border-t border-slate-100 space-y-2">
+          <div className="text-[11px] font-bold text-slate-500 flex items-center justify-between">
+            <span>⚡ 1-Click Test Credentials:</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => handleFillDemoCredentials('teacher')}
+              className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 rounded-lg text-[11px] font-semibold text-center transition"
+            >
+              👨‍🏫 Fill Sir
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFillDemoCredentials('student')}
+              className="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-800 rounded-lg text-[11px] font-semibold text-center transition"
+            >
+              🎓 Fill Student
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFillDemoCredentials('super_admin')}
+              className="py-1.5 px-2 bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-300 text-slate-700 hover:text-purple-800 rounded-lg text-[11px] font-semibold text-center transition"
+            >
+              👑 Fill Admin
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

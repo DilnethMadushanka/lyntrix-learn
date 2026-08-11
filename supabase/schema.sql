@@ -1,0 +1,211 @@
+-- =========================================================================
+-- LYNTRIX LEARN — SUPABASE POSTGRESQL SCHEMA & MULTI-TENANT RLS POLICIES
+-- =========================================================================
+-- Copy and paste this script directly into your Supabase Dashboard SQL Editor
+-- (https://app.supabase.com/project/_/sql) and click "Run".
+-- =========================================================================
+
+-- Enable UUID Extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 1. PROFILES TABLE (Linked with Supabase Auth auth.users)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT,
+  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('super_admin', 'teacher', 'student')),
+  avatar_url TEXT DEFAULT 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+  index_number TEXT UNIQUE,
+  district TEXT,
+  address TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. TEACHERS / ACADEMIES (Multi-Tenant Master Registry)
+CREATE TABLE IF NOT EXISTS public.teachers (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  subject_category TEXT NOT NULL DEFAULT 'maths',
+  subdomain TEXT UNIQUE NOT NULL,
+  avatar_url TEXT,
+  cover_url TEXT,
+  rating NUMERIC(3,2) DEFAULT 5.00,
+  monthly_fee NUMERIC(10,2) NOT NULL DEFAULT 3500.00,
+  bio TEXT,
+  bank_name TEXT,
+  bank_account_name TEXT,
+  bank_account_number TEXT,
+  bank_branch TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. BATCHES / CLASSES (e.g. 2025 Theory, 2026 Revision)
+CREATE TABLE IF NOT EXISTS public.batches (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  teacher_id UUID REFERENCES public.teachers(id) ON DELETE CASCADE,
+  code TEXT NOT NULL,
+  title TEXT NOT NULL,
+  grade_year TEXT NOT NULL DEFAULT '2025',
+  medium TEXT NOT NULL DEFAULT 'Sinhala Medium',
+  schedule TEXT NOT NULL,
+  monthly_fee NUMERIC(10,2) NOT NULL DEFAULT 3500.00,
+  zoom_link TEXT,
+  description TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. LESSONS & VIDEO CLASSROOM (Anti-Piracy Protected Recordings)
+CREATE TABLE IF NOT EXISTS public.lessons (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  batch_id UUID REFERENCES public.batches(id) ON DELETE CASCADE,
+  teacher_id UUID REFERENCES public.teachers(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  unit TEXT NOT NULL,
+  duration TEXT NOT NULL,
+  video_url TEXT NOT NULL,
+  thumbnail_url TEXT,
+  notes_pdf_url TEXT,
+  description TEXT,
+  views_count INTEGER DEFAULT 0,
+  has_quiz BOOLEAN DEFAULT FALSE,
+  chapters JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. STUDENT ENROLLMENTS & FEE STATUS
+CREATE TABLE IF NOT EXISTS public.enrollments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  batch_id UUID REFERENCES public.batches(id) ON DELETE CASCADE,
+  payment_status TEXT NOT NULL DEFAULT 'Pending' CHECK (payment_status IN ('Paid', 'Pending', 'Overdue')),
+  paid_date DATE,
+  expires_at TIMESTAMPTZ,
+  syllabus_progress INTEGER DEFAULT 0,
+  attendance_rate INTEGER DEFAULT 100,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(student_id, batch_id)
+);
+
+-- 6. BANK DEPOSIT SLIPS (Approval Queue)
+CREATE TABLE IF NOT EXISTS public.bank_slips (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  teacher_id UUID REFERENCES public.teachers(id) ON DELETE CASCADE,
+  batch_id UUID REFERENCES public.batches(id) ON DELETE CASCADE,
+  student_name TEXT NOT NULL,
+  student_index TEXT NOT NULL,
+  student_phone TEXT,
+  amount NUMERIC(10,2) NOT NULL,
+  bank_name TEXT NOT NULL,
+  reference_no TEXT NOT NULL,
+  slip_image_url TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  rejection_reason TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  approved_at TIMESTAMPTZ
+);
+
+-- 7. QR CODE ATTENDANCE LOGS
+CREATE TABLE IF NOT EXISTS public.attendance_logs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  teacher_id UUID REFERENCES public.teachers(id) ON DELETE CASCADE,
+  batch_id UUID REFERENCES public.batches(id) ON DELETE CASCADE,
+  student_name TEXT NOT NULL,
+  student_index TEXT NOT NULL,
+  timestamp TIMESTAMPTZ DEFAULT NOW(),
+  scan_type TEXT DEFAULT 'Hall Scanner',
+  status TEXT NOT NULL DEFAULT 'Present',
+  fee_status TEXT NOT NULL DEFAULT 'Paid'
+);
+
+-- 8. TUTE COURIER DELIVERIES
+CREATE TABLE IF NOT EXISTS public.tute_deliveries (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  batch_id UUID REFERENCES public.batches(id) ON DELETE CASCADE,
+  pack_title TEXT NOT NULL,
+  courier_name TEXT NOT NULL DEFAULT 'PromptX Express',
+  tracking_number TEXT NOT NULL,
+  delivery_status TEXT NOT NULL DEFAULT 'Dispatched' CHECK (delivery_status IN ('Packed', 'Dispatched', 'Delivered')),
+  destination_address TEXT NOT NULL,
+  dispatched_at TIMESTAMPTZ DEFAULT NOW(),
+  delivered_at TIMESTAMPTZ
+);
+
+-- =========================================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- =========================================================================
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.teachers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lessons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bank_slips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attendance_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tute_deliveries ENABLE ROW LEVEL SECURITY;
+
+-- Profiles: Anyone authenticated can view profiles, users can edit their own profile
+CREATE POLICY "Profiles viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Teachers & Batches: Viewable by all students & public
+CREATE POLICY "Teachers viewable by all" ON public.teachers FOR SELECT USING (true);
+CREATE POLICY "Batches viewable by all" ON public.batches FOR SELECT USING (true);
+CREATE POLICY "Teachers can update own profile" ON public.teachers FOR ALL USING (auth.uid() = user_id);
+
+-- Lessons: Students can only view lessons if enrolled and paid
+CREATE POLICY "Lessons accessible to paid students and author teacher" ON public.lessons
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.enrollments
+      WHERE enrollments.batch_id = lessons.batch_id 
+        AND enrollments.student_id = auth.uid() 
+        AND enrollments.payment_status = 'Paid'
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.teachers
+      WHERE teachers.id = lessons.teacher_id AND teachers.user_id = auth.uid()
+    )
+    OR (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'super_admin'
+  );
+
+-- Bank Slips: Students can insert & view their own slips; Teachers can view & approve their own slips
+CREATE POLICY "Students can insert own slip" ON public.bank_slips FOR INSERT WITH CHECK (auth.uid() = student_id);
+CREATE POLICY "Students view own slips" ON public.bank_slips FOR SELECT USING (auth.uid() = student_id);
+CREATE POLICY "Teachers view and manage their class slips" ON public.bank_slips FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.teachers WHERE teachers.id = bank_slips.teacher_id AND teachers.user_id = auth.uid()
+  )
+  OR (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'super_admin'
+);
+
+-- =========================================================================
+-- AUTOMATIC PROFILE CREATION TRIGGER (When a new user signs up in Supabase)
+-- =========================================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, name, email, role, phone, index_number)
+  VALUES (
+    new.id,
+    COALESCE(new.raw_user_meta_data->>'name', 'Student User'),
+    new.email,
+    COALESCE(new.raw_user_meta_data->>'role', 'student'),
+    COALESCE(new.raw_user_meta_data->>'phone', ''),
+    COALESCE(new.raw_user_meta_data->>'index_number', 'LYN-26-' || floor(random() * 9000 + 1000)::text)
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
