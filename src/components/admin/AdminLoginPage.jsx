@@ -79,9 +79,11 @@ export const AdminLoginPage = () => {
         {/* Credentials Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Admin Email Address:</label>
+            <label htmlFor="admin-login-email" className="block text-xs font-bold text-slate-700 mb-1">Admin Email Address:</label>
             <div className="relative">
               <input
+                id="admin-login-email"
+                name="adminEmail"
                 type="email"
                 required
                 placeholder="admin@lyntrix.learn"
@@ -94,9 +96,11 @@ export const AdminLoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Master Security Password:</label>
+            <label htmlFor="admin-login-password" className="block text-xs font-bold text-slate-700 mb-1">Master Security Password:</label>
             <div className="relative">
               <input
+                id="admin-login-password"
+                name="adminPassword"
                 type="password"
                 required
                 placeholder="••••••••••••"

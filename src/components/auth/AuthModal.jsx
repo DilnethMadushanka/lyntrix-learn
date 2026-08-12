@@ -183,12 +183,14 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
         {/* Unified Clean Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label htmlFor="student-auth-email" className="block text-xs font-bold text-slate-700 mb-1">
               Email Address or Index Number:
             </label>
             <div className="relative">
               <input
-                type="email"
+                id="student-auth-email"
+                name="studentEmail"
+                type="text"
                 required
                 placeholder="e.g. nimesh.f@gmail.com or LYN-26-8821"
                 value={email}
@@ -200,9 +202,11 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Secure Password:</label>
+            <label htmlFor="student-auth-password" className="block text-xs font-bold text-slate-700 mb-1">Secure Password:</label>
             <div className="relative">
               <input
+                id="student-auth-password"
+                name="studentPassword"
                 type="password"
                 required
                 placeholder="••••••••••••"

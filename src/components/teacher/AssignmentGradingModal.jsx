@@ -39,8 +39,10 @@ export const AssignmentGradingModal = ({ isOpen, onClose, submission }) => {
 
         <form onSubmit={handleSaveGrade} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Enter Marks (out of 100):</label>
+            <label htmlFor="grading-marks-input" className="block text-xs font-bold text-slate-700 mb-1">Enter Marks (out of 100):</label>
             <input
+              id="grading-marks-input"
+              name="studentMarks"
               type="number"
               min="0"
               max="100"
@@ -52,8 +54,10 @@ export const AssignmentGradingModal = ({ isOpen, onClose, submission }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Instructor Feedback & Comments:</label>
+            <label htmlFor="grading-feedback-input" className="block text-xs font-bold text-slate-700 mb-1">Instructor Feedback & Comments:</label>
             <textarea
+              id="grading-feedback-input"
+              name="instructorFeedback"
               rows={4}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}

@@ -130,11 +130,13 @@ export const TeacherLoginPage = () => {
         {/* Master Login Form */}
         <form onSubmit={handleTeacherLogin} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label htmlFor="teacher-login-email" className="block text-xs font-bold text-slate-300 mb-1.5">
               Master's Email Address:
             </label>
             <div className="relative">
               <input
+                id="teacher-login-email"
+                name="teacherEmail"
                 type="email"
                 required
                 placeholder="kasun.maths@lyntrix.learn"
@@ -147,11 +149,13 @@ export const TeacherLoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label htmlFor="teacher-login-password" className="block text-xs font-bold text-slate-300 mb-1.5">
               Master's Secure Password:
             </label>
             <div className="relative">
               <input
+                id="teacher-login-password"
+                name="teacherPassword"
                 type="password"
                 required
                 placeholder="••••••••••••"

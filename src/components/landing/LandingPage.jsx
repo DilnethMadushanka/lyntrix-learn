@@ -354,6 +354,9 @@ export const LandingPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <div className="sm:col-span-8 relative">
                   <input
+                    id="catalog-search-input"
+                    name="catalogSearchQuery"
+                    aria-label="Search by Master Name, Unit Title, or Subject"
                     type="text"
                     placeholder="Search by Master Name (Kasun, Nuwan...), Unit Title, or Subject..."
                     value={searchQuery}
@@ -365,6 +368,9 @@ export const LandingPage = () => {
 
                 <div className="sm:col-span-4">
                   <select
+                    id="catalog-grade-select"
+                    name="catalogGradeFilter"
+                    aria-label="Filter by Batch Year"
                     value={selectedGrade}
                     onChange={(e) => setSelectedGrade(e.target.value)}
                     className="w-full bg-slate-950/80 border border-indigo-500/30 rounded-2xl px-4 py-3 text-xs text-white font-bold focus:outline-none"

@@ -177,8 +177,10 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Course Batch Title:</label>
+              <label htmlFor="wizard-course-title" className="block text-xs font-bold text-slate-700 mb-1">Course Batch Title:</label>
               <input
+                id="wizard-course-title"
+                name="courseTitle"
                 type="text"
                 required
                 placeholder="e.g. 2026 A/L Combined Maths — Integral Calculus & Revision"
@@ -190,8 +192,10 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Subject Category:</label>
+                <label htmlFor="wizard-subject-category" className="block text-xs font-bold text-slate-700 mb-1">Subject Category:</label>
                 <input
+                  id="wizard-subject-category"
+                  name="subjectCategory"
                   type="text"
                   value={basicInfo.category}
                   onChange={(e) => setBasicInfo({ ...basicInfo, category: e.target.value })}
@@ -200,8 +204,10 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Target Batch Year:</label>
+                <label htmlFor="wizard-target-batch" className="block text-xs font-bold text-slate-700 mb-1">Target Batch Year:</label>
                 <select
+                  id="wizard-target-batch"
+                  name="targetBatchYear"
                   value={basicInfo.gradeYear}
                   onChange={(e) => setBasicInfo({ ...basicInfo, gradeYear: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
@@ -214,8 +220,10 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Course Overview & Description:</label>
+              <label htmlFor="wizard-course-description" className="block text-xs font-bold text-slate-700 mb-1">Course Overview & Description:</label>
               <textarea
+                id="wizard-course-description"
+                name="courseDescription"
                 rows={3}
                 placeholder="Comprehensive unit coverage, past paper dissections, and monthly tutes..."
                 value={basicInfo.description}
@@ -225,13 +233,17 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Course Thumbnail Cover:</label>
+              <label htmlFor="wizard-thumbnail-url" className="block text-xs font-bold text-slate-700 mb-1">Course Thumbnail Cover URL:</label>
               <div className="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-2xl flex items-center gap-3">
                 <img src={basicInfo.thumbnail} alt="Thumbnail preview" className="w-16 h-12 rounded-lg object-cover border" />
-                <div className="text-xs text-slate-600">
-                  <div className="font-bold text-slate-900">High-Resolution Cover Image Ready</div>
-                  <span className="text-[10px] text-blue-600 font-bold">16:9 Aspect Ratio Banner</span>
-                </div>
+                <input
+                  id="wizard-thumbnail-url"
+                  name="thumbnailUrl"
+                  type="text"
+                  value={basicInfo.thumbnail}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, thumbnail: e.target.value })}
+                  className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-700 focus:outline-none"
+                />
               </div>
             </div>
 
