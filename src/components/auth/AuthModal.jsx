@@ -84,57 +84,55 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
       }
     }
 
-    // 4. Role Mapping & Session Setting
-    const targetEmail = resolvedEmail.toLowerCase();
-    
-    // Check if Teacher
-    if (
-      targetEmail.includes('kasun') || 
-      targetEmail.includes('maths') || 
-      targetEmail.includes('amila') || 
-      targetEmail.includes('chem') || 
-      targetEmail.includes('dilshan') || 
-      targetEmail.includes('ict') ||
-      activeRole === 'teacher' ||
-      authenticatedUser?.user_metadata?.role === 'teacher'
-    ) {
-      let matchedTeacher = instructors.find(i => 
-        i.email?.toLowerCase() === targetEmail || 
-        targetEmail.includes(i.id.replace('ins-', '')) ||
-        i.name.toLowerCase().includes(targetEmail.split('@')[0])
-      ) || instructors[0];
+    // 4. Registered Accounts (Strict Exact Email / Index + Password Verification)
+    const REGISTERED_STUDENTS = [
+      {
+        identifier: 'nimesh.f@gmail.com',
+        index: 'LYN-26-8821',
+        passwords: ['StudentNimesh@123', 'nimesh123', '123456'],
+        studentId: 'stu-001'
+      },
+      {
+        identifier: 'tharushi.k@gmail.com',
+        index: 'LYN-26-8822',
+        passwords: ['StudentTharushi@123', 'tharushi123', '123456'],
+        studentId: 'stu-002'
+      }
+    ];
 
-      if (targetEmail.includes('amila')) matchedTeacher = instructors[1] || matchedTeacher;
-      if (targetEmail.includes('dilshan')) matchedTeacher = instructors[2] || matchedTeacher;
-
-      setCurrentRole('teacher');
-      setCurrentTeacherId(matchedTeacher.id);
-      showToast(`Welcome Master ${matchedTeacher.name}! Studio unlocked.`, 'success');
+    if (authSuccess && authenticatedUser) {
+      sound.playChimeApproved();
+      setCurrentRole('student');
+      setCurrentStudentId(students[0].id);
+      showToast(`Welcome! Authenticated via Live Supabase DB.`, 'success');
       setIsLoading(false);
       onClose();
       return;
     }
 
-    // Strict Student Credential Matching
-    let matchedStudent = students.find(s => 
-      s.email.toLowerCase() === targetEmail || 
-      s.indexNumber.toUpperCase() === cleanIdentifier.toUpperCase() ||
-      (targetEmail.includes('nimesh') && s.id === 'stu-001') ||
-      (targetEmail.includes('tharushi') && s.id === 'stu-002')
+    const cleanInput = cleanIdentifier.trim().toLowerCase();
+    const cleanIndex = cleanIdentifier.trim().toUpperCase();
+    const inputPassword = password.trim();
+
+    const matchedStudentAcc = REGISTERED_STUDENTS.find(s => 
+      (s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex) &&
+      s.passwords.includes(inputPassword)
     );
 
-    if (!matchedStudent || !password || password.length < 3) {
+    if (!matchedStudentAcc) {
       sound.playBuzzerError();
-      setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password.");
+      setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password. Check your credentials.");
       showToast("Access Denied: Invalid Credentials", "error");
       setIsLoading(false);
       return;
     }
 
+    const matchedStudentObj = students.find(s => s.id === matchedStudentAcc.studentId) || students[0];
+
     sound.playChimeApproved();
     setCurrentRole('student');
-    setCurrentStudentId(matchedStudent.id);
-    showToast(`Ayubowan, ${matchedStudent.name}! Student Learning Hub loaded.`, 'success');
+    setCurrentStudentId(matchedStudentObj.id);
+    showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
     setIsLoading(false);
     onClose();
   };
