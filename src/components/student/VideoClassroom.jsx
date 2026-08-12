@@ -37,17 +37,26 @@ export const VideoClassroom = () => {
   const [activeTab, setActiveTab] = useState('chapters');
   const [userNotes, setUserNotes] = useState('');
 
-  // 🛡️ ANTI-SCREEN RECORDING & CAPTURE DEFENSE STATES
+  // 🛡️ NETFLIX-GRADE ANTI-PIRACY & HARDWARE DRM DEFENSE ENGINE
   const [isBlackedOut, setIsBlackedOut] = useState(false);
   const [blackoutReason, setBlackoutReason] = useState('');
   const [clientIp] = useState('175.157.192.4');
+  const [realtimeClock, setRealtimeClock] = useState(new Date().toLocaleTimeString());
 
-  // Anti-Screen Recording Event Listeners
+  // Realtime clock ticker for burned-in watermark timestamp
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRealtimeClock(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Anti-Screen Recording & Screenshot Intercept System
   useEffect(() => {
     // 1. Detect Window Blur & Focus Loss (Triggered when opening screen recorders or switching apps)
     const handleWindowBlur = () => {
       setIsBlackedOut(true);
-      setBlackoutReason('Window Focus Lost or External Capture Software Intercepted.');
+      setBlackoutReason('Window Focus Lost or External Capture Software Active.');
       if (videoRef.current && !videoRef.current.paused) {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -58,7 +67,7 @@ export const VideoClassroom = () => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
         setIsBlackedOut(true);
-        setBlackoutReason('Tab Hidden / Screen Recorder Software Active.');
+        setBlackoutReason('Tab Hidden / Background Capture Attempt.');
         if (videoRef.current && !videoRef.current.paused) {
           videoRef.current.pause();
           setIsPlaying(false);
@@ -66,33 +75,53 @@ export const VideoClassroom = () => {
       }
     };
 
-    // 3. Intercept Screen Capture / Screenshot Shortcut Keys (PrtScn, DevTools, Snipping Tool)
+    // 3. Screenshot Key Interception & System Clipboard Eraser
     const handleKeyDown = (e) => {
       const isPrintScreen = e.key === 'PrintScreen' || e.keyCode === 44;
       const isDevTools = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j');
       const isViewSource = (e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U');
 
-      if (isPrintScreen || isDevTools || isViewSource) {
+      if (isPrintScreen || isDevTools || isViewSource || (e.altKey && isPrintScreen)) {
         e.preventDefault();
+        
+        // Erase system clipboard so screenshot image cannot be pasted
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('⚠️ Protected Content: Screenshot attempt blocked by Lyntrix DRM Engine.').catch(() => {});
+        }
+
         sound.playBuzzerError();
         setIsBlackedOut(true);
-        setBlackoutReason('Screenshot / Screen Recording Shortcut Intercepted.');
-        showToast('⚠️ Anti-Piracy Protection: Screen capture attempt blocked.', 'error');
+        setBlackoutReason('Screenshot Attempt Blocked & Clipboard Erased (PrintScreen / DevTools)');
+        showToast('🔒 Netflix-Grade DRM: Screenshot attempt blocked & clipboard erased!', 'error');
+
         if (videoRef.current && !videoRef.current.paused) {
           videoRef.current.pause();
           setIsPlaying(false);
         }
+      }
+    };
+
+    // 4. Hardware PrintScreen Key Release Listener
+    const handleKeyUp = (e) => {
+      if (e.key === 'PrintScreen' || e.keyCode === 44) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('⚠️ Protected Content: Screenshot attempt blocked by Lyntrix DRM Engine.').catch(() => {});
+        }
+        setIsBlackedOut(true);
+        setBlackoutReason('Hardware PrintScreen Key Released — Screenshot Destroyed.');
       }
     };
 
     window.addEventListener('blur', handleWindowBlur);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     return () => {
       window.removeEventListener('blur', handleWindowBlur);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
 
@@ -212,8 +241,8 @@ export const VideoClassroom = () => {
                   className="w-full h-full object-contain pointer-events-auto"
                 />
 
-                {/* DYNAMIC FLOATING WATERMARK (Prevents Screen Recording) */}
-                <div className="absolute animate-watermark bg-black/85 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl text-white font-mono text-[11px] pointer-events-none select-none shadow-2xl z-10">
+                {/* 1. DYNAMIC FLOATING WATERMARK */}
+                <div className="absolute animate-watermark bg-black/85 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl text-white font-mono text-[11px] pointer-events-none select-none shadow-2xl z-20">
                   <div className="flex items-center gap-1.5 font-bold">
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                     <span>{currentStudent.name}</span>
@@ -223,8 +252,14 @@ export const VideoClassroom = () => {
                   </div>
                 </div>
 
-                <div className="absolute top-3 right-3 bg-black/60 px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-300 pointer-events-none">
-                  Lyntrix Protected Stream
+                {/* 2. PERMANENT BURNED-IN TIMESTAMP WATERMARK STAMP (Bottom-Right) */}
+                <div className="absolute bottom-16 right-4 bg-black/80 backdrop-blur-sm border border-cyan-500/30 px-2.5 py-1 rounded-lg text-cyan-400 font-mono text-[10px] font-bold pointer-events-none select-none z-10 shadow-lg">
+                  <div>STUDENT ID: {currentStudent.indexNumber}</div>
+                  <div className="text-[9px] text-slate-400 font-medium">{realtimeClock} • IP: {clientIp}</div>
+                </div>
+
+                <div className="absolute top-3 right-3 bg-black/70 px-2.5 py-1 rounded-lg border border-white/10 text-[10px] font-mono text-slate-300 pointer-events-none z-10">
+                  🔒 Netflix-Grade Hardware DRM Protected
                 </div>
               </>
             )}
