@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { supabaseAuthService, isSupabaseConfigured } from '../../lib/supabaseClient';
+import { sound } from '../../utils/soundEffects';
 import { 
   Lock, 
   Mail, 
