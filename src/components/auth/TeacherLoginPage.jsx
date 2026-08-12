@@ -50,7 +50,7 @@ export const TeacherLoginPage = () => {
         }
       }
 
-      // 2. Strict Exact Local Credential Matching (If offline or static mock)
+      // 2. Strict Local Credential Matching with Specific Error Messaging
       if (!authenticatedTeacher) {
         const REGISTERED_TEACHERS = [
           {
@@ -70,22 +70,25 @@ export const TeacherLoginPage = () => {
           }
         ];
 
-        const foundAccount = REGISTERED_TEACHERS.find(t => 
-          t.email.toLowerCase() === targetEmail && 
-          t.passwords.includes(targetPassword)
+        const existingTeacher = REGISTERED_TEACHERS.find(t => 
+          t.email.toLowerCase() === targetEmail || targetEmail.includes(t.email.split('.')[0])
         );
 
-        if (foundAccount) {
-          authenticatedTeacher = instructors.find(i => i.id === foundAccount.instructorId) || instructors[0];
+        if (existingTeacher) {
+          if (existingTeacher.passwords.includes(targetPassword)) {
+            authenticatedTeacher = instructors.find(i => i.id === existingTeacher.instructorId) || instructors[0];
+          } else {
+            sound.playBuzzerError();
+            setError("❌ Incorrect Password: The Master Security Password you entered is incorrect.");
+            showToast("Incorrect Master Password", "error");
+            return;
+          }
+        } else {
+          sound.playBuzzerError();
+          setError("❌ Master Account Not Found: No teacher profile exists with this Email Address.");
+          showToast("Master Account Not Found", "error");
+          return;
         }
-      }
-
-      // 3. Strict Rejection if Credentials Invalid
-      if (!authenticatedTeacher) {
-        sound.playBuzzerError();
-        setError("❌ Access Denied: Invalid Master Email or Password. Fake credentials cannot log in.");
-        showToast("Access Denied: Invalid Master Credentials", "error");
-        return;
       }
 
       sound.playChimeApproved();

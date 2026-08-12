@@ -60,7 +60,7 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
         }
       }
 
-      // 2. Registered Local Student Accounts Check (Instant 0ms Response)
+      // 2. Registered Local Student Accounts Check (Specific Password Verification)
       const REGISTERED_STUDENTS = [
         {
           identifier: 'nimesh.f@gmail.com',
@@ -76,19 +76,27 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
         }
       ];
 
-      const matchedLocalAcc = REGISTERED_STUDENTS.find(s => 
-        (s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex) &&
-        s.passwords.includes(inputPassword)
+      const existingAccount = REGISTERED_STUDENTS.find(s => 
+        s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex
       );
 
-      if (matchedLocalAcc) {
-        const matchedStudentObj = students.find(s => s.id === matchedLocalAcc.studentId) || students[0];
-        sound.playChimeApproved();
-        setCurrentRole('student');
-        setCurrentStudentId(matchedStudentObj.id);
-        showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
-        onClose();
-        return;
+      if (existingAccount) {
+        // Account exists! Check password:
+        if (existingAccount.passwords.includes(inputPassword)) {
+          const matchedStudentObj = students.find(s => s.id === existingAccount.studentId) || students[0];
+          sound.playChimeApproved();
+          setCurrentRole('student');
+          setCurrentStudentId(matchedStudentObj.id);
+          showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
+          onClose();
+          return;
+        } else {
+          // Account exists BUT password is wrong!
+          sound.playBuzzerError();
+          setErrorMessage("❌ Incorrect Password: The password you entered for this account is incorrect.");
+          showToast("Incorrect Password", "error");
+          return;
+        }
       }
 
       // 3. Fallback: Live Supabase Auth Check (Fast 1.2s Timeout)
@@ -116,10 +124,10 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
         return;
       }
 
-      // 4. Rejection for Invalid Credentials
+      // 4. Rejection for Unknown Account
       sound.playBuzzerError();
-      setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password. Check your credentials.");
-      showToast("Access Denied: Invalid Credentials", "error");
+      setErrorMessage("❌ Account Not Found: No student account exists with this Email or Index Number.");
+      showToast("Account Not Found", "error");
     } catch (err) {
       console.error("Authentication Handler Error:", err);
       sound.playBuzzerError();
