@@ -32,65 +32,73 @@ export const TeacherLoginPage = () => {
     setIsLoading(true);
     setError('');
 
-    const targetEmail = email.trim().toLowerCase();
-    const targetPassword = password.trim();
+    try {
+      const targetEmail = email.trim().toLowerCase();
+      const targetPassword = password.trim();
 
-    let authenticatedTeacher = null;
+      let authenticatedTeacher = null;
 
-    // 1. Live Supabase Authentication
-    if (isLiveDb) {
-      const { data, error: authErr } = await supabaseAuthService.signIn(targetEmail, targetPassword);
-      if (!authErr && data?.user) {
-        authenticatedTeacher = instructors.find(i => i.email?.toLowerCase() === targetEmail) || instructors[0];
-      }
-    }
-
-    // 2. Strict Exact Local Credential Matching (If offline or static mock)
-    if (!authenticatedTeacher) {
-      const REGISTERED_TEACHERS = [
-        {
-          email: 'kasun.maths@lyntrix.learn',
-          passwords: ['MasterKasun@2026', 'kasun123', '123456'],
-          instructorId: instructors[0]?.id || 'ins-kasunmaths'
-        },
-        {
-          email: 'amila.chem@lyntrix.learn',
-          passwords: ['MasterAmila@2026', 'amila123', '123456'],
-          instructorId: instructors[1]?.id || 'ins-amilachem'
-        },
-        {
-          email: 'dilshan.ict@lyntrix.learn',
-          passwords: ['MasterDilshan@2026', 'dilshan123', '123456'],
-          instructorId: instructors[2]?.id || 'ins-dilshanict'
+      // 1. Live Supabase Authentication safely
+      if (isLiveDb) {
+        try {
+          const { data, error: authErr } = await supabaseAuthService.signIn(targetEmail, targetPassword);
+          if (!authErr && data?.user) {
+            authenticatedTeacher = instructors.find(i => i.email?.toLowerCase() === targetEmail) || instructors[0];
+          }
+        } catch (authErr) {
+          console.warn("Live Supabase Teacher Auth Exception handled safely:", authErr);
         }
-      ];
-
-      const foundAccount = REGISTERED_TEACHERS.find(t => 
-        t.email.toLowerCase() === targetEmail && 
-        t.passwords.includes(targetPassword)
-      );
-
-      if (foundAccount) {
-        authenticatedTeacher = instructors.find(i => i.id === foundAccount.instructorId) || instructors[0];
       }
-    }
 
-    // 3. Strict Rejection if Credentials Invalid
-    if (!authenticatedTeacher) {
-      sound.playBuzzerError();
-      setError("❌ Access Denied: Invalid Master Email or Password. Fake credentials cannot log in.");
-      showToast("Access Denied: Invalid Master Credentials", "error");
-      setIsLoading(false);
-      return;
-    }
+      // 2. Strict Exact Local Credential Matching (If offline or static mock)
+      if (!authenticatedTeacher) {
+        const REGISTERED_TEACHERS = [
+          {
+            email: 'kasun.maths@lyntrix.learn',
+            passwords: ['MasterKasun@2026', 'kasun123', '123456'],
+            instructorId: instructors[0]?.id || 'ins-kasunmaths'
+          },
+          {
+            email: 'amila.chem@lyntrix.learn',
+            passwords: ['MasterAmila@2026', 'amila123', '123456'],
+            instructorId: instructors[1]?.id || 'ins-amilachem'
+          },
+          {
+            email: 'dilshan.ict@lyntrix.learn',
+            passwords: ['MasterDilshan@2026', 'dilshan123', '123456'],
+            instructorId: instructors[2]?.id || 'ins-dilshanict'
+          }
+        ];
 
-    setTimeout(() => {
+        const foundAccount = REGISTERED_TEACHERS.find(t => 
+          t.email.toLowerCase() === targetEmail && 
+          t.passwords.includes(targetPassword)
+        );
+
+        if (foundAccount) {
+          authenticatedTeacher = instructors.find(i => i.id === foundAccount.instructorId) || instructors[0];
+        }
+      }
+
+      // 3. Strict Rejection if Credentials Invalid
+      if (!authenticatedTeacher) {
+        sound.playBuzzerError();
+        setError("❌ Access Denied: Invalid Master Email or Password. Fake credentials cannot log in.");
+        showToast("Access Denied: Invalid Master Credentials", "error");
+        return;
+      }
+
       sound.playChimeApproved();
       setCurrentTeacherId(authenticatedTeacher.id);
       setCurrentRole('teacher');
       showToast(`Ayubowan Master ${authenticatedTeacher.name}! Sir Studio Unlocked.`, 'success');
+    } catch (err) {
+      console.error("Teacher Login Error:", err);
+      sound.playBuzzerError();
+      setError("❌ System Error: Unable to process teacher login.");
+    } finally {
       setIsLoading(false);
-    }, 400);
+    }
   };
 
   return (

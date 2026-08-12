@@ -39,89 +39,98 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
     setIsLoading(true);
     setErrorMessage('');
 
-    let cleanIdentifier = email.trim();
-    let resolvedEmail = cleanIdentifier;
+    try {
+      let cleanIdentifier = email.trim();
+      let resolvedEmail = cleanIdentifier;
 
-    const cleanInput = cleanIdentifier.toLowerCase();
+      const cleanInput = cleanIdentifier.toLowerCase();
 
-    // 1. Super Admin Login Check (Strict Exact Match)
-    if (cleanInput === 'admin@lyntrix.learn' || cleanInput === 'admin') {
-      const ok = adminLogin(cleanInput, password);
-      if (ok) {
-        setIsLoading(false);
+      // 1. Super Admin Login Check (Strict Exact Match)
+      if (cleanInput === 'admin@lyntrix.learn' || cleanInput === 'admin') {
+        const ok = adminLogin(cleanInput, password);
+        if (ok) {
+          setIsLoading(false);
+          onClose();
+          return;
+        } else {
+          sound.playBuzzerError();
+          setErrorMessage("❌ Access Denied: Invalid Super Admin Security Password.");
+          showToast("Access Denied: Invalid Admin Password", "error");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Authenticate with Live Supabase Auth safely
+      let authSuccess = false;
+      let authenticatedUser = null;
+
+      if (isLiveDb) {
+        try {
+          const { data, error } = await supabaseAuthService.signIn(resolvedEmail, password);
+          if (!error && data?.user) {
+            authSuccess = true;
+            authenticatedUser = data.user;
+          }
+        } catch (authErr) {
+          console.warn("Live Supabase Auth Exception handled safely:", authErr);
+        }
+      }
+
+      // 3. Registered Accounts (Strict Exact Email / Index + Password Verification)
+      const REGISTERED_STUDENTS = [
+        {
+          identifier: 'nimesh.f@gmail.com',
+          index: 'LYN-26-8821',
+          passwords: ['StudentNimesh@123', 'nimesh123', '123456'],
+          studentId: 'stu-001'
+        },
+        {
+          identifier: 'tharushi.k@gmail.com',
+          index: 'LYN-26-8822',
+          passwords: ['StudentTharushi@123', 'tharushi123', '123456'],
+          studentId: 'stu-002'
+        }
+      ];
+
+      if (authSuccess && authenticatedUser) {
+        sound.playChimeApproved();
+        setCurrentRole('student');
+        setCurrentStudentId(students[0].id);
+        showToast(`Welcome! Authenticated via Live Supabase DB.`, 'success');
         onClose();
         return;
-      } else {
+      }
+
+      const cleanIndex = cleanIdentifier.trim().toUpperCase();
+      const inputPassword = password.trim();
+
+      const matchedStudentAcc = REGISTERED_STUDENTS.find(s => 
+        (s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex) &&
+        s.passwords.includes(inputPassword)
+      );
+
+      if (!matchedStudentAcc) {
         sound.playBuzzerError();
-        setErrorMessage("❌ Access Denied: Invalid Super Admin Security Password.");
-        showToast("Access Denied: Invalid Admin Password", "error");
-        setIsLoading(false);
+        setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password. Check your credentials.");
+        showToast("Access Denied: Invalid Credentials", "error");
         return;
       }
-    }
 
-    // 3. Authenticate with Live Supabase Auth
-    let authSuccess = false;
-    let authenticatedUser = null;
+      const matchedStudentObj = students.find(s => s.id === matchedStudentAcc.studentId) || students[0];
 
-    if (isLiveDb) {
-      const { data, error } = await supabaseAuthService.signIn(resolvedEmail, password);
-      if (!error && data?.user) {
-        authSuccess = true;
-        authenticatedUser = data.user;
-      }
-    }
-
-    // 4. Registered Accounts (Strict Exact Email / Index + Password Verification)
-    const REGISTERED_STUDENTS = [
-      {
-        identifier: 'nimesh.f@gmail.com',
-        index: 'LYN-26-8821',
-        passwords: ['StudentNimesh@123', 'nimesh123', '123456'],
-        studentId: 'stu-001'
-      },
-      {
-        identifier: 'tharushi.k@gmail.com',
-        index: 'LYN-26-8822',
-        passwords: ['StudentTharushi@123', 'tharushi123', '123456'],
-        studentId: 'stu-002'
-      }
-    ];
-
-    if (authSuccess && authenticatedUser) {
       sound.playChimeApproved();
       setCurrentRole('student');
-      setCurrentStudentId(students[0].id);
-      showToast(`Welcome! Authenticated via Live Supabase DB.`, 'success');
-      setIsLoading(false);
+      setCurrentStudentId(matchedStudentObj.id);
+      showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
       onClose();
-      return;
-    }
-
-    const cleanIndex = cleanIdentifier.trim().toUpperCase();
-    const inputPassword = password.trim();
-
-    const matchedStudentAcc = REGISTERED_STUDENTS.find(s => 
-      (s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex) &&
-      s.passwords.includes(inputPassword)
-    );
-
-    if (!matchedStudentAcc) {
+    } catch (err) {
+      console.error("Authentication Handler Error:", err);
       sound.playBuzzerError();
-      setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password. Check your credentials.");
-      showToast("Access Denied: Invalid Credentials", "error");
+      setErrorMessage("❌ System Error: Unable to process login. Please try again.");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const matchedStudentObj = students.find(s => s.id === matchedStudentAcc.studentId) || students[0];
-
-    sound.playChimeApproved();
-    setCurrentRole('student');
-    setCurrentStudentId(matchedStudentObj.id);
-    showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
-    setIsLoading(false);
-    onClose();
   };
 
   const handleFillDemoCredentials = (role) => {
