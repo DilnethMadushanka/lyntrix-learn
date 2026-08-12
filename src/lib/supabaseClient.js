@@ -53,14 +53,20 @@ export const supabaseAuthService = {
     }
   },
 
-  // Log in user
+  // Log in user with 2.5s network timeout protection
   async signIn(email, password) {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const authPromise = supabase.auth.signInWithPassword({
         email,
         password
       });
-      return { data, error };
+
+      const timeoutPromise = new Promise((resolve) => 
+        setTimeout(() => resolve({ data: null, error: { message: 'Supabase Auth Timeout' } }), 2500)
+      );
+
+      const result = await Promise.race([authPromise, timeoutPromise]);
+      return result;
     } catch (err) {
       return { data: null, error: err };
     }
