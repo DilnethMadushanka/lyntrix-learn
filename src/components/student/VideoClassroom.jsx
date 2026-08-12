@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { sound } from '../../utils/soundEffects';
 import { 
   Play, 
   Pause, 
@@ -12,7 +13,9 @@ import {
   CheckCircle2, 
   Clock, 
   BookOpen,
-  Sparkles
+  Sparkles,
+  Lock,
+  EyeOff
 } from 'lucide-react';
 
 export const VideoClassroom = () => {
@@ -34,7 +37,64 @@ export const VideoClassroom = () => {
   const [activeTab, setActiveTab] = useState('chapters');
   const [userNotes, setUserNotes] = useState('');
 
+  // 🛡️ ANTI-SCREEN RECORDING & CAPTURE DEFENSE STATES
+  const [isBlackedOut, setIsBlackedOut] = useState(false);
+  const [blackoutReason, setBlackoutReason] = useState('');
   const [clientIp] = useState('175.157.192.4');
+
+  // Anti-Screen Recording Event Listeners
+  useEffect(() => {
+    // 1. Detect Window Blur & Focus Loss (Triggered when opening screen recorders or switching apps)
+    const handleWindowBlur = () => {
+      setIsBlackedOut(true);
+      setBlackoutReason('Window Focus Lost or External Capture Software Intercepted.');
+      if (videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    };
+
+    // 2. Detect Tab Hiding / Backgrounding
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsBlackedOut(true);
+        setBlackoutReason('Tab Hidden / Screen Recorder Software Active.');
+        if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    // 3. Intercept Screen Capture / Screenshot Shortcut Keys (PrtScn, DevTools, Snipping Tool)
+    const handleKeyDown = (e) => {
+      const isPrintScreen = e.key === 'PrintScreen' || e.keyCode === 44;
+      const isDevTools = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j');
+      const isViewSource = (e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U');
+
+      if (isPrintScreen || isDevTools || isViewSource) {
+        e.preventDefault();
+        sound.playBuzzerError();
+        setIsBlackedOut(true);
+        setBlackoutReason('Screenshot / Screen Recording Shortcut Intercepted.');
+        showToast('⚠️ Anti-Piracy Protection: Screen capture attempt blocked.', 'error');
+        if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    window.addEventListener('blur', handleWindowBlur);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('blur', handleWindowBlur);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   if (!activeLesson) return null;
 
@@ -107,31 +167,67 @@ export const VideoClassroom = () => {
       <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Video Area */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="relative rounded-3xl overflow-hidden bg-black border border-slate-800 shadow-2xl aspect-video group">
-            <video
-              ref={videoRef}
-              src={activeLesson.videoUrl}
-              autoPlay
-              playsInline
-              onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
-              onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-              className="w-full h-full object-contain"
-            />
-
-            {/* DYNAMIC FLOATING WATERMARK (Prevents Screen Recording) */}
-            <div className="absolute animate-watermark bg-black/75 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl text-white font-mono text-[11px] pointer-events-none select-none shadow-2xl z-10">
-              <div className="flex items-center gap-1.5 font-bold">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                <span>{currentStudent.name}</span>
+          <div 
+            onContextMenu={(e) => e.preventDefault()}
+            className="relative rounded-3xl overflow-hidden bg-black border border-slate-800 shadow-2xl aspect-video group select-none"
+          >
+            {/* BLACKOUT SCREEN PROTECTION OVERLAY (Triggers on Screen Record / Blur / PrtScn) */}
+            {isBlackedOut ? (
+              <div className="absolute inset-0 z-40 bg-black flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in select-none">
+                <div className="w-16 h-16 rounded-full bg-rose-500/10 border-2 border-rose-500 text-rose-500 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.3)] animate-pulse">
+                  <ShieldAlert className="w-8 h-8" />
+                </div>
+                <div className="space-y-1.5 max-w-md">
+                  <h3 className="text-lg font-black text-rose-500 tracking-wide uppercase">
+                    🚫 Screen Recording / Capture Blocked
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                    {blackoutReason || 'Video screen blacked out to prevent external screen recording software and screenshot tools.'}
+                  </p>
+                  <div className="text-[10px] text-cyan-400 font-mono pt-1">
+                    Student ID: {currentStudent.indexNumber} • DRM Anti-Piracy Shield Active
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsBlackedOut(false);
+                    sound.playChimeApproved();
+                  }}
+                  className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-500/30 transition active:scale-95 flex items-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Resume Secure Stream</span>
+                </button>
               </div>
-              <div className="text-[9px] text-cyan-300 font-medium">
-                {currentStudent.indexNumber} • IP: {clientIp}
-              </div>
-            </div>
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  src={activeLesson.videoUrl}
+                  autoPlay
+                  playsInline
+                  onContextMenu={(e) => e.preventDefault()}
+                  onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                  onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+                  className="w-full h-full object-contain pointer-events-auto"
+                />
 
-            <div className="absolute top-3 right-3 bg-black/60 px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-300 pointer-events-none">
-              Lyntrix Protected Stream
-            </div>
+                {/* DYNAMIC FLOATING WATERMARK (Prevents Screen Recording) */}
+                <div className="absolute animate-watermark bg-black/85 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl text-white font-mono text-[11px] pointer-events-none select-none shadow-2xl z-10">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>{currentStudent.name}</span>
+                  </div>
+                  <div className="text-[9px] text-cyan-300 font-medium">
+                    {currentStudent.indexNumber} • IP: {clientIp}
+                  </div>
+                </div>
+
+                <div className="absolute top-3 right-3 bg-black/60 px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-300 pointer-events-none">
+                  Lyntrix Protected Stream
+                </div>
+              </>
+            )}
 
             {/* Custom Video Controls Bar */}
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 flex flex-col gap-2 opacity-95 group-hover:opacity-100 transition">
