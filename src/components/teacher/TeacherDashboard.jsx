@@ -28,6 +28,8 @@ import {
   Zap
 } from 'lucide-react';
 import { TeacherSubscriptionModal } from './TeacherSubscriptionModal';
+import { CourseCreationWizardModal } from './CourseCreationWizardModal';
+import { AssignmentGradingModal } from './AssignmentGradingModal';
 
 export const TeacherDashboard = () => {
   const { 
@@ -54,6 +56,9 @@ export const TeacherDashboard = () => {
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
+  const [showCourseWizardModal, setShowCourseWizardModal] = useState(false);
+  const [showGradingModal, setShowGradingModal] = useState(false);
+  const [selectedGradingSub, setSelectedGradingSub] = useState(null);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [selectedSlipModal, setSelectedSlipModal] = useState(null);
 
@@ -300,8 +305,16 @@ export const TeacherDashboard = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => setShowCourseWizardModal(true)}
+              className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition active:scale-95"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>Create New Course (Wizard)</span>
+            </button>
+
+            <button
               onClick={() => setShowAddLessonModal(true)}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-blue-500/20 transition"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-blue-500/20 transition active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Upload Video Lecture</span>
@@ -357,11 +370,83 @@ export const TeacherDashboard = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">Total Video Classes</span>
-            <Video className="w-5 h-5 text-cyan-600" />
+            <span className="text-xs text-slate-500 font-bold">Average Student Rating</span>
+            <Award className="w-5 h-5 text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-cyan-700 mt-3">{teacherLessons.length + 30}</div>
-          <div className="text-[11px] text-slate-500 mt-1">Watermark Protected</div>
+          <div className="text-2xl font-black text-amber-600 mt-3">★ {currentTeacher.rating || 4.98}</div>
+          <div className="text-[11px] text-slate-500 mt-1">{currentTeacher.reviewsCount || 1420} Verified Reviews</div>
+        </div>
+      </div>
+
+      {/* 2.5 ANALYTICS CHARTS AREA: ENGAGEMENT RATE & MONTHLY REVENUE TRENDS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Student Engagement Rate */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">Student Engagement Rate</h3>
+              <p className="text-xs text-slate-500">Weekly video lecture watch time & quiz participation (%)</p>
+            </div>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">+18.4% Growth</span>
+          </div>
+
+          <div className="h-44 w-full pt-4">
+            <svg className="w-full h-full" viewBox="0 0 500 150">
+              <defs>
+                <linearGradient id="engagementGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#2563EB" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#2563EB" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 0 120 Q 80 40, 160 80 T 320 30 T 480 15 L 480 150 L 0 150 Z"
+                fill="url(#engagementGrad)"
+              />
+              <path
+                d="M 0 120 Q 80 40, 160 80 T 320 30 T 480 15"
+                fill="none"
+                stroke="#2563EB"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+              <circle cx="160" cy="80" r="5" fill="#2563EB" className="animate-ping" />
+              <circle cx="320" cy="30" r="5" fill="#2563EB" />
+              <circle cx="480" cy="15" r="6" fill="#10B981" />
+            </svg>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-2 border-t border-slate-100">
+            <span>May</span><span>Jun</span><span>Jul</span><span>Aug 2026</span>
+          </div>
+        </div>
+
+        {/* Chart 2: Monthly Revenue Growth */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">Monthly Tuition Revenue</h3>
+              <p className="text-xs text-slate-500">Collected class fees (LKR)</p>
+            </div>
+            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">LKR {(estimatedRevenue / 1000).toFixed(0)}k Current</span>
+          </div>
+
+          <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 px-4">
+            {[
+              { month: 'May', val: 60 },
+              { month: 'Jun', val: 75 },
+              { month: 'Jul', val: 88 },
+              { month: 'Aug', val: 100 }
+            ].map((bar, idx) => (
+              <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                <div className="text-[10px] font-bold text-slate-600 font-mono">{(estimatedRevenue * (bar.val/100) / 1000).toFixed(0)}k</div>
+                <div
+                  className="w-full bg-gradient-to-t from-emerald-500 to-teal-400 rounded-t-xl transition-all duration-700"
+                  style={{ height: `${bar.val}%` }}
+                />
+                <span className="text-[10px] font-mono text-slate-400">{bar.month}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1442,6 +1527,19 @@ export const TeacherDashboard = () => {
       <TeacherSubscriptionModal
         isOpen={showSubscriptionModal}
         onClose={() => setShowSubscriptionModal(false)}
+      />
+
+      {/* STEP-BY-STEP COURSE CREATION WIZARD MODAL */}
+      <CourseCreationWizardModal
+        isOpen={showCourseWizardModal}
+        onClose={() => setShowCourseWizardModal(false)}
+      />
+
+      {/* ASSIGNMENT GRADING MODAL */}
+      <AssignmentGradingModal
+        isOpen={showGradingModal}
+        onClose={() => setShowGradingModal(false)}
+        submission={selectedGradingSub}
       />
     </div>
   );

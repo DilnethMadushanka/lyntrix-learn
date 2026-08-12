@@ -335,6 +335,72 @@ export const SuperAdminDashboard = () => {
         </div>
       </div>
 
+      {/* 4. USER MANAGEMENT TABLE & SYSTEM USAGE (ADMIN REQUIREMENT) */}
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">User Access & Role Management</h2>
+            <p className="text-xs text-slate-500">Filter, inspect status, and manage master & student accounts.</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-medium">Filter Status:</span>
+            <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 font-bold focus:outline-none">
+              <option value="all">All Users & Roles</option>
+              <option value="active">🟢 Active</option>
+              <option value="pending">🔒 Pending Approval</option>
+              <option value="banned">⛔ Suspended / Banned</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-900 font-bold border-y border-slate-200">
+              <tr>
+                <th className="p-3">User Profile</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Email / Contact</th>
+                <th className="p-3">Status Badge</th>
+                <th className="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {instructors.map(ins => (
+                <tr key={ins.id} className="hover:bg-slate-50/80 transition">
+                  <td className="p-3 font-bold text-slate-900 flex items-center gap-2.5">
+                    <img src={ins.avatar} alt={ins.name} className="w-8 h-8 rounded-lg object-cover border" />
+                    <div>
+                      <div>{ins.name}</div>
+                      <div className="text-[10px] text-slate-400 font-normal">{ins.subject}</div>
+                    </div>
+                  </td>
+                  <td className="p-3"><span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded">Tuition Master</span></td>
+                  <td className="p-3 font-mono text-slate-600">{ins.email || `${ins.id}@lyntrix.learn`}</td>
+                  <td className="p-3">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      ins.subscription?.status === 'active' ? 'bg-emerald-100 text-emerald-800' :
+                      ins.subscription?.status === 'trialing' ? 'bg-blue-100 text-blue-800' :
+                      'bg-amber-100 text-amber-800'
+                    }`}>
+                      {ins.subscription?.status === 'active' ? 'Active' : ins.subscription?.status === 'trialing' ? 'Active Trial' : 'Pending Approval'}
+                    </span>
+                  </td>
+                  <td className="p-3 text-right">
+                    <button
+                      onClick={() => showToast(`Status updated for ${ins.name}`, 'info')}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-[11px] transition"
+                    >
+                      Manage
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* 4. ONBOARD TEACHER MODAL */}
       {showAddTeacherModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">

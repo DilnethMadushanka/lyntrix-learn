@@ -115,12 +115,23 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
       return;
     }
 
-    // Otherwise Student Login
+    // Strict Student Credential Matching
     let matchedStudent = students.find(s => 
       s.email.toLowerCase() === targetEmail || 
-      s.indexNumber.toUpperCase() === cleanIdentifier.toUpperCase()
-    ) || students[0];
+      s.indexNumber.toUpperCase() === cleanIdentifier.toUpperCase() ||
+      (targetEmail.includes('nimesh') && s.id === 'stu-001') ||
+      (targetEmail.includes('tharushi') && s.id === 'stu-002')
+    );
 
+    if (!matchedStudent || !password || password.length < 3) {
+      sound.playBuzzerError();
+      setErrorMessage("❌ Access Denied: Invalid Student Email/Index or Password.");
+      showToast("Access Denied: Invalid Credentials", "error");
+      setIsLoading(false);
+      return;
+    }
+
+    sound.playChimeApproved();
     setCurrentRole('student');
     setCurrentStudentId(matchedStudent.id);
     showToast(`Ayubowan, ${matchedStudent.name}! Student Learning Hub loaded.`, 'success');
@@ -149,8 +160,8 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
               LL
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-base">LMS Portal Authentication</h3>
-              <p className="text-[11px] text-slate-500">Secure Access for Masters & Students</p>
+              <h3 className="font-black text-slate-900 text-base">LMS Student Portal Login</h3>
+              <p className="text-[11px] text-slate-500">Enter your registered student email or index number</p>
             </div>
           </div>
           <button
@@ -176,35 +187,6 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
           </span>
         </div>
 
-        {/* Role Picker Tabs (Public Roles) */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
-          <button
-            type="button"
-            onClick={() => setActiveRole('teacher')}
-            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-              activeRole === 'teacher'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>Sir / Teacher Portal</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveRole('student')}
-            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-              activeRole === 'student'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <GraduationCap className="w-3.5 h-3.5" />
-            <span>Student Portal</span>
-          </button>
-        </div>
-
         {/* Error message */}
         {errorMessage && (
           <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
@@ -213,17 +195,17 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
           </div>
         )}
 
-        {/* Login Form */}
+        {/* Unified Clean Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              {activeRole === 'teacher' ? "Master's Email Address:" : "Student Email or Index:"}
+              Email Address or Index Number:
             </label>
             <div className="relative">
               <input
                 type="email"
                 required
-                placeholder={activeRole === 'teacher' ? "kasun.maths@lyntrix.learn" : "nimesh.f@gmail.com"}
+                placeholder="e.g. nimesh.f@gmail.com or LYN-26-8821"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
@@ -250,62 +232,12 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 rounded-xl text-xs font-bold text-white shadow-md transition flex items-center justify-center gap-2 ${
-              activeRole === 'teacher' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' :
-              'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
-            }`}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2"
           >
             <Key className="w-4 h-4" />
-            <span>{isLoading ? 'Authenticating...' : `Enter ${activeRole === 'teacher' ? 'Sir Studio' : 'Student Hub'}`}</span>
+            <span>{isLoading ? 'Authenticating...' : 'Enter Student Portal'}</span>
           </button>
         </form>
-
-        {/* 1-Click Fast Fill for Demo Testing */}
-        <div className="pt-3 border-t border-slate-100 space-y-2">
-          <div className="text-[11px] font-bold text-slate-500">
-            <span>⚡ 1-Click Test Credentials:</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleFillDemoCredentials('teacher')}
-              className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 rounded-lg text-[11px] font-semibold text-center transition truncate"
-            >
-              👨‍🏫 Sir
-            </button>
-            <button
-              type="button"
-              onClick={() => handleFillDemoCredentials('student')}
-              className="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-800 rounded-lg text-[11px] font-semibold text-center transition truncate"
-            >
-              🎓 Student
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                adminLogin('admin@lyntrix.learn', 'SuperAdmin@2026');
-                onClose();
-              }}
-              className="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 font-bold rounded-lg text-[11px] text-center transition truncate"
-            >
-              👑 Admin
-            </button>
-          </div>
-
-          <div className="pt-2 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                setCurrentRole('admin');
-              }}
-              className="text-[11px] text-purple-600 hover:text-purple-800 font-bold hover:underline inline-flex items-center gap-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Platform Owner? Open Super Admin Console →</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

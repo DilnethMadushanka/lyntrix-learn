@@ -38,11 +38,15 @@ export const Navbar = () => {
     setShowAuthModal,
     adminLogout,
     showToast,
-    lang
+    theme,
+    setTheme,
+    lang,
+    setLang
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const pendingSlipsCount = bankSlips.filter(
     s => s.instructorId === currentTeacher.id && s.status === 'pending'
@@ -60,101 +64,111 @@ export const Navbar = () => {
     showToast('Exited Sir Studio', 'info');
   };
 
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'royal' : 'light';
+    setTheme(nextTheme);
+    sound.playClick();
+    showToast(`Switched to ${nextTheme === 'royal' ? 'Dark' : 'Light'} Mode`, 'info');
+  };
+
+  const toggleLanguage = () => {
+    const nextLang = lang === 'en' ? 'si' : 'en';
+    setLang(nextLang);
+    sound.playClick();
+    showToast(`Language switched to ${nextLang === 'si' ? 'සිංහල' : 'English'}`, 'info');
+  };
+
   return (
-    <nav className="border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-40 shadow-sm transition-all duration-300">
+    <nav className="border-b border-indigo-500/20 bg-[#090D16]/85 backdrop-blur-2xl sticky top-0 z-40 shadow-2xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           
-          {/* 1. Left: Brand & Contextual Identity */}
+          {/* 1. Left: Electric Indigo Insignia Brand (With Secret Teacher Gateway Double Click) */}
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => setCurrentRole('landing')}
-              className="flex items-center gap-3 group text-left"
+              onClick={() => {
+                sound.playChimeApproved();
+                setCurrentRole('teacher-login');
+                showToast("🔒 Master Gateway: Opening Teacher Sign In Portal...", "info");
+              }}
+              className="flex items-center gap-2.5 group text-left cursor-pointer select-none"
+              title="Electric Indigo Insignia - Master Studio Login Gateway"
             >
-              <div className={`w-10 h-10 rounded-xl p-[1.5px] shadow-md group-hover:scale-105 transition ${
-                currentRole === 'teacher' ? 'bg-gradient-to-tr from-emerald-600 to-teal-500 shadow-emerald-500/20' :
-                currentRole === 'student' ? 'bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-blue-500/20' :
-                currentRole === 'admin' ? 'bg-gradient-to-tr from-purple-600 to-indigo-500 shadow-purple-500/20' :
-                currentRole === 'scanner' ? 'bg-gradient-to-tr from-rose-600 to-orange-500 shadow-rose-500/20' :
-                'bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-500 shadow-blue-500/20'
-              }`}>
-                <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                  {currentRole === 'teacher' && <UserCheck className="w-5 h-5 text-emerald-600" />}
-                  {currentRole === 'student' && <GraduationCap className="w-5 h-5 text-blue-600" />}
-                  {currentRole === 'admin' && <ShieldCheck className="w-5 h-5 text-purple-600" />}
-                  {currentRole === 'scanner' && <QrCode className="w-5 h-5 text-rose-600" />}
-                  {(currentRole === 'landing' || currentRole === 'auth') && <GraduationCap className="w-5 h-5 text-blue-600" />}
-                </div>
+              {/* Electric Indigo Logo Emblem */}
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-blue-500 to-cyan-400 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-500/30 border border-indigo-400/40">
+                LL
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-black text-lg tracking-tight text-slate-900">
+                <div className="flex items-center gap-1">
+                  <span className="font-black text-base tracking-tight text-white">
                     Lyntrix
                   </span>
-                  <span className={`font-black text-lg ${
-                    currentRole === 'teacher' ? 'text-emerald-600' :
-                    currentRole === 'student' ? 'text-blue-600' :
-                    currentRole === 'admin' ? 'text-purple-600' :
-                    currentRole === 'scanner' ? 'text-rose-600' : 'text-blue-600'
-                  }`}>
+                  <span className="font-black text-base text-indigo-400">
                     {currentRole === 'teacher' ? 'Studio' :
                      currentRole === 'student' ? 'Learn' :
                      currentRole === 'admin' ? 'Admin' :
                      currentRole === 'scanner' ? 'Scanner' : 'Learn'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 font-medium truncate max-w-[180px] sm:max-w-none">
-                  {currentRole === 'teacher' ? `${currentTeacher.name} • ${currentTeacher.subject}` : 
-                   currentRole === 'student' ? `Student Portal (${currentStudent.name.split(' ')[0]})` :
-                   currentRole === 'admin' ? 'Platform Super Admin Console' :
-                   currentRole === 'scanner' ? 'Hall Gate Scanner Terminal' : 'Sri Lanka Multi-Master LMS'}
-                </p>
               </div>
             </button>
 
-            {/* Teacher Subdomain Pill */}
-            {currentRole === 'teacher' && (
-              <div className="hidden lg:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-xs text-emerald-800">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Subdomain:</span>
-                <code className="text-emerald-900 font-mono font-bold">
-                  {currentTeacher.id.replace('ins-', '')}.{window.location.hostname.includes('dilnethmadushanka.online') ? 'dilnethmadushanka.online' : 'dilnethmadushanka.online'}
-                </code>
-              </div>
-            )}
-
-            {/* Student Index Pill */}
-            {currentRole === 'student' && (
-              <div className="hidden md:flex items-center gap-1.5 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-xs text-blue-800 font-mono font-bold">
-                <span>Index:</span>
-                <span className="text-blue-600">{currentStudent.indexNumber}</span>
-              </div>
-            )}
+            {/* Radiant Emerald Certified Pill */}
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 tracking-wider uppercase backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>🇱🇰 Sri Lanka A/L Master Portal</span>
+            </span>
           </div>
 
-          {/* 2. Middle & Right: Strict Role-Specific Actions */}
-          <div className="flex items-center gap-3">
-            
-            {/* =================================================== */}
-            {/* A. PUBLIC / LANDING ROLE (Visitors / Unauthenticated) */}
-            {/* =================================================== */}
+          {/* 2. Middle & Right: Glass Search & Controls */}
+          <div className="flex items-center gap-2.5">
+            {/* Quick Search */}
+            <div className="hidden lg:flex items-center relative">
+              <input
+                type="text"
+                placeholder="Search masters, subjects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-slate-900/80 border border-indigo-500/30 rounded-xl pl-8 pr-3 py-1 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 w-48 font-medium backdrop-blur-md"
+              />
+              <Search className="w-3.5 h-3.5 text-indigo-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            </div>
+
+            {/* Language Selector */}
+            <button
+              onClick={toggleLanguage}
+              className="px-2.5 py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-indigo-500/30 text-[11px] font-bold text-white transition flex items-center gap-1 backdrop-blur-md"
+              title="Toggle Language"
+            >
+              <span>🌐</span>
+              <span className="text-indigo-400 font-mono">{lang === 'en' ? 'EN' : 'SI'}</span>
+            </button>
+
+            {/* Dark/Light Mode Switcher */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-indigo-500/30 text-white text-xs font-bold transition flex items-center justify-center backdrop-blur-md"
+              title="Toggle Theme"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            </button>
+
+            {/* Role Navigation CTAs */}
             {(currentRole === 'landing' || currentRole === 'auth') && (
               <>
                 <button
-                  onClick={() => setCurrentRole('auth')}
-                  className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition border border-blue-200 shadow-sm"
+                  onClick={() => setCurrentRole('student')}
+                  className="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/40 text-white text-xs font-bold transition backdrop-blur-md"
                 >
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>Student Register</span>
+                  Student Portal
                 </button>
 
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-md shadow-blue-500/20"
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/25 active:scale-95"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Login</span>
+                  Log In
                 </button>
               </>
             )}

@@ -13,7 +13,9 @@ import { AuthModal } from './components/auth/AuthModal';
 import { TeacherPlanCheckoutModal } from './components/auth/TeacherPlanCheckoutModal';
 import { FeePaymentModal } from './components/student/FeePaymentModal';
 import { DigitalStudentCard } from './components/student/DigitalStudentCard';
+import { TeacherLoginPage } from './components/auth/TeacherLoginPage';
 import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
+import { sound } from './utils/soundEffects';
 
 const AppContent = () => {
   const { 
@@ -25,8 +27,24 @@ const AppContent = () => {
     setShowAuthModal,
     showPlanCheckoutModal,
     setShowPlanCheckoutModal,
-    selectedCheckoutPlan
+    selectedCheckoutPlan,
+    showToast
   } = useApp();
+
+  // Secret Hotkey Listener for Sir Studio Access (Ctrl + Shift + S)
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'T' || e.key === 't')) {
+        e.preventDefault();
+        sound.playChimeApproved();
+        showToast("🔒 Secret Master Gateway Unlocked!", "success");
+        setCurrentRole('teacher-login');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
 
@@ -51,6 +69,7 @@ const AppContent = () => {
         <main className="flex-1">
           {currentRole === 'landing' && <LandingPage />}
           {currentRole === 'auth' && <AuthPage />}
+          {currentRole === 'teacher-login' && <TeacherLoginPage />}
           {currentRole === 'scanner' && <AttendanceScannerTerminal />}
           {currentRole === 'admin' && (
             isAdminAuthenticated ? <SuperAdminDashboard /> : <AdminLoginPage />

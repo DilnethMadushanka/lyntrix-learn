@@ -25,6 +25,7 @@ import { DigitalStudentCard } from './DigitalStudentCard';
 import { VideoClassroom } from './VideoClassroom';
 import { FeePaymentModal } from './FeePaymentModal';
 import { QuizExamPlayer } from './QuizExamPlayer';
+import { CourseCompletionModal } from './CourseCompletionModal';
 
 export const StudentPortal = () => {
   const { 
@@ -44,6 +45,7 @@ export const StudentPortal = () => {
   } = useApp();
 
   const [lessonFilter, setLessonFilter] = useState('All');
+  const [showCertModal, setShowCertModal] = useState(false);
 
   const studentSlips = bankSlips.filter(s => s.studentId === currentStudent.id);
 
@@ -54,37 +56,45 @@ export const StudentPortal = () => {
   return (
     <div className="space-y-8 pb-24">
       {/* 1. STUDENT WELCOME BANNER */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm relative overflow-hidden">
+      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4">
             <img
               src={currentStudent.avatar}
               alt={currentStudent.name}
-              className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl object-cover border-2 border-blue-500 shadow-md"
+              className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl object-cover border-2 border-[#0A2540] shadow-sm"
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-[#FAF9F6] text-[#0A2540] border border-slate-200">
                   {currentStudent.batch}
                 </span>
                 <span className="text-xs font-mono text-slate-500">Index: {currentStudent.indexNumber}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#0A2540] mt-1">
                 Ayubowan, {currentStudent.name}! 👋
               </h1>
-              <p className="text-slate-500 text-xs mt-0.5">
-                District: <strong className="text-slate-800">{currentStudent.district}</strong> • Active Term: <span className="text-blue-600 font-bold">{currentStudent.activeMonth}</span>
+              <p className="text-slate-500 text-xs mt-0.5 font-sans">
+                District: <strong className="text-[#0A2540]">{currentStudent.district}</strong> • Active Term: <span className="text-[#2B7F5E] font-bold">{currentStudent.activeMonth}</span>
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => setShowCertModal(true)}
+              className="px-4 py-2 bg-[#F05D3D] hover:bg-[#D9492A] text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition active:scale-95"
+            >
+              <Award className="w-4 h-4 text-white" />
+              <span>Completion Certificate</span>
+            </button>
+
+            <button
               onClick={() => setShowIdCardModal(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-blue-500/20 transition active:scale-95"
+              className="px-4 py-2 bg-[#0A2540] hover:bg-[#071C32] text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition active:scale-95"
             >
               <QrCode className="w-4 h-4" />
-              <span>Show Entrance QR Card</span>
+              <span>Digital Student ID</span>
             </button>
           </div>
         </div>
@@ -672,6 +682,7 @@ export const StudentPortal = () => {
       <VideoClassroom />
       <FeePaymentModal />
       <QuizExamPlayer />
+      <CourseCompletionModal isOpen={showCertModal} onClose={() => setShowCertModal(false)} />
     </div>
   );
 };

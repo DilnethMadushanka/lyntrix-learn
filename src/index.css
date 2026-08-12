@@ -1,30 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* MODERN WHITE / LIGHT LMS MASTER DESIGN SYSTEM */
+/* ULTRA-MODERN HIGH-TECH ACADEMIC DESIGN SYSTEM (DEEP SPACE SLATE, ELECTRIC INDIGO & RADIANT EMERALD) */
 :root {
-  --bg-main: #f8fafc;
-  --bg-mesh: radial-gradient(at 15% 15%, rgba(37, 99, 235, 0.07) 0px, transparent 50%),
-             radial-gradient(at 85% 15%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
-             radial-gradient(at 50% 85%, rgba(99, 102, 241, 0.05) 0px, transparent 60%);
-  --panel-bg: #ffffff;
-  --panel-border: #e2e8f0;
-  --card-bg: #ffffff;
-  --card-hover: #f8fafc;
-  --card-border: #e2e8f0;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --primary-btn: #2563eb;
-  --primary-btn-hover: #1d4ed8;
-  --accent-color: #0284c7;
-  --badge-emerald: #059669;
+  --bg-space: #090D16;
+  --bg-space-card: #0F172A;
+  --indigo-electric: #6366F1;
+  --indigo-glow: rgba(99, 102, 241, 0.35);
+  --emerald-radiant: #10B981;
+  --emerald-glow: rgba(16, 185, 129, 0.35);
+  --rose-coral: #F43F5E;
+  --cyan-vibrant: #06B6D4;
 }
 
 html, body {
   overflow-x: hidden !important;
   max-width: 100vw !important;
   width: 100% !important;
+  background-color: #090D16;
+  color: #F8FAFC;
 }
 
 #root {
@@ -35,82 +32,61 @@ html, body {
 
 @layer base {
   * {
-    border-color: #e2e8f0;
+    border-color: rgba(99, 102, 241, 0.2);
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
-    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    background-color: #090D16;
+    color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
     overflow-x: hidden !important;
   }
 }
 
-/* Crisp Clean LMS Panel and Card Classes */
-.glass-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+/* Glassmorphism Frosted Glass Panels */
+.glass-modern {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+  border-radius: 1rem;
 }
 
-.glass-panel-glow {
-  background: #ffffff;
-  border: 1px solid #bfdbfe;
-  box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.12);
+.glass-glow-indigo {
+  background: rgba(99, 102, 241, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+  border-radius: 1rem;
 }
 
-.glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+.glass-glow-emerald {
+  background: rgba(16, 185, 129, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+  border-radius: 1rem;
 }
 
-.glass-card:hover {
-  background: #ffffff;
-  border-color: #93c5fd;
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px -8px rgba(37, 99, 235, 0.15);
-}
-
-.text-gradient-primary {
-  background: linear-gradient(135deg, #0f172a 0%, #1e40af 60%, #2563eb 100%);
+.text-gradient-indigo {
+  background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 50%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-emerald {
-  background: linear-gradient(135deg, #064e3b 0%, #059669 60%, #10b981 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #6EE7B7 50%, #10B981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Background grid / mesh */
-.bg-mesh {
-  background-color: #f8fafc;
-  background-image: 
-    radial-gradient(at 15% 15%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
-    radial-gradient(at 85% 15%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 85%, rgba(99, 102, 241, 0.05) 0px, transparent 60%);
-}
-
-/* Hologram card effect */
-.hologram-shimmer {
-  background: linear-gradient(
-    115deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 30%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.4) 70%,
-    transparent 100%
-  );
-  background-size: 200% 200%;
-  animation: shimmer 6s infinite linear;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+.text-gradient-coral {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FDA4AF 50%, #F43F5E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Dynamic moving watermark for video player */
@@ -133,14 +109,14 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #090D16;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #6366F1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #4F46E5;
 }

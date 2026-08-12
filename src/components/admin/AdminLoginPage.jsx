@@ -118,21 +118,11 @@ export const AdminLoginPage = () => {
           </button>
         </form>
 
-        {/* Fast Credentials Helper for Testing */}
-        <div className="pt-4 border-t border-slate-100 text-center space-y-2">
+        {/* Authorized Account Information */}
+        <div className="pt-4 border-t border-slate-100 text-center">
           <div className="text-[11px] text-slate-500 font-medium">
-            Authorized Account: <code className="text-purple-700 font-mono font-bold">admin@lyntrix.learn</code>
+            Authorized System Access: <code className="text-purple-700 font-mono font-bold">admin@lyntrix.learn</code>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              adminLogin('admin@lyntrix.learn', 'SuperAdmin@2026');
-            }}
-            className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 transition flex items-center justify-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>⚡ 1-Click Instant Unlock Admin Console</span>
-          </button>
         </div>
       </div>
     </div>

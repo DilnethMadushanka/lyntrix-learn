@@ -17,6 +17,7 @@ export const QuizExamPlayer = () => {
   const { activeQuiz, setActiveQuiz, submitQuizAnswers, showToast } = useApp();
 
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(activeQuiz ? activeQuiz.durationMinutes * 60 : 900);
   const [score, setScore] = useState(0);
@@ -39,6 +40,14 @@ export const QuizExamPlayer = () => {
   }, [activeQuiz, isSubmitted, selectedAnswers]);
 
   if (!activeQuiz) return null;
+
+  const toggleFlagQuestion = (questionId) => {
+    setFlaggedQuestions(prev => ({
+      ...prev,
+      [questionId]: !prev[questionId]
+    }));
+    sound.playClick();
+  };
 
   const handleSelectOption = (questionId, optionIndex) => {
     if (isSubmitted) return;
@@ -84,6 +93,7 @@ export const QuizExamPlayer = () => {
 
   const handleResetQuiz = () => {
     setSelectedAnswers({});
+    setFlaggedQuestions({});
     setIsSubmitted(false);
     setTimeLeft(activeQuiz.durationMinutes * 60);
     setScore(0);
@@ -100,14 +110,14 @@ export const QuizExamPlayer = () => {
           <div>
             <div className="flex items-center gap-2 text-blue-700 font-bold text-xs">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>{activeQuiz.subject} • TIMED MCQ TEST</span>
+              <span>{activeQuiz.subject} • TIMED ASSESSMENT</span>
             </div>
             <h2 className="text-xl font-black text-slate-900 mt-1">{activeQuiz.title}</h2>
           </div>
 
           <div className="flex items-center gap-3">
             {!isSubmitted && (
-              <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3.5 py-1.5 rounded-xl text-blue-700 font-mono text-sm font-bold">
+              <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3.5 py-1.5 rounded-xl text-blue-700 font-mono text-sm font-bold shadow-inner">
                 <Clock className="w-4 h-4 text-amber-500 animate-pulse" />
                 <span>{minutes}:{seconds.toString().padStart(2, '0')}</span>
               </div>
@@ -118,6 +128,43 @@ export const QuizExamPlayer = () => {
             >
               ✕
             </button>
+          </div>
+        </div>
+
+        {/* Question Navigator Grid */}
+        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-600 font-bold">
+            <span>Question Navigator:</span>
+            <div className="flex items-center gap-3 text-[11px]">
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> Answered</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-amber-400 inline-block"></span> Flagged</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-slate-300 inline-block"></span> Unattempted</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {activeQuiz.questions.map((q, qIndex) => {
+              const isAnswered = selectedAnswers[q.id] !== undefined;
+              const isFlagged = flaggedQuestions[q.id];
+
+              let navStyle = 'bg-white border-slate-300 text-slate-700';
+              if (isFlagged) {
+                navStyle = 'bg-amber-100 border-amber-400 text-amber-900 font-bold';
+              } else if (isAnswered) {
+                navStyle = 'bg-emerald-500 border-emerald-600 text-white font-bold shadow-sm';
+              }
+
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => toggleFlagQuestion(q.id)}
+                  className={`w-8 h-8 rounded-lg text-xs border font-mono transition flex items-center justify-center ${navStyle}`}
+                  title={isFlagged ? `Question ${qIndex + 1} Flagged` : `Question ${qIndex + 1}`}
+                >
+                  {qIndex + 1}
+                </button>
+              );
+            })}
           </div>
         </div>
 

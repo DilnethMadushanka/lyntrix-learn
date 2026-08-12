@@ -287,6 +287,29 @@ export const VideoClassroom = () => {
           </div>
         </div>
       </div>
+
+      {/* Sticky Floating Bottom Lesson Navigation Bar */}
+      <div className="sticky bottom-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 p-3 px-6 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => showToast("Navigated to Previous Lesson", "info")}
+            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition border border-slate-700 flex items-center gap-2"
+          >
+            <span>← Previous Lesson</span>
+          </button>
+
+          <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+            Lesson 34 of 48 • <strong className="text-white">Integral Calculus</strong>
+          </span>
+
+          <button
+            onClick={() => showToast("Navigated to Next Lesson", "info")}
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center gap-2"
+          >
+            <span>Next Lesson →</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
