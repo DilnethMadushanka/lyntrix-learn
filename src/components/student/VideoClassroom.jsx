@@ -232,14 +232,27 @@ export const VideoClassroom = () => {
               <>
                 <video
                   ref={videoRef}
-                  src={activeLesson.videoUrl}
+                  src={activeLesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
                   autoPlay
                   playsInline
                   onContextMenu={(e) => e.preventDefault()}
                   onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
                   onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-                  className="w-full h-full object-contain pointer-events-auto"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  className="w-full h-full object-contain pointer-events-auto cursor-pointer"
+                  onClick={togglePlay}
                 />
+
+                {/* Big Center Play Overlay Button when Paused */}
+                {!isPlaying && (
+                  <button
+                    onClick={togglePlay}
+                    className="absolute inset-0 z-20 m-auto w-20 h-20 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.6)] transition-all transform hover:scale-110 active:scale-95 animate-in zoom-in-95"
+                  >
+                    <Play className="w-10 h-10 fill-current ml-1" />
+                  </button>
+                )}
 
                 {/* 1. DYNAMIC FLOATING WATERMARK */}
                 <div className="absolute animate-watermark bg-black/85 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl text-white font-mono text-[11px] pointer-events-none select-none shadow-2xl z-20">
