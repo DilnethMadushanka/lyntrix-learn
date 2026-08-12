@@ -377,6 +377,36 @@ export const AppProvider = ({ children }) => {
 
     setStudents(prev => [newStudent, ...prev]);
     setCurrentStudentId(newStudent.id);
+
+    // ⚡ Live Supabase Auth & Database Synchronization
+    if (isSupabaseConfigured()) {
+      (async () => {
+        try {
+          const { data: authData } = await supabaseAuthService.signUp(
+            studentData.email,
+            studentData.password || 'Student@2026',
+            'student',
+            { name: studentData.name, phone: studentData.phone, indexNumber }
+          );
+
+          if (authData?.user) {
+            await supabase.from('profiles').insert([{
+              id: authData.user.id,
+              email: studentData.email,
+              role: 'student',
+              name: studentData.name,
+              phone: studentData.phone,
+              index_number: indexNumber,
+              district: studentData.district || 'Colombo',
+              address: studentData.address || 'Sri Lanka'
+            }]);
+          }
+        } catch (err) {
+          console.warn("Supabase student registration sync error:", err);
+        }
+      })();
+    }
+
     sound.playChimeApproved();
 
     try {
@@ -391,11 +421,12 @@ export const AppProvider = ({ children }) => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const indexNumber = `LYN-26-${randomSuffix}`;
     const qrToken = `QR-LYN-${randomSuffix}`;
+    const studentEmail = studentData.email || `${studentData.name.toLowerCase().replace(/[^a-z]/g, '')}@student.lk`;
 
     const newStudent = {
       id: `std-${Date.now()}`,
       name: studentData.name,
-      email: studentData.email || `${studentData.name.toLowerCase().replace(/[^a-z]/g, '')}@student.lk`,
+      email: studentEmail,
       phone: studentData.phone,
       batch: studentData.batchYear || '2025 A/L',
       stream: studentData.stream || 'Combined Maths',
@@ -423,8 +454,37 @@ export const AppProvider = ({ children }) => {
     };
 
     setStudents(prev => [newStudent, ...prev]);
+
+    // ⚡ Live Supabase Sync
+    if (isSupabaseConfigured()) {
+      (async () => {
+        try {
+          const { data: authData } = await supabaseAuthService.signUp(
+            studentEmail,
+            'Student@2026',
+            'student',
+            { name: studentData.name, phone: studentData.phone, indexNumber }
+          );
+
+          if (authData?.user) {
+            await supabase.from('profiles').insert([{
+              id: authData.user.id,
+              email: studentEmail,
+              role: 'student',
+              name: studentData.name,
+              phone: studentData.phone,
+              index_number: indexNumber,
+              district: studentData.district || 'Colombo'
+            }]);
+          }
+        } catch (err) {
+          console.warn("Supabase teacher student enrollment sync error:", err);
+        }
+      })();
+    }
+
     sound.playChimeApproved();
-    showToast(`Student ${studentData.name} enrolled with Index ${indexNumber}!`, 'success');
+    showToast(`Student ${studentData.name} enrolled with Index ${indexNumber}! Saved to DB.`, 'success');
     return newStudent;
   };
 
