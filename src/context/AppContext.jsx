@@ -321,21 +321,15 @@ export const AppProvider = ({ children }) => {
   const currentTeacher = instructors.find(ins => ins.id === currentTeacherId) || instructors[0];
   const currentStudent = students.find(std => std.id === currentStudentId) || students[0];
 
-  // Admin login check
+  // Admin login check (Strict Exact Email & Password Verification)
   const adminLogin = (email = '', password = '') => {
     const cleanEmail = (email || '').toLowerCase().trim();
     const cleanPass = (password || '').trim();
 
-    const isMatch = 
-      cleanEmail.includes('admin') || 
-      cleanEmail === 'superadmin' || 
-      cleanEmail === 'lyntrix' ||
-      cleanEmail === 'admin@lyntrix.learn' ||
-      cleanPass === 'SuperAdmin@2026' ||
-      cleanPass === 'admin123' ||
-      cleanPass === 'admin';
+    const isEmailValid = cleanEmail === 'admin@lyntrix.learn' || cleanEmail === 'admin';
+    const isPasswordValid = cleanPass === 'SuperAdmin@2026' || cleanPass === 'admin123';
 
-    if (isMatch) {
+    if (isEmailValid && isPasswordValid) {
       setIsAdminAuthenticated(true);
       setCurrentRole('admin');
       sound.playChimeApproved();

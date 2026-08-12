@@ -42,32 +42,20 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
     let cleanIdentifier = email.trim();
     let resolvedEmail = cleanIdentifier;
 
-    // 1. Smart Identifier Resolution (Handles username, student index, or full email)
-    if (!resolvedEmail.includes('@')) {
-      if (resolvedEmail.toLowerCase() === 'admin' || resolvedEmail.toLowerCase() === 'superadmin' || resolvedEmail.toLowerCase() === 'lyntrix') {
-        resolvedEmail = 'admin@lyntrix.learn';
-      } else if (resolvedEmail.toLowerCase().includes('kasun')) {
-        resolvedEmail = 'kasun.maths@lyntrix.learn';
-      } else if (resolvedEmail.toLowerCase().includes('amila')) {
-        resolvedEmail = 'amila.chem@lyntrix.learn';
-      } else if (resolvedEmail.toLowerCase().includes('dilshan')) {
-        resolvedEmail = 'dilshan.ict@lyntrix.learn';
-      } else if (resolvedEmail.toLowerCase().includes('nimesh') || resolvedEmail.toUpperCase().startsWith('LYN-26-8821')) {
-        resolvedEmail = 'nimesh.f@gmail.com';
-      } else if (resolvedEmail.toLowerCase().includes('tharushi') || resolvedEmail.toUpperCase().startsWith('LYN-26-8822')) {
-        resolvedEmail = 'tharushi.k@gmail.com';
-      } else if (resolvedEmail.toUpperCase().startsWith('LYN-')) {
-        const foundStudent = students.find(s => s.indexNumber.toUpperCase() === resolvedEmail.toUpperCase());
-        if (foundStudent) resolvedEmail = foundStudent.email;
-      }
-    }
+    const cleanInput = cleanIdentifier.toLowerCase();
 
-    // 2. Check Super Admin Login
-    if (resolvedEmail.toLowerCase() === 'admin@lyntrix.learn' || cleanIdentifier.toLowerCase() === 'admin' || password === 'SuperAdmin@2026') {
-      const ok = adminLogin(resolvedEmail, password);
+    // 1. Super Admin Login Check (Strict Exact Match)
+    if (cleanInput === 'admin@lyntrix.learn' || cleanInput === 'admin') {
+      const ok = adminLogin(cleanInput, password);
       if (ok) {
         setIsLoading(false);
         onClose();
+        return;
+      } else {
+        sound.playBuzzerError();
+        setErrorMessage("❌ Access Denied: Invalid Super Admin Security Password.");
+        showToast("Access Denied: Invalid Admin Password", "error");
+        setIsLoading(false);
         return;
       }
     }
@@ -110,7 +98,6 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
       return;
     }
 
-    const cleanInput = cleanIdentifier.trim().toLowerCase();
     const cleanIndex = cleanIdentifier.trim().toUpperCase();
     const inputPassword = password.trim();
 
