@@ -40,6 +40,7 @@ export const VideoClassroom = () => {
   // 🛡️ NETFLIX-GRADE ANTI-PIRACY & HARDWARE DRM DEFENSE ENGINE
   const [isBlackedOut, setIsBlackedOut] = useState(false);
   const [blackoutReason, setBlackoutReason] = useState('');
+  const [drmEnabled, setDrmEnabled] = useState(true);
   const [clientIp] = useState('175.157.192.4');
   const [realtimeClock, setRealtimeClock] = useState(new Date().toLocaleTimeString());
 
@@ -53,6 +54,8 @@ export const VideoClassroom = () => {
 
   // Anti-Screen Recording & Screenshot Intercept System
   useEffect(() => {
+    if (!drmEnabled) return;
+
     // 1. Detect Window Blur & Focus Loss (Triggered when opening screen recorders or switching apps)
     const handleWindowBlur = () => {
       setIsBlackedOut(true);
@@ -179,10 +182,23 @@ export const VideoClassroom = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-emerald-950/80 border border-emerald-800/80 px-3 py-1 rounded-full text-emerald-400 text-xs font-bold">
-            <ShieldAlert className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Anti-Piracy Watermark Protected</span>
-          </div>
+          <button
+            onClick={() => {
+              const nextState = !drmEnabled;
+              setDrmEnabled(nextState);
+              setIsBlackedOut(false);
+              showToast(nextState ? "🔒 DRM Defense Activated: Screen Recording & Blur Protection Active" : "▶️ Demo Stream Mode Activated: Uninterrupted Video Playback", "info");
+            }}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition border flex items-center gap-1.5 active:scale-95 ${
+              drmEnabled 
+                ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' 
+                : 'bg-amber-950/90 border-amber-500/50 text-amber-300'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>{drmEnabled ? '🔒 DRM Shield: Active' : '▶️ Demo Stream Mode'}</span>
+          </button>
+
           <button
             onClick={() => setActiveLesson(null)}
             className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold hover:bg-slate-700 transition"
@@ -221,6 +237,12 @@ export const VideoClassroom = () => {
                   onClick={() => {
                     setIsBlackedOut(false);
                     sound.playChimeApproved();
+                    setTimeout(() => {
+                      if (videoRef.current) {
+                        videoRef.current.play().catch(() => {});
+                        setIsPlaying(true);
+                      }
+                    }, 50);
                   }}
                   className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-500/30 transition active:scale-95 flex items-center gap-2"
                 >
