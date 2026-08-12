@@ -187,9 +187,14 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
 
         {/* Error message */}
         {errorMessage && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-            <span>{errorMessage}</span>
+          <div className="p-3.5 bg-rose-500/10 border-2 border-rose-500/40 rounded-2xl text-xs text-rose-700 font-semibold flex items-center gap-2.5 shadow-md shadow-rose-500/10 animate-in fade-in slide-in-from-top-2 duration-300">
+            <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+            <div className="space-y-0.5">
+              <div className="font-bold text-rose-800 text-[11px] uppercase tracking-wider">
+                {errorMessage.includes('Password') ? 'Password Verification Failed' : 'Authentication Error'}
+              </div>
+              <p className="text-xs text-rose-700">{errorMessage}</p>
+            </div>
           </div>
         )}
 
@@ -207,7 +212,7 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
                 required
                 placeholder="e.g. nimesh.f@gmail.com or LYN-26-8821"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setErrorMessage(''); }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -224,11 +229,20 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
                 required
                 placeholder="••••••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
+                onChange={(e) => { setPassword(e.target.value); setErrorMessage(''); }}
+                className={`w-full bg-slate-50 border rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none transition-all ${
+                  errorMessage.includes('Password') 
+                    ? 'border-2 border-rose-500 bg-rose-50/30 ring-2 ring-rose-500/20 shadow-[0_0_12px_rgba(244,63,94,0.2)]' 
+                    : 'border-slate-200 focus:border-blue-500 shadow-sm'
+                }`}
               />
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${errorMessage.includes('Password') ? 'text-rose-500' : 'text-slate-400'}`} />
             </div>
+            {errorMessage.includes('Password') && (
+              <p className="text-[11px] font-bold text-rose-600 mt-1 animate-in fade-in">
+                ⚠️ Incorrect Password: Check Caps Lock or re-enter password.
+              </p>
+            )}
           </div>
 
           <button
