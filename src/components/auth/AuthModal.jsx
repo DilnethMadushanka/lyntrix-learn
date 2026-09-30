@@ -14,6 +14,7 @@ import {
   Key
 } from 'lucide-react';
 import { LogoMark } from '../common/Logo';
+import { verifyStudentLogin, verifyTeacherLogin, isTeacherIdentifier } from '../../lib/demoAuth';
 
 export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
   const { 
@@ -62,73 +63,55 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
         }
       }
 
-      // 2. Registered Local Student Accounts Check (Specific Password Verification)
-      const REGISTERED_STUDENTS = [
-        {
-          identifier: 'nimesh.f@gmail.com',
-          index: 'LYN-26-8821',
-          passwords: ['StudentNimesh@123', 'nimesh123', '123456'],
-          studentId: 'stu-001'
-        },
-        {
-          identifier: 'tharushi.k@gmail.com',
-          index: 'LYN-26-8822',
-          passwords: ['StudentTharushi@123', 'tharushi123', '123456'],
-          studentId: 'stu-002'
-        }
-      ];
-
-      const existingAccount = REGISTERED_STUDENTS.find(s => 
-        s.identifier.toLowerCase() === cleanInput || s.index.toUpperCase() === cleanIndex
-      );
-
-      if (existingAccount) {
-        // Account exists! Check password:
-        if (existingAccount.passwords.includes(inputPassword)) {
-          const matchedStudentObj = students.find(s => s.id === existingAccount.studentId) || students[0];
-          sound.playChimeApproved();
-          setCurrentRole('student');
-          setCurrentStudentId(matchedStudentObj.id);
-          showToast(`Ayubowan, ${matchedStudentObj.name}! Student Hub unlocked.`, 'success');
-          onClose();
-          return;
-        } else {
-          // Account exists BUT password is wrong!
-          sound.playBuzzerError();
-          setErrorMessage("Incorrect Password: The password you entered for this account is incorrect.");
-          showToast("Incorrect Password", "error");
-          return;
-        }
-      }
-
-      // 3. Fallback: Live Supabase Auth Check (Fast 1.2s Timeout)
-      let authSuccess = false;
-      let authenticatedUser = null;
-
-      if (isLiveDb) {
+      // 2. Live Supabase auth, when configured
+      if (isLiveDb && cleanIdentifier.includes('@')) {
         try {
           const { data, error } = await supabaseAuthService.signIn(resolvedEmail, password);
           if (!error && data?.user) {
-            authSuccess = true;
-            authenticatedUser = data.user;
+            const student = students.find(s => s.email.toLowerCase() === cleanInput) || students[0];
+            sound.playChimeApproved();
+            setCurrentRole('student');
+            setCurrentStudentId(student.id);
+            showToast(`Ayubowan, ${student.name}!`, 'success');
+            onClose();
+            return;
           }
         } catch (authErr) {
           console.warn("Live Supabase Auth Exception handled safely:", authErr);
         }
       }
 
-      if (authSuccess && authenticatedUser) {
+      // 3. Demo accounts, with the password checked
+      const asTeacher = activeRole === 'teacher' || isTeacherIdentifier(cleanIdentifier, instructors);
+      const result = asTeacher
+        ? verifyTeacherLogin(cleanIdentifier, inputPassword, instructors)
+        : verifyStudentLogin(cleanIdentifier, inputPassword, students);
+
+      if (result.status === 'ok') {
         sound.playChimeApproved();
-        setCurrentRole('student');
-        setCurrentStudentId(students[0].id);
-        showToast(`Welcome! Authenticated via Live Supabase DB.`, 'success');
+        if (asTeacher) {
+          setCurrentTeacherId(result.instructor.id);
+          setCurrentRole('teacher');
+          showToast(`Ayubowan, ${result.instructor.name}! Studio unlocked.`, 'success');
+        } else {
+          setCurrentStudentId(result.student.id);
+          setCurrentRole('student');
+          showToast(`Ayubowan, ${result.student.name}! Student Hub unlocked.`, 'success');
+        }
         onClose();
+        return;
+      }
+
+      if (result.status === 'wrong-password') {
+        sound.playBuzzerError();
+        setErrorMessage("Incorrect Password: The password you entered for this account is incorrect.");
+        showToast("Incorrect Password", "error");
         return;
       }
 
       // 4. Rejection for Unknown Account
       sound.playBuzzerError();
-      setErrorMessage("Account Not Found: No student account exists with this Email or Index Number.");
+      setErrorMessage(activeRole === 'teacher' ? "Account Not Found: No teacher account uses this email address." : "Account Not Found: No student account exists with this Email or Index Number.");
       showToast("Account Not Found", "error");
     } catch (err) {
       console.error("Authentication Handler Error:", err);
@@ -162,7 +145,7 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
               <p className="text-[11px] text-slate-500">Enter your registered student email or index number</p>
             </div>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
           >
@@ -210,7 +193,7 @@ export const AuthModal = ({ isOpen, onClose, defaultRole = 'teacher' }) => {
                 name="studentEmail"
                 type="text"
                 required
-                placeholder="e.g. nimesh.f@gmail.com or LYN-26-8821"
+                placeholder="e.g. nimesh.f@gmail.com or LYN-25-8821"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setErrorMessage(''); }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500 shadow-sm"

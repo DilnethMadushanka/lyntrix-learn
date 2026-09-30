@@ -67,18 +67,16 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
   };
 
   const handleAddLesson = (moduleIndex) => {
-    setModules(prev => {
-      const updated = [...prev];
-      const mod = updated[moduleIndex];
-      mod.lessons.push({
+    setModules(prev => prev.map((mod, idx) => {
+      if (idx !== moduleIndex) return mod;
+      return { ...mod, lessons: [...mod.lessons, {
         id: `les-${Date.now()}`,
         title: `Lesson 0${mod.lessons.length + 1}: Past Paper Essay Analysis`,
         duration: '2h 15m',
         videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
         notesPdf: 'Essay_Dissection.pdf'
-      });
-      return [...updated];
-    });
+      }] };
+    }));
     sound.playClick();
   };
 
@@ -143,7 +141,7 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
               <p className="text-xs text-slate-500">Design & Publish New Curriculum Batch</p>
             </div>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
           >
@@ -283,9 +281,8 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
                         type="text"
                         value={mod.title}
                         onChange={(e) => {
-                          const updated = [...modules];
-                          updated[mIdx].title = e.target.value;
-                          setModules(updated);
+                          const title = e.target.value;
+                          setModules(prev => prev.map((m, idx) => (idx === mIdx ? { ...m, title } : m)));
                         }}
                         className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-semibold flex-1"
                       />

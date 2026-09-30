@@ -11,6 +11,7 @@ import {
   ShieldCheck 
 } from 'lucide-react';
 import { sound } from '../../utils/soundEffects';
+import { verifyTeacherLogin, findInstructorByEmail } from '../../lib/demoAuth';
 
 export const TeacherLoginPage = () => {
   const { 
@@ -43,7 +44,7 @@ export const TeacherLoginPage = () => {
         try {
           const { data, error: authErr } = await supabaseAuthService.signIn(targetEmail, targetPassword);
           if (!authErr && data?.user) {
-            authenticatedTeacher = instructors.find(i => i.email?.toLowerCase() === targetEmail) || instructors[0];
+            authenticatedTeacher = findInstructorByEmail(targetEmail, instructors) || instructors[0];
           }
         } catch (authErr) {
           console.warn("Live Supabase Teacher Auth Exception handled safely:", authErr);
@@ -52,37 +53,14 @@ export const TeacherLoginPage = () => {
 
       // 2. Strict Local Credential Matching with Specific Error Messaging
       if (!authenticatedTeacher) {
-        const REGISTERED_TEACHERS = [
-          {
-            email: 'kasun.maths@lyntrix.learn',
-            passwords: ['MasterKasun@2026', 'kasun123', '123456'],
-            instructorId: instructors[0]?.id || 'ins-kasunmaths'
-          },
-          {
-            email: 'amila.chem@lyntrix.learn',
-            passwords: ['MasterAmila@2026', 'amila123', '123456'],
-            instructorId: instructors[1]?.id || 'ins-amilachem'
-          },
-          {
-            email: 'dilshan.ict@lyntrix.learn',
-            passwords: ['MasterDilshan@2026', 'dilshan123', '123456'],
-            instructorId: instructors[2]?.id || 'ins-dilshanict'
-          }
-        ];
-
-        const existingTeacher = REGISTERED_TEACHERS.find(t => 
-          t.email.toLowerCase() === targetEmail || targetEmail.includes(t.email.split('.')[0])
-        );
-
-        if (existingTeacher) {
-          if (existingTeacher.passwords.includes(targetPassword)) {
-            authenticatedTeacher = instructors.find(i => i.id === existingTeacher.instructorId) || instructors[0];
-          } else {
-            sound.playBuzzerError();
-            setError("Incorrect Password: The Master Security Password you entered is incorrect.");
-            showToast("Incorrect Master Password", "error");
-            return;
-          }
+        const result = verifyTeacherLogin(targetEmail, targetPassword, instructors);
+        if (result.status === 'ok') {
+          authenticatedTeacher = result.instructor;
+        } else if (result.status === 'wrong-password') {
+          sound.playBuzzerError();
+          setError("Incorrect Password: The Master Security Password you entered is incorrect.");
+          showToast("Incorrect Master Password", "error");
+          return;
         } else {
           sound.playBuzzerError();
           setError("Master Account Not Found: No teacher profile exists with this Email Address.");

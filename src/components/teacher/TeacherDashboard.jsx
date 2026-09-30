@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Users, 
@@ -103,11 +103,23 @@ export const TeacherDashboard = () => {
     description: ''
   });
 
+  // Point every form at this teacher's first batch again when the signed-in teacher changes.
+  useEffect(() => {
+    const first = currentTeacher.batches[0];
+    setSelectedLiveBatchId(first?.id || '');
+    setLiveZoomInput(first?.zoomLink || '');
+    setLiveScheduleInput(first?.schedule || '');
+    setNewQuizForm(prev => ({ ...prev, batchId: first?.id || '' }));
+    setNewStudentForm(prev => ({ ...prev, batchId: first?.id || '' }));
+    setNewLessonForm(prev => ({ ...prev, batchId: first?.id || '' }));
+  }, [currentTeacher.id]);
+
   const teacherLessons = lessons.filter(l => l.instructorId === currentTeacher.id);
   const teacherSlips = bankSlips.filter(s => s.instructorId === currentTeacher.id);
   const pendingSlips = teacherSlips.filter(s => s.status === 'pending');
-  const teacherQuizzes = quizzes.filter(q => q.instructorId === currentTeacher.id || q.subject.toLowerCase() === currentTeacher.subject.toLowerCase());
-  const teacherSubmissions = quizSubmissions.filter(s => s.instructorId === currentTeacher.id || s.quizTitle?.includes(currentTeacher.subject));
+  const teacherBatchIds = new Set(currentTeacher.batches.map(b => b.id));
+  const teacherQuizzes = quizzes.filter(q => q.instructorId === currentTeacher.id || teacherBatchIds.has(q.batchId));
+  const teacherSubmissions = quizSubmissions.filter(s => s.instructorId === currentTeacher.id || teacherBatchIds.has(s.batchId));
   
   const totalEnrolled = currentTeacher.batches.reduce((sum, b) => sum + b.enrolledCount, 0);
   const estimatedRevenue = (totalEnrolled * currentTeacher.monthlyFee);
@@ -607,7 +619,7 @@ export const TeacherDashboard = () => {
               </div>
 
               <div className="space-y-2.5">
-                {attendanceLogs.slice(0, 4).map(log => (
+                {attendanceLogs.filter(log => log.instructorId === currentTeacher.id || teacherBatchIds.has(log.batchId)).slice(0, 4).map(log => (
                   <div key={log.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
                     <div>
                       <div className="font-semibold text-slate-900">{log.studentName}</div>
@@ -794,9 +806,10 @@ export const TeacherDashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {students
+                    .filter(s => s.enrollments.some(e => e.instructorId === currentTeacher.id))
                     .filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || s.indexNumber.toLowerCase().includes(studentSearch.toLowerCase()))
                     .map(student => {
-                      const enrollment = student.enrollments.find(e => e.instructorId === currentTeacher.id) || student.enrollments[0];
+                      const enrollment = student.enrollments.find(e => e.instructorId === currentTeacher.id);
                       const status = enrollment?.paymentStatus || 'Overdue';
                       return (
                         <tr key={student.id} className="hover:bg-slate-50 transition">
@@ -1125,7 +1138,7 @@ export const TeacherDashboard = () => {
           <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-lift animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-semibold text-slate-900 text-base">Upload Video Lecture</h3>
-              <button onClick={() => setShowAddLessonModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
+              <button aria-label="Close" onClick={() => setShowAddLessonModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
             </div>
 
             <form onSubmit={handleCreateLesson} className="space-y-4">
@@ -1205,7 +1218,7 @@ export const TeacherDashboard = () => {
                 <h3 className="font-semibold text-slate-900 text-base">Bank Slip Verification</h3>
                 <p className="text-xs text-slate-500">{selectedSlipModal.studentName} ({selectedSlipModal.studentIndex})</p>
               </div>
-              <button onClick={() => setSelectedSlipModal(null)} className="text-slate-400 hover:text-slate-700">✕</button>
+              <button aria-label="Close" onClick={() => setSelectedSlipModal(null)} className="text-slate-400 hover:text-slate-700">✕</button>
             </div>
 
             <div className="h-72 bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center">
@@ -1274,7 +1287,7 @@ export const TeacherDashboard = () => {
                   <p className="text-xs text-slate-500">Assign Index Number & Generate Dynamic QR Card</p>
                 </div>
               </div>
-              <button onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
+              <button aria-label="Close" onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
             </div>
 
             <form onSubmit={handleRegisterStudentSubmit} className="space-y-4">
@@ -1383,7 +1396,7 @@ export const TeacherDashboard = () => {
                   <p className="text-xs text-slate-500">Publish timed multiple-choice papers for enrolled students</p>
                 </div>
               </div>
-              <button onClick={() => setShowCreateQuizModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
+              <button aria-label="Close" onClick={() => setShowCreateQuizModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
             </div>
 
             <form onSubmit={handlePublishQuizSubmit} className="space-y-5">

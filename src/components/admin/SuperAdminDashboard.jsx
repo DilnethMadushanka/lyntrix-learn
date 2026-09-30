@@ -48,7 +48,8 @@ export const SuperAdminDashboard = () => {
       return;
     }
 
-    const newId = `ins-${newTeacherForm.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    const baseId = `ins-${newTeacherForm.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    const newId = instructors.some(ins => ins.id === baseId) ? `${baseId}-${Date.now()}` : baseId;
     
     let subObject;
     if (newTeacherForm.trialStatus === 'grant_14d') {
@@ -406,7 +407,7 @@ export const SuperAdminDashboard = () => {
           <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-lift animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-semibold text-slate-900 text-base">Onboard New Tuition Master</h3>
-              <button onClick={() => setShowAddTeacherModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
+              <button aria-label="Close" onClick={() => setShowAddTeacherModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
             </div>
 
             <form onSubmit={handleCreateTeacher} className="space-y-4">

@@ -49,6 +49,25 @@ export const StudentPortal = () => {
 
   const studentSlips = bankSlips.filter(s => s.studentId === currentStudent.id);
 
+  // Lectures are only for the student's own teachers, and only open once that fee is paid.
+  const enrolledInstructorIds = new Set(currentStudent.enrollments.map(e => e.instructorId));
+  const paidInstructorIds = new Set(
+    currentStudent.enrollments.filter(e => e.paymentStatus === 'Paid').map(e => e.instructorId)
+  );
+  const studentLessons = lessons.filter(l => enrolledInstructorIds.has(l.instructorId));
+
+  const openLesson = (lesson) => {
+    if (paidInstructorIds.has(lesson.instructorId)) {
+      setActiveLesson(lesson);
+      return;
+    }
+    const enr = currentStudent.enrollments.find(e => e.instructorId === lesson.instructorId);
+    const teacher = instructors.find(i => i.id === lesson.instructorId);
+    const batch = teacher?.batches.find(b => b.id === enr?.batchId) || teacher?.batches[0];
+    showToast('Pay this month\'s class fee to unlock the recordings.', 'info');
+    if (teacher && batch) handleOpenPayment(batch, teacher);
+  };
+
   const handleOpenPayment = (batch, instructor) => {
     setPaymentModalData({ batch, instructor });
   };
@@ -228,8 +247,9 @@ export const StudentPortal = () => {
                         {isPaid ? (
                           <button
                             onClick={() => {
-                              const lesson = lessons.find(l => l.instructorId === teacher.id) || lessons[0];
-                              setActiveLesson(lesson);
+                              const lesson = lessons.find(l => l.instructorId === teacher.id);
+                              if (lesson) setActiveLesson(lesson);
+                              else showToast('No recordings have been published for this class yet.', 'info');
                             }}
                             className="w-full py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm"
                           >
@@ -242,7 +262,7 @@ export const StudentPortal = () => {
                             className="w-full py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm"
                           >
                             <CreditCard className="w-3.5 h-3.5" />
-                            <span>{isPending ? 'Review / Upload New Slip' : 'Pay August Fee (LKR 3,500)'}</span>
+                            <span>{isPending ? 'Review / Upload New Slip' : `Pay monthly fee (LKR ${(batch?.monthlyFee || 3500).toLocaleString()})`}</span>
                           </button>
                         )}
                       </div>
@@ -482,13 +502,19 @@ export const StudentPortal = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lessons.map(lesson => (
+            {studentLessons.length === 0 && (
+              <div className="md:col-span-2 lg:col-span-3 p-8 rounded-2xl bg-white border border-dashed border-slate-300 text-center text-sm text-slate-500">
+                Enroll in a class to see its recorded lectures here.
+              </div>
+            )}
+            {studentLessons.map(lesson => (
               <div key={lesson.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex flex-col justify-between group hover:shadow-soft transition">
                 <div className="relative aspect-video bg-slate-900 overflow-hidden">
                   <img src={lesson.thumbnail} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                     <button
-                      onClick={() => setActiveLesson(lesson)}
+                      onClick={() => openLesson(lesson)}
+                      aria-label={`Play ${lesson.title}`}
                       className="w-12 h-12 rounded-full bg-accent-600 text-white flex items-center justify-center shadow-soft"
                     >
                       <Play className="w-5 h-5 fill-current ml-0.5" />
@@ -511,11 +537,11 @@ export const StudentPortal = () => {
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <span className="text-[11px] text-slate-400">{lesson.date}</span>
                     <button
-                      onClick={() => setActiveLesson(lesson)}
+                      onClick={() => openLesson(lesson)}
                       className="px-3.5 py-1.5 bg-accent-50 hover:bg-accent-600 text-accent-700 hover:text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Watch Lesson</span>
+                      <span>{paidInstructorIds.has(lesson.instructorId) ? 'Watch Lesson' : 'Unlock'}</span>
                     </button>
                   </div>
                 </div>
@@ -599,10 +625,8 @@ export const StudentPortal = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {quizzes
               .filter(quiz => {
-                return currentStudent.enrollments.some(e => 
-                  e.batchId === quiz.batchId || 
-                  e.instructorId === quiz.instructorId ||
-                  quiz.title.toLowerCase().includes(e.batchId.split('-')[1] || '')
+                return currentStudent.enrollments.some(e =>
+                  e.batchId === quiz.batchId || e.instructorId === quiz.instructorId
                 );
               })
               .map(quiz => {

@@ -16,7 +16,7 @@ export const DigitalStudentCard = () => {
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>OFFICIAL STUDENT ENTRANCE PASS</span>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={() => setShowIdCardModal(false)}
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center text-sm font-semibold"
           >

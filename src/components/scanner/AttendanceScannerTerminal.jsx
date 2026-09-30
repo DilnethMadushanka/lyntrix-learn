@@ -21,6 +21,11 @@ export const AttendanceScannerTerminal = () => {
   const [scanInput, setScanInput] = useState('');
   const [lastScanResult, setLastScanResult] = useState(null);
 
+  const teacherBatchIds = new Set(currentTeacher.batches.map(b => b.id));
+  const stationLogs = attendanceLogs.filter(
+    log => log.instructorId === currentTeacher.id || teacherBatchIds.has(log.batchId)
+  );
+
   const handleScanSubmit = (e) => {
     e.preventDefault();
     if (!scanInput.trim()) return;
@@ -188,12 +193,12 @@ export const AttendanceScannerTerminal = () => {
                 <h3 className="font-semibold text-slate-900 text-sm">Today's Entrance Scans</h3>
               </div>
               <span className="text-xs text-accent-600 font-mono font-semibold">
-                {attendanceLogs.length} Records
+                {stationLogs.length} Records
               </span>
             </div>
 
             <div className="space-y-2.5 max-h-96 overflow-y-auto">
-              {attendanceLogs.map((log) => (
+              {stationLogs.map((log) => (
                 <div
                   key={log.id}
                   className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs"

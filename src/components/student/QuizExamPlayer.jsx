@@ -22,22 +22,27 @@ export const QuizExamPlayer = () => {
   const [timeLeft, setTimeLeft] = useState(activeQuiz ? activeQuiz.durationMinutes * 60 : 900);
   const [score, setScore] = useState(0);
 
+  // Start every paper from a clean slate, with its own time limit.
+  useEffect(() => {
+    setSelectedAnswers({});
+    setFlaggedQuestions({});
+    setIsSubmitted(false);
+    setScore(0);
+    setTimeLeft(activeQuiz ? activeQuiz.durationMinutes * 60 : 900);
+  }, [activeQuiz?.id]);
+
   useEffect(() => {
     if (!activeQuiz || isSubmitted) return;
-
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmitQuiz();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [activeQuiz, isSubmitted, selectedAnswers]);
+  }, [activeQuiz, isSubmitted]);
+
+  // Auto-submit once time runs out, using the latest answers.
+  useEffect(() => {
+    if (activeQuiz && !isSubmitted && timeLeft === 0) handleSubmitQuiz();
+  }, [timeLeft]);
 
   if (!activeQuiz) return null;
 
@@ -124,9 +129,10 @@ export const QuizExamPlayer = () => {
             )}
             <button
               onClick={() => setActiveQuiz(null)}
-              className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
+              aria-label="Close exam"
+              className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center"
             >
-              ✕
+              <XCircle className="w-4 h-4" />
             </button>
           </div>
         </div>

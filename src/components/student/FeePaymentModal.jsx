@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   CreditCard, 
@@ -32,6 +32,17 @@ export const FeePaymentModal = () => {
     amount: paymentModalData?.batch?.monthlyFee || 3500,
     slipImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80'
   });
+
+  // The modal stays mounted, so refresh the slip form for each batch it opens for.
+  useEffect(() => {
+    if (!paymentModalData) return;
+    setPaymentMode('card');
+    setSlipForm(prev => ({
+      ...prev,
+      referenceNo: '',
+      amount: paymentModalData.batch?.monthlyFee || paymentModalData.amount || 3500
+    }));
+  }, [paymentModalData]);
 
   if (!paymentModalData) return null;
 
@@ -83,7 +94,7 @@ export const FeePaymentModal = () => {
             <h3 className="font-semibold text-slate-900 text-base">August 2026 Monthly Class Fee</h3>
             <p className="text-xs text-accent-600 font-semibold">{batch.title}</p>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={() => setPaymentModalData(null)}
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
           >

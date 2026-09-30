@@ -17,7 +17,7 @@ import {
 import { sound } from '../../utils/soundEffects';
 
 export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }) => {
-  const { registerTeacherSaaS, setCurrentRole, showToast } = useApp();
+  const { registerTeacherSaaS, setCurrentRole, showToast, instructors } = useApp();
 
   const defaultPlan = initialPlan || {
     id: 'pro-master',
@@ -74,6 +74,14 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
       showToast('Please fill in all teacher & subdomain fields.', 'error');
       return;
     }
+    if (formData.password.length < 6) {
+      showToast('Choose a studio password of at least 6 characters.', 'error');
+      return;
+    }
+    if (instructors.some(ins => ins.id === `ins-${formData.subdomain}` || ins.email?.toLowerCase() === formData.email.trim().toLowerCase())) {
+      showToast('That subdomain or email is already registered. Please choose another.', 'error');
+      return;
+    }
     setStep(2);
     sound.playClick();
   };
@@ -90,7 +98,8 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
         subject: formData.subject,
         subdomain: formData.subdomain,
         email: formData.email,
-        phone: formData.phone
+        phone: formData.phone,
+        password: formData.password
       });
 
       setStep(3);
@@ -108,7 +117,7 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
         {/* Top Gradient Header Accent */}
 
         {/* Close Button */}
-        <button
+        <button aria-label="Close"
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center font-semibold transition"
         >
@@ -242,6 +251,20 @@ export const TeacherPlanCheckoutModal = ({ isOpen, onClose, initialPlan = null }
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-none focus:border-accent-500"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Studio Password:</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                autoComplete="new-password"
+                placeholder="At least 6 characters"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
+              />
             </div>
 
             <div className="flex items-center gap-3 pt-3 border-t border-slate-100">

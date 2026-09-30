@@ -26,7 +26,7 @@ export const AssignmentGradingModal = ({ isOpen, onClose, submission }) => {
             <Award className="w-5 h-5 text-accent-600" />
             <h3 className="font-semibold text-slate-900 text-base">Grade Student Assignment</h3>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold">✕</button>
+          <button aria-label="Close" onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold">✕</button>
         </div>
 
         <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-1 text-xs">

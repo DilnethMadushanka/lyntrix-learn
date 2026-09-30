@@ -46,15 +46,23 @@ export const VideoClassroom = () => {
 
   // Realtime clock ticker for burned-in watermark timestamp
   useEffect(() => {
+    if (!activeLesson) return;
     const timer = setInterval(() => {
       setRealtimeClock(new Date().toLocaleTimeString());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [activeLesson]);
+
+  // A new lesson starts unblocked.
+  useEffect(() => {
+    setIsBlackedOut(false);
+    setBlackoutReason('');
+  }, [activeLesson?.id]);
 
   // Anti-Screen Recording & Screenshot Intercept System
   useEffect(() => {
-    if (!drmEnabled) return;
+    // Only guard while a lesson is open, and stop guarding when DRM is switched off.
+    if (!drmEnabled || !activeLesson) return;
 
     // 1. Detect Window Blur & Focus Loss (Triggered when opening screen recorders or switching apps)
     const handleWindowBlur = () => {
@@ -126,7 +134,7 @@ export const VideoClassroom = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [drmEnabled, activeLesson]);
 
   if (!activeLesson) return null;
 
@@ -199,7 +207,7 @@ export const VideoClassroom = () => {
             <span>{drmEnabled ? 'DRM Shield: Active' : 'Demo Stream Mode'}</span>
           </button>
 
-          <button
+          <button aria-label="Close"
             onClick={() => setActiveLesson(null)}
             className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-semibold hover:bg-slate-700 transition"
           >
@@ -217,7 +225,7 @@ export const VideoClassroom = () => {
             className="relative rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-lift aspect-video group select-none"
           >
             {/* BLACKOUT SCREEN PROTECTION OVERLAY (Triggers on Screen Record / Blur / PrtScn) */}
-            {isBlackedOut ? (
+            {isBlackedOut && (
               <div className="absolute inset-0 z-40 bg-black flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in select-none">
                 <div className="w-16 h-16 rounded-full bg-rose-500/10 border-2 border-rose-500 text-rose-500 flex items-center justify-center animate-pulse">
                   <ShieldAlert className="w-8 h-8" />
@@ -250,8 +258,9 @@ export const VideoClassroom = () => {
                   <span>Resume Secure Stream</span>
                 </button>
               </div>
-            ) : (
-              <>
+            )}
+            {/* The video stays mounted under the blackout so Resume continues from the same position. */}
+            <>
                 <video
                   ref={videoRef}
                   src={activeLesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
@@ -296,8 +305,7 @@ export const VideoClassroom = () => {
                 <div className="absolute top-3 right-3 bg-black/70 px-2.5 py-1 rounded-lg border border-white/10 text-[10px] font-mono text-slate-300 pointer-events-none z-10">
                   Netflix-Grade Hardware DRM Protected
                 </div>
-              </>
-            )}
+            </>
 
             {/* Custom Video Controls Bar */}
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 flex flex-col gap-2 opacity-95 group-hover:opacity-100 transition">

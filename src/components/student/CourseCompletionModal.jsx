@@ -29,7 +29,7 @@ export const CourseCompletionModal = ({ isOpen, onClose, courseTitle, instructor
               <p className="text-xs text-slate-500">Verified Academic Achievement</p>
             </div>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
           >
