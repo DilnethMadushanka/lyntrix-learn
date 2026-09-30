@@ -178,7 +178,7 @@ export const AppProvider = ({ children }) => {
               {
                 id: `batch-${t.subdomain}-2026-theory`,
                 code: `${(t.subdomain || 'TH').toUpperCase()}-2026-TH`,
-                title: `2026 A/L ${t.subject} — Full Theory & Revision`,
+                title: `2026 A/L ${t.subject}: Full Theory & Revision`,
                 grade: "2026 A/L",
                 gradeYear: "2026",
                 medium: "Sinhala Medium",
@@ -230,7 +230,7 @@ export const AppProvider = ({ children }) => {
         };
         setBankSlips(prev => [newSlip, ...prev.filter(s => s.id !== newSlip.id)]);
         sound.playChimeApproved();
-        showToast('⚡ Realtime: New Bank Slip received in Supabase!', 'info');
+        showToast('Realtime: New Bank Slip received in Supabase!', 'info');
       } else if (payload.eventType === 'UPDATE') {
         setBankSlips(prev => prev.map(s => s.id === payload.new.id ? { ...s, status: payload.new.status } : s));
       }
@@ -252,7 +252,7 @@ export const AppProvider = ({ children }) => {
           feeStatus: payload.new.fee_status || 'Paid'
         };
         setAttendanceLogs(prev => [newLog, ...prev.filter(a => a.id !== newLog.id)]);
-        showToast('⚡ Realtime: Entrance Attendance Recorded!', 'info');
+        showToast('Realtime: Entrance Attendance Recorded!', 'info');
       }
     });
 
@@ -260,7 +260,7 @@ export const AppProvider = ({ children }) => {
     const unsubLessons = supabaseDbService.subscribeToRealtime('lessons', (payload) => {
       if (payload.eventType === 'INSERT') {
         setLessons(prev => [payload.new, ...prev]);
-        showToast('⚡ Realtime: New Video Lecture Added to Supabase!', 'success');
+        showToast('Realtime: New Video Lecture Added to Supabase!', 'success');
       }
     });
 
@@ -280,7 +280,7 @@ export const AppProvider = ({ children }) => {
           }
           return ins;
         }));
-        showToast(`⚡ Realtime: Academy Subscription updated to ${payload.new.subscription_status}!`, 'info');
+        showToast(`Realtime: Academy Subscription updated to ${payload.new.subscription_status}!`, 'info');
       }
     });
 
@@ -378,7 +378,7 @@ export const AppProvider = ({ children }) => {
     setStudents(prev => [newStudent, ...prev]);
     setCurrentStudentId(newStudent.id);
 
-    // ⚡ Live Supabase Auth & Database Synchronization
+    // Live Supabase Auth & Database Synchronization
     if (isSupabaseConfigured()) {
       (async () => {
         try {
@@ -455,7 +455,7 @@ export const AppProvider = ({ children }) => {
 
     setStudents(prev => [newStudent, ...prev]);
 
-    // ⚡ Live Supabase Sync
+    // Live Supabase Sync
     if (isSupabaseConfigured()) {
       (async () => {
         try {
@@ -759,7 +759,7 @@ export const AppProvider = ({ children }) => {
         success: false,
         student,
         feeStatus: enrollment?.paymentStatus || 'Not Enrolled',
-        message: `⚠️ Access Warning: ${student.name}'s August class fee is ${enrollment?.paymentStatus || 'Not Paid'}.`
+        message: `Access Warning: ${student.name}'s August class fee is ${enrollment?.paymentStatus || 'Not Paid'}.`
       };
     }
 
@@ -782,7 +782,7 @@ export const AppProvider = ({ children }) => {
       success: true,
       student,
       feeStatus: 'Paid',
-      message: `✅ Access Granted: ${student.name} (${student.indexNumber}) marked PRESENT.`
+      message: `Access Granted: ${student.name} (${student.indexNumber}) marked PRESENT.`
     };
   };
 
@@ -859,7 +859,7 @@ export const AppProvider = ({ children }) => {
         {
           id: `batch-${cleanSubdomain}-2026-theory`,
           code: `${cleanSubdomain.toUpperCase()}-2026-TH`,
-          title: `2026 A/L ${teacherData.subject} — Full Theory & Revision`,
+          title: `2026 A/L ${teacherData.subject}: Full Theory & Revision`,
           grade: "2026 A/L",
           gradeYear: "2026",
           medium: "Sinhala / English Medium",
@@ -902,13 +902,13 @@ export const AppProvider = ({ children }) => {
         if (error) {
           console.error("Error saving teacher to Supabase database:", error);
         } else {
-          console.log("⚡ Teacher saved to Supabase teachers table successfully!");
+          console.log("Teacher saved to Supabase teachers table successfully!");
         }
       });
     }
 
     sound.playChimeApproved();
-    showToast(`🎉 Master ${teacherData.name} profile created! Saved to Database & Live at ${cleanSubdomain}.dilnethmadushanka.online`, 'success');
+    showToast(`Master ${teacherData.name} profile created! Saved to Database & Live at ${cleanSubdomain}.dilnethmadushanka.online`, 'success');
     return newInstructor;
   };
 

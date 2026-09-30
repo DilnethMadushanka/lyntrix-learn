@@ -226,33 +226,33 @@ export const TeacherDashboard = () => {
   return (
     <div className="space-y-6 pb-24">
       {/* 0. SAAS SUBSCRIPTION & FREE TRIAL BANNER (ADMIN AUTHORIZED) */}
-      <div className={`p-4 sm:p-5 rounded-3xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
+      <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm ${
         currentTeacher.subscription?.status === 'active' 
-          ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border-emerald-200' :
+          ? 'bg-emerald-50 border-emerald-200' :
         currentTeacher.subscription?.status === 'trialing'
-          ? 'bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200' :
-          'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+          ? 'bg-accent-50 border-accent-200' :
+          'bg-amber-50 border-amber-200'
       }`}>
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-md shrink-0 ${
-            currentTeacher.subscription?.status === 'active' ? 'bg-emerald-600 text-white shadow-emerald-500/20' :
-            currentTeacher.subscription?.status === 'trialing' ? 'bg-blue-600 text-white shadow-blue-500/20' :
-            'bg-amber-600 text-white shadow-amber-500/20'
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-semibold shadow-soft shrink-0 ${
+            currentTeacher.subscription?.status === 'active' ? 'bg-emerald-600 text-white' :
+            currentTeacher.subscription?.status === 'trialing' ? 'bg-accent-600 text-white' :
+            'bg-amber-600 text-white'
           }`}>
             <Sparkles className="w-5 h-5 text-amber-300" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900">
+              <span className="text-xs font-semibold text-slate-900">
                 {currentTeacher.subscription?.status === 'active' 
-                  ? `⭐ Active ${currentTeacher.subscription.tier} Subscription` :
+                  ? `Active ${currentTeacher.subscription.tier} Subscription` :
                  currentTeacher.subscription?.status === 'trialing'
-                  ? `🟢 Admin Authorized Trial (${currentTeacher.subscription.trialDaysLeft} Days Remaining)` :
-                  '🔒 Trial Access Pending Admin Authorization'}
+                  ? `Admin Authorized Trial (${currentTeacher.subscription.trialDaysLeft} Days Remaining)` :
+                  'Trial Access Pending Admin Authorization'}
               </span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                 currentTeacher.subscription?.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
-                currentTeacher.subscription?.status === 'trialing' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                currentTeacher.subscription?.status === 'trialing' ? 'bg-accent-100 text-accent-800 border-accent-200' :
                 'bg-amber-100 text-amber-800 border-amber-200'
               }`}>
                 {currentTeacher.subscription?.status === 'active' ? 'Paid Active' :
@@ -271,7 +271,7 @@ export const TeacherDashboard = () => {
 
         <button
           onClick={() => setShowSubscriptionModal(true)}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0"
+          className="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold shadow-soft transition flex items-center gap-1.5 shrink-0"
         >
           <Zap className="w-3.5 h-3.5 text-amber-300" />
           <span>SaaS Subscription & Plans</span>
@@ -279,26 +279,26 @@ export const TeacherDashboard = () => {
       </div>
 
       {/* 1. TEACHER HERO BANNER */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm relative overflow-hidden">
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4">
             <img
               src={currentTeacher.avatar}
               alt={currentTeacher.name}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-500 shadow-md"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-1 ring-slate-200 bg-slate-200"
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                   {currentTeacher.badge}
                 </span>
                 <span className="text-xs text-slate-500 font-mono">Master ID: {currentTeacher.id}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mt-1">
                 {currentTeacher.name}
               </h1>
               <p className="text-slate-600 text-xs sm:text-sm font-medium mt-0.5">
-                {currentTeacher.title} • <span className="text-emerald-700 font-bold">{currentTeacher.subject}</span>
+                {currentTeacher.title} • <span className="text-accent-700 font-semibold">{currentTeacher.subject}</span>
               </p>
             </div>
           </div>
@@ -306,15 +306,15 @@ export const TeacherDashboard = () => {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowCourseWizardModal(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition active:scale-95"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 ring-1 ring-slate-200 rounded-xl text-xs font-semibold flex items-center gap-2 transition active:scale-95"
             >
-              <Sparkles className="w-4 h-4 text-amber-300" />
+              <Sparkles className="w-4 h-4 text-accent-600" />
               <span>Create New Course (Wizard)</span>
             </button>
 
             <button
               onClick={() => setShowAddLessonModal(true)}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-blue-500/20 transition active:scale-95"
+              className="px-4 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-soft transition active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Upload Video Lecture</span>
@@ -322,12 +322,12 @@ export const TeacherDashboard = () => {
 
             <button
               onClick={() => setActiveTab('slips')}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-200 transition relative"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-200 transition relative"
             >
               <CreditCard className="w-4 h-4 text-emerald-600" />
               <span>Bank Slips</span>
               {pendingSlips.length > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                <span className="bg-rose-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
                   {pendingSlips.length} New
                 </span>
               )}
@@ -340,11 +340,11 @@ export const TeacherDashboard = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">Active Students</span>
-            <Users className="w-5 h-5 text-blue-600" />
+            <span className="text-xs text-slate-500 font-semibold">Active Students</span>
+            <Users className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-3">{totalEnrolled.toLocaleString()}</div>
-          <div className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
+          <div className="text-2xl font-semibold text-slate-900 mt-3">{totalEnrolled.toLocaleString()}</div>
+          <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-1">
             <TrendingUp className="w-3 h-3" />
             <span>+142 this month</span>
           </div>
@@ -352,28 +352,28 @@ export const TeacherDashboard = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">Est. Monthly Revenue</span>
-            <DollarSign className="w-5 h-5 text-emerald-600" />
+            <span className="text-xs text-slate-500 font-semibold">Est. Monthly Revenue</span>
+            <DollarSign className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
           </div>
-          <div className="text-2xl font-black text-emerald-600 mt-3">LKR {(estimatedRevenue / 1000).toFixed(0)}k</div>
+          <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-3">LKR {(estimatedRevenue / 1000).toFixed(0)}k</div>
           <div className="text-[11px] text-slate-500 mt-1">LKR {currentTeacher.monthlyFee} / student</div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">Pending Slips</span>
-            <AlertCircle className="w-5 h-5 text-amber-500" />
+            <span className="text-xs text-slate-500 font-semibold">Pending Slips</span>
+            <AlertCircle className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
           </div>
-          <div className="text-2xl font-black text-amber-600 mt-3">{pendingSlips.length}</div>
+          <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-3">{pendingSlips.length}</div>
           <div className="text-[11px] text-slate-500 mt-1">Requires 1-click approval</div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">Average Student Rating</span>
-            <Award className="w-5 h-5 text-amber-500" />
+            <span className="text-xs text-slate-500 font-semibold">Average Student Rating</span>
+            <Award className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
           </div>
-          <div className="text-2xl font-black text-amber-600 mt-3">★ {currentTeacher.rating || 4.98}</div>
+          <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-3">{currentTeacher.rating || 4.98}</div>
           <div className="text-[11px] text-slate-500 mt-1">{currentTeacher.reviewsCount || 1420} Verified Reviews</div>
         </div>
       </div>
@@ -381,21 +381,21 @@ export const TeacherDashboard = () => {
       {/* 2.5 ANALYTICS CHARTS AREA: ENGAGEMENT RATE & MONTHLY REVENUE TRENDS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Student Engagement Rate */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Student Engagement Rate</h3>
+              <h3 className="font-semibold text-slate-900 text-sm">Student Engagement Rate</h3>
               <p className="text-xs text-slate-500">Weekly video lecture watch time & quiz participation (%)</p>
             </div>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">+18.4% Growth</span>
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">+18.4% Growth</span>
           </div>
 
           <div className="h-44 w-full pt-4">
             <svg className="w-full h-full" viewBox="0 0 500 150">
               <defs>
                 <linearGradient id="engagementGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2563EB" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#2563EB" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#1f7570" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#1f7570" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path
@@ -405,13 +405,13 @@ export const TeacherDashboard = () => {
               <path
                 d="M 0 120 Q 80 40, 160 80 T 320 30 T 480 15"
                 fill="none"
-                stroke="#2563EB"
-                strokeWidth="3.5"
+                stroke="#1f7570"
+                strokeWidth="2.5"
                 strokeLinecap="round"
               />
-              <circle cx="160" cy="80" r="5" fill="#2563EB" className="animate-ping" />
-              <circle cx="320" cy="30" r="5" fill="#2563EB" />
-              <circle cx="480" cy="15" r="6" fill="#10B981" />
+              <circle cx="160" cy="80" r="4" fill="#1f7570" />
+              <circle cx="320" cy="30" r="4" fill="#1f7570" />
+              <circle cx="480" cy="15" r="6" fill="#1f7570" />
             </svg>
           </div>
 
@@ -421,13 +421,13 @@ export const TeacherDashboard = () => {
         </div>
 
         {/* Chart 2: Monthly Revenue Growth */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Monthly Tuition Revenue</h3>
+              <h3 className="font-semibold text-slate-900 text-sm">Monthly Tuition Revenue</h3>
               <p className="text-xs text-slate-500">Collected class fees (LKR)</p>
             </div>
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">LKR {(estimatedRevenue / 1000).toFixed(0)}k Current</span>
+            <span className="text-xs font-semibold text-accent-600 bg-accent-50 px-2.5 py-0.5 rounded-full border border-accent-200">LKR {(estimatedRevenue / 1000).toFixed(0)}k Current</span>
           </div>
 
           <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 px-4">
@@ -438,9 +438,9 @@ export const TeacherDashboard = () => {
               { month: 'Aug', val: 100 }
             ].map((bar, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                <div className="text-[10px] font-bold text-slate-600 font-mono">{(estimatedRevenue * (bar.val/100) / 1000).toFixed(0)}k</div>
+                <div className="text-[10px] font-semibold text-slate-600 font-mono">{(estimatedRevenue * (bar.val/100) / 1000).toFixed(0)}k</div>
                 <div
-                  className="w-full bg-gradient-to-t from-emerald-500 to-teal-400 rounded-t-xl transition-all duration-700"
+                  className={`w-full rounded-t-md transition-[height] duration-700 ${idx === 3 ? "bg-accent-600" : "bg-accent-100"}`}
                   style={{ height: `${bar.val}%` }}
                 />
                 <span className="text-[10px] font-mono text-slate-400">{bar.month}</span>
@@ -458,20 +458,20 @@ export const TeacherDashboard = () => {
           {/* Left Column: Batches & Next Live */}
           <div className="lg:col-span-2 space-y-6">
             {/* Live Class Alert Box */}
-            <div className="bg-rose-50/80 border border-rose-200 p-6 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="bg-rose-50/80 border border-rose-200 p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping"></span>
-                  <span className="text-xs font-bold text-rose-700 uppercase tracking-wider">Live Scheduled Class</span>
+                  <span className="relative flex w-2 h-2"><span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-60"></span><span className="relative w-2 h-2 rounded-full bg-rose-500"></span></span>
+                  <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Live Scheduled Class</span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">2025 A/L Combined Maths — Theory Masterclass</h3>
+                <h3 className="text-lg font-semibold text-slate-900">2025 A/L Combined Maths: Theory Masterclass</h3>
                 <p className="text-xs text-slate-600">Sunday 7:30 AM • 1,840 Students Waiting</p>
               </div>
               <a
                 href={currentTeacher.batches[0]?.zoomLink || "https://zoom.us"}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-rose-600/20 transition"
+                className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-soft transition"
               >
                 <Video className="w-4 h-4" />
                 <span>Start Zoom Class</span>
@@ -481,21 +481,21 @@ export const TeacherDashboard = () => {
             {/* Active Batches List */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-slate-900">Active Batches & Classes</h3>
-                <span className="text-xs text-blue-600 font-bold">{currentTeacher.batches.length} Batches</span>
+                <h3 className="text-base font-semibold text-slate-900">Active Batches & Classes</h3>
+                <span className="text-xs text-accent-600 font-semibold">{currentTeacher.batches.length} Batches</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {currentTeacher.batches.map(batch => (
-                  <div key={batch.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:shadow-md transition">
+                  <div key={batch.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:shadow-soft transition">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded border border-blue-200">
+                      <span className="text-[10px] font-mono font-semibold bg-accent-50 text-accent-800 px-2 py-0.5 rounded border border-accent-200">
                         {batch.code}
                       </span>
-                      <span className="text-xs text-emerald-600 font-bold">LKR {batch.monthlyFee}/mo</span>
+                      <span className="text-xs text-emerald-600 font-semibold">LKR {batch.monthlyFee}/mo</span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{batch.title}</h4>
+                      <h4 className="font-semibold text-slate-900 text-sm">{batch.title}</h4>
                       <p className="text-xs text-slate-500 mt-1">{batch.schedule}</p>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
@@ -510,10 +510,10 @@ export const TeacherDashboard = () => {
             {/* Recent Video Lessons */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-slate-900">Published Video Lessons</h3>
+                <h3 className="text-base font-semibold text-slate-900">Published Video Lessons</h3>
                 <button
                   onClick={() => setActiveTab('batches')}
-                  className="text-xs text-blue-600 font-bold hover:underline"
+                  className="text-xs text-accent-600 font-semibold hover:underline"
                 >
                   View All
                 </button>
@@ -530,14 +530,14 @@ export const TeacherDashboard = () => {
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-900 line-clamp-1">{lesson.title}</div>
+                        <div className="text-sm font-semibold text-slate-900 line-clamp-1">{lesson.title}</div>
                         <div className="text-xs text-slate-500 mt-0.5">{lesson.unit} • {lesson.duration}</div>
                       </div>
                     </div>
 
                     <button
                       onClick={() => setActiveLesson(lesson)}
-                      className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shrink-0"
+                      className="px-3.5 py-1.5 bg-accent-50 hover:bg-accent-600 text-accent-700 hover:text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shrink-0"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Preview</span>
@@ -551,13 +551,13 @@ export const TeacherDashboard = () => {
           {/* Right Column: Pending Slip Queue & Recent Attendance */}
           <div className="space-y-6">
             {/* Pending Slip Approvals Widget */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-emerald-600" />
-                  <h3 className="font-bold text-slate-900 text-sm">Pending Bank Slips</h3>
+                  <h3 className="font-semibold text-slate-900 text-sm">Pending Bank Slips</h3>
                 </div>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                   {pendingSlips.length}
                 </span>
               </div>
@@ -572,20 +572,20 @@ export const TeacherDashboard = () => {
                   {pendingSlips.map(slip => (
                     <div key={slip.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900">{slip.studentName}</span>
-                        <span className="text-xs text-emerald-600 font-bold">LKR {slip.amount}</span>
+                        <span className="text-xs font-semibold text-slate-900">{slip.studentName}</span>
+                        <span className="text-xs text-emerald-600 font-semibold">LKR {slip.amount}</span>
                       </div>
                       <div className="text-[11px] text-slate-500 font-mono">{slip.studentIndex} • {slip.bank}</div>
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => setSelectedSlipModal(slip)}
-                          className="flex-1 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition text-center"
+                          className="flex-1 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition text-center"
                         >
                           View Slip
                         </button>
                         <button
                           onClick={() => approveBankSlip(slip.id)}
-                          className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm"
+                          className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition shadow-sm"
                         >
                           Approve
                         </button>
@@ -597,11 +597,11 @@ export const TeacherDashboard = () => {
             </div>
 
             {/* Live Hall Attendance Feed */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-blue-600" />
-                  <h3 className="font-bold text-slate-900 text-sm">Recent Hall Scans</h3>
+                  <QrCode className="w-4 h-4 text-accent-600" />
+                  <h3 className="font-semibold text-slate-900 text-sm">Recent Hall Scans</h3>
                 </div>
                 <span className="text-[11px] text-slate-400 font-semibold">Live Feed</span>
               </div>
@@ -610,10 +610,10 @@ export const TeacherDashboard = () => {
                 {attendanceLogs.slice(0, 4).map(log => (
                   <div key={log.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
                     <div>
-                      <div className="font-bold text-slate-900">{log.studentName}</div>
+                      <div className="font-semibold text-slate-900">{log.studentName}</div>
                       <div className="text-[10px] text-slate-500 font-mono">{log.studentIndex} • {log.timestamp}</div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${
                       log.status.includes('Blocked')
                         ? 'bg-rose-100 text-rose-800'
                         : 'bg-emerald-100 text-emerald-800'
@@ -632,7 +632,7 @@ export const TeacherDashboard = () => {
       {activeTab === 'slips' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Bank Slip Approvals Queue</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Bank Slip Approvals Queue</h2>
             <p className="text-xs text-slate-500">Review student uploaded bank deposit slips and activate instant class access.</p>
           </div>
 
@@ -640,7 +640,7 @@ export const TeacherDashboard = () => {
             {teacherSlips.map(slip => (
               <div key={slip.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                  <span className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full ${
                     slip.status === 'approved' ? 'bg-emerald-100 text-emerald-800' :
                     slip.status === 'rejected' ? 'bg-rose-100 text-rose-800' :
                     'bg-amber-100 text-amber-800'
@@ -651,14 +651,14 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <h4 className="font-bold text-slate-900 text-base">{slip.studentName}</h4>
-                  <div className="text-xs text-blue-600 font-mono font-bold">{slip.studentIndex} • {slip.studentPhone}</div>
+                  <h4 className="font-semibold text-slate-900 text-base">{slip.studentName}</h4>
+                  <div className="text-xs text-accent-600 font-mono font-semibold">{slip.studentIndex} • {slip.studentPhone}</div>
                   <div className="text-xs text-slate-500">{slip.batchTitle}</div>
                 </div>
 
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                   <span className="text-xs text-slate-500">Amount Deposited:</span>
-                  <span className="font-bold text-emerald-600 text-sm">LKR {slip.amount.toLocaleString()}</span>
+                  <span className="font-semibold text-emerald-600 text-sm">LKR {slip.amount.toLocaleString()}</span>
                 </div>
 
                 <div 
@@ -667,7 +667,7 @@ export const TeacherDashboard = () => {
                 >
                   <img src={slip.slipImage} alt="Deposit Slip" className="w-full h-full object-cover group-hover:scale-105 transition" />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                    <span className="px-3 py-1.5 bg-black/80 rounded-lg text-xs font-bold text-white">Click to Zoom</span>
+                    <span className="px-3 py-1.5 bg-black/80 rounded-lg text-xs font-semibold text-white">Click to Zoom</span>
                   </div>
                 </div>
 
@@ -675,14 +675,14 @@ export const TeacherDashboard = () => {
                   <div className="flex items-center gap-2 pt-2">
                     <button
                       onClick={() => approveBankSlip(slip.id)}
-                      className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm"
+                      className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1 shadow-sm"
                     >
                       <Check className="w-4 h-4" />
                       <span>Approve (SMS)</span>
                     </button>
                     <button
                       onClick={() => rejectBankSlip(slip.id)}
-                      className="px-4 py-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-xl text-xs font-bold transition border border-slate-200"
+                      className="px-4 py-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-xl text-xs font-semibold transition border border-slate-200"
                     >
                       Reject
                     </button>
@@ -699,12 +699,12 @@ export const TeacherDashboard = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Batches & Video Lesson Vault</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Batches & Video Lesson Vault</h2>
               <p className="text-xs text-slate-500">Manage course recordings, attached PDFs, and quizzes.</p>
             </div>
             <button
               onClick={() => setShowAddLessonModal(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm"
+              className="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Video</span>
@@ -719,14 +719,14 @@ export const TeacherDashboard = () => {
                   <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[11px] font-mono text-white">
                     {lesson.duration}
                   </div>
-                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                  <div className="absolute top-2 left-2 bg-accent-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
                     {lesson.unit}
                   </div>
                 </div>
 
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm line-clamp-2">{lesson.title}</h3>
+                    <h3 className="font-semibold text-slate-900 text-sm line-clamp-2">{lesson.title}</h3>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">{lesson.description}</p>
                   </div>
 
@@ -734,7 +734,7 @@ export const TeacherDashboard = () => {
                     <span className="text-[11px] text-slate-400">{lesson.date}</span>
                     <button
                       onClick={() => setActiveLesson(lesson)}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-sm"
+                      className="px-3 py-1.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition shadow-sm"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>Play (Watermark)</span>
@@ -752,7 +752,7 @@ export const TeacherDashboard = () => {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Student Enrollment & Fee Tracking</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Student Enrollment & Fee Tracking</h2>
               <p className="text-xs text-slate-500">View payment records, attendance percentages, and dynamic QR tokens.</p>
             </div>
 
@@ -764,13 +764,13 @@ export const TeacherDashboard = () => {
                   placeholder="Search by Name or Index..."
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-sm"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-accent-500 shadow-sm"
                 />
               </div>
 
               <button
                 onClick={() => setShowAddStudentModal(true)}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition shrink-0"
+                className="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-soft transition shrink-0"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>+ Register Student</span>
@@ -781,7 +781,7 @@ export const TeacherDashboard = () => {
           <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
+                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-semibold border-b border-slate-200">
                   <tr>
                     <th className="p-4">Student</th>
                     <th className="p-4">Index No</th>
@@ -803,15 +803,15 @@ export const TeacherDashboard = () => {
                           <td className="p-4 flex items-center gap-3">
                             <img src={student.avatar} alt={student.name} className="w-8 h-8 rounded-xl object-cover" />
                             <div>
-                              <div className="font-bold text-slate-900">{student.name}</div>
+                              <div className="font-semibold text-slate-900">{student.name}</div>
                               <div className="text-[10px] text-slate-500">{student.district}</div>
                             </div>
                           </td>
-                          <td className="p-4 font-mono text-blue-700 font-bold">{student.indexNumber}</td>
+                          <td className="p-4 font-mono text-accent-700 font-semibold">{student.indexNumber}</td>
                           <td className="p-4 text-slate-700">{student.phone}</td>
                           <td className="p-4 text-slate-700">{student.batch}</td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${
                               status === 'Paid' ? 'bg-emerald-100 text-emerald-800' :
                               status === 'Pending' ? 'bg-amber-100 text-amber-800' :
                               'bg-rose-100 text-rose-800'
@@ -823,7 +823,7 @@ export const TeacherDashboard = () => {
                           <td className="p-4 text-right space-x-2">
                             <button
                               onClick={() => showToast(`SMS Reminder dispatched to ${student.phone}`, 'info')}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold transition border border-slate-200"
+                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition border border-slate-200"
                             >
                               SMS Alert
                             </button>
@@ -843,20 +843,20 @@ export const TeacherDashboard = () => {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Live Classroom Broadcasting & Scheduled Links</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Live Classroom Broadcasting & Scheduled Links</h2>
               <p className="text-xs text-slate-500">Update Zoom, YouTube Live, or Google Meet links and schedules for your batches.</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left 2 Cols: Edit Live Link Form */}
-            <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                 <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
                   <Video className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Edit Live Scheduled Class Link</h3>
+                  <h3 className="font-semibold text-slate-900 text-base">Edit Live Scheduled Class Link</h3>
                   <p className="text-xs text-slate-500">Students with paid fees will immediately get this updated link.</p>
                 </div>
               </div>
@@ -874,7 +874,7 @@ export const TeacherDashboard = () => {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Select Batch to Update:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Batch to Update:</label>
                   <select
                     value={selectedLiveBatchId}
                     onChange={(e) => {
@@ -890,14 +890,14 @@ export const TeacherDashboard = () => {
                   >
                     {currentTeacher.batches.map(b => (
                       <option key={b.id} value={b.id}>
-                        {b.code} — {b.title}
+                        {b.code}, {b.title}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Live Zoom / Broadcast URL:
                   </label>
                   <input
@@ -914,7 +914,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Weekly Timetable Schedule Text:
                   </label>
                   <input
@@ -930,20 +930,20 @@ export const TeacherDashboard = () => {
                 <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                   <button
                     type="submit"
-                    className="w-full sm:flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center justify-center gap-2 active:scale-95"
+                    className="w-full sm:flex-1 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold shadow-soft transition flex items-center justify-center gap-2 active:scale-95"
                   >
                     <Check className="w-4 h-4" />
-                    <span>💾 Save & Update Live Link</span>
+                    <span>Save & Update Live Link</span>
                   </button>
 
                   <a
                     href={liveZoomInput}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full sm:flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition flex items-center justify-center gap-2 text-center"
+                    className="w-full sm:flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-soft transition flex items-center justify-center gap-2 text-center"
                   >
                     <Video className="w-4 h-4" />
-                    <span>🚀 Launch Live Zoom Room</span>
+                    <span>Launch Live Zoom Room</span>
                   </a>
                 </div>
               </form>
@@ -951,13 +951,13 @@ export const TeacherDashboard = () => {
 
             {/* Right 1 Col: Live Schedule Summary Cards */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-900">Current Batch Live Links ({currentTeacher.batches.length})</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Current Batch Live Links ({currentTeacher.batches.length})</h3>
 
               {currentTeacher.batches.map(b => (
                 <div key={b.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 text-xs">{b.code}</span>
-                    <span className="text-[10px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200">
+                    <span className="font-semibold text-slate-900 text-xs">{b.code}</span>
+                    <span className="text-[10px] bg-rose-50 text-rose-700 font-semibold px-2 py-0.5 rounded-full border border-rose-200">
                       Live Stream
                     </span>
                   </div>
@@ -968,7 +968,7 @@ export const TeacherDashboard = () => {
                     Schedule: <strong className="text-slate-800">{b.schedule}</strong>
                   </div>
 
-                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] font-mono text-blue-700 truncate">
+                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] font-mono text-accent-700 truncate">
                     {b.zoomLink}
                   </div>
 
@@ -979,9 +979,9 @@ export const TeacherDashboard = () => {
                       setLiveScheduleInput(b.schedule);
                       showToast(`Loaded ${b.code} into editor above.`, 'info');
                     }}
-                    className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
+                    className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1"
                   >
-                    <span>✏️ Edit This Link</span>
+                    <span>Edit This Link</span>
                   </button>
                 </div>
               ))}
@@ -995,13 +995,13 @@ export const TeacherDashboard = () => {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Online MCQ Exam Papers & Question Bank</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Online MCQ Exam Papers & Question Bank</h2>
               <p className="text-xs text-slate-500">Create custom MCQ tests, set countdown timers, and evaluate student marks automatically.</p>
             </div>
 
             <button
               onClick={() => setShowCreateQuizModal(true)}
-              className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition shrink-0"
+              className="px-4 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-soft transition shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ Create New MCQ Paper</span>
@@ -1011,22 +1011,22 @@ export const TeacherDashboard = () => {
           {/* Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500 font-bold">Published Papers</span>
-              <div className="text-2xl font-black text-slate-900 mt-1">{teacherQuizzes.length}</div>
+              <span className="text-xs text-slate-500 font-semibold">Published Papers</span>
+              <div className="text-2xl font-semibold text-slate-900 mt-1">{teacherQuizzes.length}</div>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500 font-bold">Total Questions</span>
-              <div className="text-2xl font-black text-purple-600 mt-1">
+              <span className="text-xs text-slate-500 font-semibold">Total Questions</span>
+              <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-1">
                 {teacherQuizzes.reduce((sum, q) => sum + q.questions.length, 0)}
               </div>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500 font-bold">Student Submissions</span>
-              <div className="text-2xl font-black text-blue-600 mt-1">{teacherSubmissions.length}</div>
+              <span className="text-xs text-slate-500 font-semibold">Student Submissions</span>
+              <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-1">{teacherSubmissions.length}</div>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500 font-bold">Avg Student Score</span>
-              <div className="text-2xl font-black text-emerald-600 mt-1">
+              <span className="text-xs text-slate-500 font-semibold">Avg Student Score</span>
+              <div className="text-2xl font-semibold text-slate-900 tabular-nums tracking-tight mt-1">
                 {teacherSubmissions.length > 0 
                   ? `${Math.round(teacherSubmissions.reduce((s, sub) => s + sub.percentage, 0) / teacherSubmissions.length)}%` 
                   : '95%'}
@@ -1036,39 +1036,39 @@ export const TeacherDashboard = () => {
 
           {/* List of Sir's MCQ Papers */}
           <div className="space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Active Published MCQ Papers</h3>
+            <h3 className="text-base font-semibold text-slate-900">Active Published MCQ Papers</h3>
 
             {teacherQuizzes.length === 0 ? (
-              <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-xs text-slate-500 space-y-3">
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-xs text-slate-500 space-y-3">
                 <Award className="w-10 h-10 text-slate-300 mx-auto" />
                 <p>No MCQ papers created yet. Click <strong>"+ Create New MCQ Paper"</strong> to publish your first exam.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {teacherQuizzes.map((quiz) => (
-                  <div key={quiz.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                  <div key={quiz.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                        <span className="text-xs font-semibold text-accent-700 bg-accent-50 px-2.5 py-0.5 rounded-full border border-accent-200">
                           {quiz.subject}
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-slate-500 font-mono font-bold">
+                        <div className="flex items-center gap-1 text-xs text-slate-500 font-mono font-semibold">
                           <Clock className="w-3.5 h-3.5 text-amber-500" />
                           <span>{quiz.durationMinutes} Mins</span>
                         </div>
                       </div>
 
-                      <h4 className="font-bold text-slate-900 text-sm mt-3">{quiz.title}</h4>
+                      <h4 className="font-semibold text-slate-900 text-sm mt-3">{quiz.title}</h4>
                       <p className="text-xs text-slate-500 mt-1">
                         {quiz.questions.length} Questions • Total: {quiz.totalMarks} Marks
                       </p>
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-emerald-600">✓ Live for Students</span>
+                      <span className="text-[11px] font-semibold text-emerald-600">✓ Live for Students</span>
                       <button
                         onClick={() => showToast(`Opening Question Bank for ${quiz.title}`, 'info')}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold transition"
                       >
                         View {quiz.questions.length} Questions
                       </button>
@@ -1080,12 +1080,12 @@ export const TeacherDashboard = () => {
           </div>
 
           {/* Student Exam Marks Leaderboard */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Recent Student MCQ Marks & Submissions</h3>
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+            <h3 className="text-base font-semibold text-slate-900">Recent Student MCQ Marks & Submissions</h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
+                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-semibold border-b border-slate-200">
                   <tr>
                     <th className="p-3">Student Name</th>
                     <th className="p-3">Index Number</th>
@@ -1098,12 +1098,12 @@ export const TeacherDashboard = () => {
                 <tbody className="divide-y divide-slate-100">
                   {teacherSubmissions.map((sub) => (
                     <tr key={sub.id} className="hover:bg-slate-50">
-                      <td className="p-3 font-bold text-slate-900">{sub.studentName}</td>
-                      <td className="p-3 font-mono text-blue-700 font-bold">{sub.studentIndex}</td>
+                      <td className="p-3 font-semibold text-slate-900">{sub.studentName}</td>
+                      <td className="p-3 font-mono text-accent-700 font-semibold">{sub.studentIndex}</td>
                       <td className="p-3 text-slate-700">{sub.quizTitle}</td>
-                      <td className="p-3 font-bold text-slate-900">{sub.score} / {sub.totalMarks}</td>
+                      <td className="p-3 font-semibold text-slate-900">{sub.score} / {sub.totalMarks}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                        <span className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${
                           sub.percentage >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                         }`}>
                           {sub.percentage}%
@@ -1121,29 +1121,29 @@ export const TeacherDashboard = () => {
 
       {/* MODALS */}
       {showAddLessonModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-lift animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-base">Upload Video Lecture</h3>
+              <h3 className="font-semibold text-slate-900 text-base">Upload Video Lecture</h3>
               <button onClick={() => setShowAddLessonModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
             </div>
 
             <form onSubmit={handleCreateLesson} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Lesson Title:</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Lesson Title:</label>
                 <input
                   type="text"
                   placeholder="e.g. Lesson 35: Circular Motion & Past Papers"
                   value={newLessonForm.title}
                   onChange={(e) => setNewLessonForm({ ...newLessonForm, title: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Batch:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Batch:</label>
                   <select
                     value={newLessonForm.batchId}
                     onChange={(e) => setNewLessonForm({ ...newLessonForm, batchId: e.target.value })}
@@ -1156,7 +1156,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Duration:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Duration:</label>
                   <input
                     type="text"
                     value={newLessonForm.duration}
@@ -1167,7 +1167,7 @@ export const TeacherDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Video Stream URL (MP4 / HLS):</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Video Stream URL (MP4 / HLS):</label>
                 <input
                   type="text"
                   value={newLessonForm.videoUrl}
@@ -1180,13 +1180,13 @@ export const TeacherDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddLessonModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                  className="flex-1 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition shadow-sm"
                 >
                   Publish Lecture
                 </button>
@@ -1198,11 +1198,11 @@ export const TeacherDashboard = () => {
 
       {/* SLIP ZOOM & REVIEW MODAL */}
       {selectedSlipModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-lift animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <h3 className="font-bold text-slate-900 text-base">Bank Slip Verification</h3>
+                <h3 className="font-semibold text-slate-900 text-base">Bank Slip Verification</h3>
                 <p className="text-xs text-slate-500">{selectedSlipModal.studentName} ({selectedSlipModal.studentIndex})</p>
               </div>
               <button onClick={() => setSelectedSlipModal(null)} className="text-slate-400 hover:text-slate-700">✕</button>
@@ -1219,19 +1219,19 @@ export const TeacherDashboard = () => {
             <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
               <div>
                 <span className="text-slate-500">Bank & Branch:</span>
-                <div className="font-bold text-slate-900">{selectedSlipModal.bank}</div>
+                <div className="font-semibold text-slate-900">{selectedSlipModal.bank}</div>
               </div>
               <div>
                 <span className="text-slate-500">Reference No:</span>
-                <div className="font-bold text-blue-700 font-mono">{selectedSlipModal.referenceNo}</div>
+                <div className="font-semibold text-accent-700 font-mono">{selectedSlipModal.referenceNo}</div>
               </div>
               <div>
                 <span className="text-slate-500">Deposit Date:</span>
-                <div className="font-bold text-slate-900">{selectedSlipModal.depositDate}</div>
+                <div className="font-semibold text-slate-900">{selectedSlipModal.depositDate}</div>
               </div>
               <div>
                 <span className="text-slate-500">Amount:</span>
-                <div className="font-bold text-emerald-600">LKR {selectedSlipModal.amount}</div>
+                <div className="font-semibold text-emerald-600">LKR {selectedSlipModal.amount}</div>
               </div>
             </div>
 
@@ -1241,7 +1241,7 @@ export const TeacherDashboard = () => {
                   approveBankSlip(selectedSlipModal.id);
                   setSelectedSlipModal(null);
                 }}
-                className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+                className="flex-1 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm"
               >
                 <Check className="w-4 h-4" />
                 <span>Approve & Send SMS</span>
@@ -1251,7 +1251,7 @@ export const TeacherDashboard = () => {
                   rejectBankSlip(selectedSlipModal.id);
                   setSelectedSlipModal(null);
                 }}
-                className="px-6 py-3 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-xl text-xs font-bold transition border border-slate-200"
+                className="px-6 py-3 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-xl text-xs font-semibold transition border border-slate-200"
               >
                 Reject Slip
               </button>
@@ -1262,24 +1262,24 @@ export const TeacherDashboard = () => {
 
       {/* DIRECT STUDENT ENROLLMENT MODAL BY TEACHER */}
       {showAddStudentModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-lift animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold">
                   <UserPlus className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Enroll Student to Class</h3>
+                  <h3 className="font-semibold text-slate-900 text-base">Enroll Student to Class</h3>
                   <p className="text-xs text-slate-500">Assign Index Number & Generate Dynamic QR Card</p>
                 </div>
               </div>
-              <button onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+              <button onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
             </div>
 
             <form onSubmit={handleRegisterStudentSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Student Full Name:</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Student Full Name:</label>
                 <input
                   type="text"
                   required
@@ -1292,7 +1292,7 @@ export const TeacherDashboard = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp / Phone:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">WhatsApp / Phone:</label>
                   <input
                     type="tel"
                     required
@@ -1304,7 +1304,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">District:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">District:</label>
                   <select
                     value={newStudentForm.district}
                     onChange={(e) => setNewStudentForm({ ...newStudentForm, district: e.target.value })}
@@ -1323,7 +1323,7 @@ export const TeacherDashboard = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Assign Batch:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Assign Batch:</label>
                   <select
                     value={newStudentForm.batchId}
                     onChange={(e) => setNewStudentForm({ ...newStudentForm, batchId: e.target.value })}
@@ -1336,7 +1336,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Fee Payment Status:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Fee Payment Status:</label>
                   <select
                     value={newStudentForm.paymentStatus}
                     onChange={(e) => setNewStudentForm({ ...newStudentForm, paymentStatus: e.target.value })}
@@ -1353,13 +1353,13 @@ export const TeacherDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddStudentModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20"
+                  className="flex-1 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold shadow-soft"
                 >
                   Enroll & Generate QR Pass
                 </button>
@@ -1371,37 +1371,37 @@ export const TeacherDashboard = () => {
 
       {/* CUSTOM MCQ EXAM PAPER CREATOR MODAL */}
       {showCreateQuizModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-lift animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-accent-100 text-accent-700 flex items-center justify-center font-semibold">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Create Custom MCQ Exam Paper</h3>
+                  <h3 className="font-semibold text-slate-900 text-base">Create Custom MCQ Exam Paper</h3>
                   <p className="text-xs text-slate-500">Publish timed multiple-choice papers for enrolled students</p>
                 </div>
               </div>
-              <button onClick={() => setShowCreateQuizModal(false)} className="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+              <button onClick={() => setShowCreateQuizModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">✕</button>
             </div>
 
             <form onSubmit={handlePublishQuizSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Exam Paper Title:</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Exam Paper Title:</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 2025 A/L Combined Maths — Trigonometric Integrals Test"
+                  placeholder="e.g. 2025 A/L Combined Maths: Trigonometric Integrals Test"
                   value={newQuizForm.title}
                   onChange={(e) => setNewQuizForm({ ...newQuizForm, title: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Target Batch:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Target Batch:</label>
                   <select
                     value={newQuizForm.batchId}
                     onChange={(e) => setNewQuizForm({ ...newQuizForm, batchId: e.target.value })}
@@ -1414,7 +1414,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Time Limit (Mins):</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Time Limit (Mins):</label>
                   <input
                     type="number"
                     min="5"
@@ -1426,7 +1426,7 @@ export const TeacherDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Total Marks:</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Marks:</label>
                   <input
                     type="number"
                     min="10"
@@ -1441,11 +1441,11 @@ export const TeacherDashboard = () => {
               {/* Dynamic Questions Builder */}
               <div className="space-y-4 pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">MCQ Questions ({newQuizForm.questions.length}):</span>
+                  <span className="text-xs font-semibold text-slate-800">MCQ Questions ({newQuizForm.questions.length}):</span>
                   <button
                     type="button"
                     onClick={handleAddQuestionField}
-                    className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-purple-200"
+                    className="px-3 py-1.5 bg-accent-50 hover:bg-accent-100 text-accent-700 rounded-lg text-xs font-semibold transition flex items-center gap-1 border border-accent-200"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Add Another Question</span>
@@ -1456,8 +1456,8 @@ export const TeacherDashboard = () => {
                   {newQuizForm.questions.map((q, qIndex) => (
                     <div key={q.id || qIndex} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-700 font-mono">Question #{qIndex + 1}</span>
-                        <span className="text-[10px] text-slate-500 font-bold">Select radio button for Correct Answer</span>
+                        <span className="text-xs font-semibold text-accent-700 font-mono">Question #{qIndex + 1}</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">Select radio button for Correct Answer</span>
                       </div>
 
                       <input
@@ -1477,7 +1477,7 @@ export const TeacherDashboard = () => {
                               name={`correct-${qIndex}`}
                               checked={q.correctIndex === optIndex}
                               onChange={() => handleUpdateQuestion(qIndex, 'correctIndex', optIndex)}
-                              className="w-4 h-4 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                              className="w-4 h-4 text-accent-600 focus:ring-accent-500 cursor-pointer"
                             />
                             <input
                               type="text"
@@ -1507,15 +1507,15 @@ export const TeacherDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateQuizModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20"
+                  className="flex-1 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold shadow-soft"
                 >
-                  🚀 Publish MCQ Paper to Students
+                  Publish MCQ Paper to Students
                 </button>
               </div>
             </form>

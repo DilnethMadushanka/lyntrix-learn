@@ -1,65 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  Search, 
-  BookOpen, 
-  Video, 
-  QrCode, 
-  CreditCard, 
-  CheckCircle2, 
-  Sparkles, 
-  ArrowRight, 
-  Play, 
-  Users, 
-  Award, 
-  TrendingUp, 
-  Lock, 
-  Clock,
+import {
+  Search,
+  Video,
+  ArrowRight,
   Star,
-  Package,
-  FileText,
   ShieldCheck,
-  Building,
-  GraduationCap,
-  ChevronRight,
-  Zap
+  QrCode,
+  Receipt,
+  Clock,
+  Users,
+  SearchX
 } from 'lucide-react';
-import { SUBJECT_CATEGORIES, GRADE_STREAMS, SAAS_PRICING_PLANS } from '../../data/mockData';
 import { sound } from '../../utils/soundEffects';
 import { AnimatedSection } from '../common/AnimatedSection';
 
 const HERO_SLIDES = [
   {
     url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1600&auto=format&fit=crop&q=80",
-    stream: "📐 Combined Mathematics",
-    tagline: "Integral Calculus & Pure Theory Masterclass"
+    stream: "Combined Mathematics",
+    tagline: "Integral calculus and pure theory"
   },
   {
     url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1600&auto=format&fit=crop&q=80",
-    stream: "⚡ Advanced Physics",
-    tagline: "Mechanics, Electricity & Quantum Theory Lab"
+    stream: "Physics",
+    tagline: "Mechanics, electricity and modern physics"
   },
   {
     url: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=1600&auto=format&fit=crop&q=80",
-    stream: "🧪 Chemistry Faculty",
-    tagline: "Organic Syntheses & Physical Energetics"
+    stream: "Chemistry",
+    tagline: "Organic synthesis and physical chemistry"
   },
   {
     url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1600&auto=format&fit=crop&q=80",
-    stream: "💻 A/L ICT & Computing",
-    tagline: "Python Programming, Logic Gates & Databases"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&auto=format&fit=crop&q=80",
-    stream: "🏢 Hall Gate QR Terminal",
-    tagline: "Automated Student Entrance & Fee Pass Verification"
+    stream: "A/L ICT",
+    tagline: "Python, logic gates and databases"
   }
 ];
 
+const SUBJECT_TABS = [
+  { id: 'all', label: 'All subjects' },
+  { id: 'maths', label: 'Combined Maths' },
+  { id: 'physics', label: 'Physics' },
+  { id: 'chemistry', label: 'Chemistry' },
+  { id: 'ict', label: 'ICT' },
+];
+
+const fieldClass = 'h-11 w-full bg-white ring-1 ring-slate-200 focus:ring-2 focus:ring-accent-500 rounded-lg text-sm text-slate-900 placeholder-slate-500 outline-none transition';
+
 export const LandingPage = () => {
-  const { 
-    instructors, 
-    setCurrentRole, 
+  const {
+    instructors,
+    setCurrentRole,
     setCurrentTeacherId,
     currentRole,
     currentStudent,
@@ -72,48 +64,20 @@ export const LandingPage = () => {
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Auto-rotating Hero Slideshow
   const [slideIndex, setSlideIndex] = useState(0);
-  const [activeBgIndex, setActiveBgIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setSlideIndex(prev => (prev + 1) % HERO_SLIDES.length);
-    }, 4000);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
-  // Scroll-Driven Dynamic Background Image Switching per Page Section
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight <= 0) return;
-      const scrollRatio = scrollY / totalHeight;
-
-      if (scrollRatio < 0.22) {
-        setActiveBgIndex(0); // Hero: Combined Maths / Physics Smartboard
-      } else if (scrollRatio < 0.48) {
-        setActiveBgIndex(1); // Course Directory: Chemistry & Lab Optics
-      } else if (scrollRatio < 0.72) {
-        setActiveBgIndex(2); // Faculty Spotlight: University Grand Auditorium
-      } else if (scrollRatio < 0.88) {
-        setActiveBgIndex(3); // SaaS Infrastructure: High-Tech Computing
-      } else {
-        setActiveBgIndex(4); // Footer & Bottom: Grand Ancient Library Stacks
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Protected Zoom Admission Check
+  // Protected Zoom admission check
   const handleProtectedZoomAccess = ({ batchId, title, instructor }) => {
     if (currentRole !== 'student') {
       sound.playBuzzerError();
-      showToast("🔒 Student Login Required: Please login to your Student Account to join Sir's Live Zoom class.", "error");
+      showToast("Please log in to your student account to join this live class.", "error");
       setShowAuthModal(true);
       return;
     }
@@ -121,7 +85,7 @@ export const LandingPage = () => {
     const enrollment = currentStudent?.enrollments?.find(e => e.batchId === batchId || e.instructorId === instructor.id);
     if (!enrollment || enrollment.paymentStatus !== 'Paid') {
       sound.playBuzzerError();
-      showToast("🔒 Class Fee Required: Monthly tuition fee payment needed to enter Live Zoom room.", "error");
+      showToast("This month's class fee is due before you can enter the live room.", "error");
       setPaymentModalData({
         batch: { id: batchId, title: title || '2025 A/L Combined Maths', monthlyFee: instructor.monthlyFee || 3500 },
         instructor: instructor
@@ -131,15 +95,15 @@ export const LandingPage = () => {
 
     sound.playChimeApproved();
     window.open(instructor.batches[0]?.zoomLink || "https://zoom.us/j/9988221100", "_blank");
-    showToast("✅ Verified Student Pass: Connecting to Live Zoom Room...", "success");
+    showToast("Student pass verified. Opening the Zoom room.", "success");
   };
 
-  // Protected Course Enrollment Check
+  // Protected course enrollment check
   const handleProtectedEnroll = (instructor) => {
     setCurrentTeacherId(instructor.id);
     if (currentRole !== 'student') {
       sound.playClick();
-      showToast(`To enroll in ${instructor.name}'s batch, please login or register your student account.`, 'info');
+      showToast(`To enroll in ${instructor.name}'s batch, please log in or register a student account.`, 'info');
       setShowAuthModal(true);
     } else {
       const primaryBatch = instructor.batches[0];
@@ -157,421 +121,357 @@ export const LandingPage = () => {
 
   const filteredInstructors = instructors.filter(ins => {
     const matchesSubject = selectedSubject === 'all' || ins.subjectCategory === selectedSubject;
-    const matchesSearch = ins.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = ins.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           ins.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           ins.batches.some(b => b.title.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesGrade = selectedGrade === 'all' || ins.batches.some(b => b.gradeYear === selectedGrade);
     return matchesSubject && matchesSearch && matchesGrade;
   });
 
+  const featured = instructors[0];
+  const slide = HERO_SLIDES[slideIndex];
+
   return (
-    <div className="relative min-h-screen bg-[#090D16] text-[#F8FAFC] selection:bg-indigo-600 selection:text-white overflow-x-hidden w-full max-w-full space-y-16 pb-24">
-      
-      {/* ========================================================================= */}
-      {/* 1. SCROLL-DRIVEN SECTION DYNAMIC BACKGROUND SLIDESHOW WITH DARK GRADIENT */}
-      {/* ========================================================================= */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {HERO_SLIDES.map((slide, idx) => {
-          const isActive = idx === activeBgIndex || (idx === slideIndex && activeBgIndex === 0);
-          return (
-            <div
-              key={idx}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                isActive ? 'opacity-100 scale-105 transition-transform duration-[7500ms] ease-out' : 'opacity-0 scale-100'
-              }`}
+    <div className="relative overflow-x-hidden">
+      {/* HERO: copy left, rotating subject photo right */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="lg:col-span-5 min-w-0 space-y-7 animate-in">
+          <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold tracking-tight leading-[1.05] text-slate-900">
+            Learn from Sri Lanka's top A/L teachers
+          </h1>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-[46ch]">
+            Join live Zoom classes, rewatch protected recordings, pay fees by bank slip and enter the hall with a QR pass.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="#classes"
+              className="inline-flex items-center gap-2 h-12 px-5 rounded-xl bg-accent-600 hover:bg-accent-700 text-white text-sm font-semibold transition-colors"
             >
-              <img
-                src={slide.url}
-                alt={slide.stream}
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-          );
-        })}
-
-        {/* Deep Space Gradient Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090D16]/95 via-[#090D16]/85 to-[#090D16] backdrop-blur-[2px]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/25 via-transparent to-[#090D16]"></div>
-      </div>
-
-      <div className="relative z-10 space-y-16">
-        
-        {/* ========================================================================= */}
-        {/* 2. HERO SECTION WITH GRADIENT HEADLINE & INTERACTIVE RADAR */}
-        {/* ========================================================================= */}
-        <section className="pt-10 lg:pt-16 pb-8 text-center px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto space-y-6">
-            
-            {/* Top Pill Badge */}
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-2xl">
-                <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span>Sri Lanka's Premier Multi-Sir LMS • 2025/2026 A/L</span>
-              </div>
-            </div>
-
-            {/* Glowing Gradient Headline with Animated Dynamic Changing Text */}
-            <div className="max-w-4xl mx-auto space-y-4">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight drop-shadow-2xl min-h-[120px] sm:min-h-[150px]">
-                Empowering Sri Lanka's Next Generation of{' '}
-                <span key={slideIndex} className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-cyan-300 to-emerald-400 animate-in fade-in slide-in-from-bottom-3 duration-700">
-                  {[
-                    "Doctors, Engineers & Innovators.",
-                    "Island Rank 01 A/L Achievers.",
-                    "Combined Maths & Physics Masters.",
-                    "Chemistry & Biology Scholars.",
-                    "Future Tech Leaders & IT Pioneers."
-                  ][slideIndex]}
-                </span>
-              </h1>
-
-              <p key={`sub-${slideIndex}`} className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium min-h-[48px] animate-in fade-in slide-in-from-bottom-2 duration-700">
-                {[
-                  "Attend live Zoom masterclasses, watch watermark-protected HD videos, submit paper answers for grading, and scan entrance pass QR codes.",
-                  "Master Sri Lanka A/L Theory & Revision units with Island Top Tuition Masters and instant score feedback.",
-                  "HD HLS video streaming, automated bank slip approvals, and hall gate laser barcode scanners.",
-                  "Comprehensive theory modules, timed MCQ paper challenges, and verified completion certificates.",
-                  "Islandwide rank-producing tuition masters empowered with custom SaaS subdomains and DRM video security."
-                ][slideIndex]}
-              </p>
-
-              {/* High-Tech HUD Feature Badges */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto pt-6">
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-indigo-950/40 backdrop-blur-2xl border border-amber-500/30 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 text-left flex items-center gap-3.5 group">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition">
-                    🎓
-                  </div>
-                  <div>
-                    <div className="font-bold text-xs text-white group-hover:text-amber-300 transition">Top 01% Master Faculty</div>
-                    <div className="text-[10px] text-amber-400/90 font-medium">Island Rank 01 Produced</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-emerald-950/40 backdrop-blur-2xl border border-emerald-500/30 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.25)] transition-all duration-300 text-left flex items-center gap-3.5 group">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition">
-                    🛡️
-                  </div>
-                  <div>
-                    <div className="font-bold text-xs text-white group-hover:text-emerald-300 transition">4K Anti-Piracy DRM</div>
-                    <div className="text-[10px] text-emerald-400/90 font-medium">Dynamic Watermarked HLS</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-cyan-950/40 backdrop-blur-2xl border border-cyan-500/30 hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.25)] transition-all duration-300 text-left flex items-center gap-3.5 group">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition">
-                    🎟️
-                  </div>
-                  <div>
-                    <div className="font-bold text-xs text-white group-hover:text-cyan-300 transition">Hall Gate QR Pass</div>
-                    <div className="text-[10px] text-cyan-400/90 font-medium">Laser Entrance Barcode</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. INTERACTIVE LIVE RADAR BROADCAST COMMAND DECK */}
-            <div className="mt-8 max-w-4xl mx-auto">
-              <div className="bg-gradient-to-r from-slate-900/95 via-slate-900/85 to-[#0F172A]/95 backdrop-blur-2xl text-white p-5 sm:p-6 rounded-3xl border border-rose-500/40 hover:border-rose-400 hover:shadow-[0_0_35px_rgba(244,63,94,0.3)] transition-all duration-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden group">
-                <div className="flex items-center gap-4 text-left">
-                  <div className="relative shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 to-orange-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 border border-rose-400/40">
-                      <Video className="w-6 h-6 animate-pulse" />
-                    </div>
-                    <span className="w-3 h-3 rounded-full bg-rose-500 border-2 border-slate-950 absolute -top-1 -right-1 animate-ping"></span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2.5 py-0.5 rounded-full backdrop-blur-md">
-                        🔴 LIVE BROADCAST RADAR ACTIVE
-                      </span>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-rose-200 transition">
-                      Combined Maths — Theory Masterclass (අනුකලනය)
-                    </h3>
-                    <p className="text-xs text-slate-300 font-medium">
-                      Eng. Kasun Ranasinghe • Sunday 7:30 AM • <span className="text-emerald-400 font-bold">👨‍🎓 1,840 Active Students</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 shrink-0">
-                  <div className="flex items-center gap-2 bg-slate-950 px-4 py-2.5 rounded-2xl border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-inner">
-                    <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
-                    <span>Starts In: 02h 45m</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleProtectedZoomAccess({
-                      batchId: 'd0000000-0000-0000-0000-000000000001',
-                      title: 'Combined Maths — Theory Masterclass',
-                      instructor: instructors[0]
-                    })}
-                    className="px-5 py-2.5 bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white rounded-2xl text-xs font-black transition-all duration-300 shadow-[0_0_25px_rgba(244,63,94,0.4)] active:scale-95 flex items-center gap-2 shrink-0 border border-rose-400/40"
-                  >
-                    <span>Enter Zoom Room</span>
-                    <ArrowRight className="w-4 h-4 shrink-0" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              Find a class
+              <ArrowRight className="w-4 h-4" />
+            </a>
+            <button
+              onClick={() => openPlanCheckout()}
+              className="inline-flex items-center h-12 px-5 rounded-xl text-sm font-semibold text-slate-800 ring-1 ring-slate-300 hover:ring-slate-400 hover:bg-white transition"
+            >
+              I'm a teacher
+            </button>
           </div>
-        </section>
+        </div>
 
-        {/* ========================================================================= */}
-        {/* 4. INTERACTIVE SUBJECT SPECIALIZATION CATALOG & SEARCH FILTERS */}
-        {/* ========================================================================= */}
-        <AnimatedSection delay={100} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-6">
-            <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-7 rounded-3xl border border-indigo-500/20 shadow-2xl space-y-5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-gradient-indigo">
-                    Sri Lankan A/L Master Directory
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Filter by Subject Stream, Batch Year (2025/2026/2027 A/L), or Tuition Master.
-                  </p>
-                </div>
-
-                {/* Subject Stream Tabs */}
-                <div className="flex flex-wrap items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs">
-                  {['all', 'maths', 'physics', 'chemistry', 'ict'].map((subj) => (
-                    <button
-                      key={subj}
-                      onClick={() => setSelectedSubject(subj)}
-                      className={`px-3 py-1.5 rounded-xl font-bold uppercase text-[11px] transition ${
-                        selectedSubject === subj ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {subj === 'all' ? 'All Streams' : subj}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Multi-field Search Inputs */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div className="sm:col-span-8 relative">
-                  <input
-                    id="catalog-search-input"
-                    name="catalogSearchQuery"
-                    aria-label="Search by Master Name, Unit Title, or Subject"
-                    type="text"
-                    placeholder="Search by Master Name (Kasun, Nuwan...), Unit Title, or Subject..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-950/80 border border-indigo-500/30 rounded-2xl pl-10 pr-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                  />
-                  <Search className="w-4 h-4 text-indigo-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                </div>
-
-                <div className="sm:col-span-4">
-                  <select
-                    id="catalog-grade-select"
-                    name="catalogGradeFilter"
-                    aria-label="Filter by Batch Year"
-                    value={selectedGrade}
-                    onChange={(e) => setSelectedGrade(e.target.value)}
-                    className="w-full bg-slate-950/80 border border-indigo-500/30 rounded-2xl px-4 py-3 text-xs text-white font-bold focus:outline-none"
-                  >
-                    <option value="all">All Batch Years (2025/2026/2027)</option>
-                    <option value="2025">2025 A/L (Theory / Revision)</option>
-                    <option value="2026">2026 A/L (Theory)</option>
-                    <option value="2027">2027 A/L (New Batch)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Ultra-Modern Glowing Course Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredInstructors.map((ins) => {
-                const primaryBatch = ins.batches[0];
-                return (
-                  <div
-                    key={ins.id}
-                    className="bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-indigo-500/30 hover:border-indigo-400 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)] transition-all duration-500 flex flex-col justify-between overflow-hidden group hover:-translate-y-1.5"
-                  >
-                    {/* Thumbnail Cover Image & Overlay Badges */}
-                    <div className="relative h-52 overflow-hidden">
-                      <img
-                        src={ins.cover}
-                        alt={ins.name}
-                        className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#090D16] via-slate-950/50 to-transparent"></div>
-
-                      {/* Glass Top Badges */}
-                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="px-3 py-1 rounded-xl bg-slate-950/80 text-indigo-300 text-[10px] font-bold border border-indigo-400/50 backdrop-blur-md shadow-lg">
-                            {ins.subject}
-                          </span>
-                          <span className="px-3 py-1 rounded-xl bg-slate-950/80 text-emerald-400 text-[10px] font-bold border border-emerald-500/50 backdrop-blur-md shadow-lg">
-                            Year: {primaryBatch?.gradeYear || '2026'}
-                          </span>
-                        </div>
-
-                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] font-bold backdrop-blur-md">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          <span>4.9</span>
-                        </span>
-                      </div>
-
-                      {/* Instructor Avatar & Verification */}
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <img
-                              src={ins.avatar}
-                              alt={ins.name}
-                              className="w-11 h-11 rounded-xl object-cover border-2 border-indigo-500 shadow-xl"
-                            />
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 fill-slate-950 absolute -bottom-1 -right-1" />
-                          </div>
-                          <div>
-                            <div className="font-bold text-xs text-white group-hover:text-indigo-300 transition flex items-center gap-1">
-                              <span>{ins.name}</span>
-                            </div>
-                            <div className="text-[10px] text-slate-300 font-medium">{ins.title}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card Content & Micro Features */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                      <div className="space-y-2">
-                        <h3 className="font-bold text-white text-base line-clamp-1 group-hover:text-indigo-300 transition">
-                          {primaryBatch?.title}
-                        </h3>
-                        <p className="text-xs text-slate-300/90 line-clamp-2 leading-relaxed font-medium">
-                          {primaryBatch?.description}
-                        </p>
-
-                        {/* Micro Feature Indicators */}
-                        <div className="flex flex-wrap items-center gap-2 pt-2 text-[10px] text-slate-300">
-                          <span className="flex items-center gap-1 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                            <Video className="w-3 h-3 text-indigo-400" /> 4K DRM Replays
-                          </span>
-                          <span className="flex items-center gap-1 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                            <FileText className="w-3 h-3 text-emerald-400" /> Theory Tutes
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="pt-3.5 border-t border-slate-800/80 flex items-center justify-between gap-3">
-                        <div className="shrink-0">
-                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Tuition Fee</span>
-                          <div className="text-sm sm:text-base font-black text-emerald-400 font-mono">
-                            LKR {ins.monthlyFee.toLocaleString()}
-                            <span className="text-[10px] font-normal text-slate-400 font-sans">/mo</span>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleProtectedEnroll(ins)}
-                          className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-indigo-500/25 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0 border border-indigo-400/30"
-                        >
-                          <span>Enroll Batch</span>
-                          <ChevronRight className="w-4 h-4 shrink-0" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* ========================================================================= */}
-        {/* 5. FACULTY SPOTLIGHT SHOWCASE CAROUSEL */}
-        {/* ========================================================================= */}
-        <AnimatedSection delay={150} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-900/80 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-indigo-500/20 shadow-2xl space-y-6">
-            <div className="text-center max-w-2xl mx-auto space-y-2">
-              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-full">
-                Sri Lanka's Leading Master Faculty
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-gradient-indigo">
-                Learn from Island Rank 01 Producing Tuition Masters
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
-              {instructors.map((ins) => (
-                <div key={ins.id} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-3 hover:border-indigo-500/50 transition group">
-                  <img src={ins.avatar} alt={ins.name} className="w-20 h-20 rounded-2xl object-cover mx-auto border-2 border-indigo-500/40 group-hover:scale-105 transition" />
-                  <div>
-                    <h4 className="font-bold text-white text-sm">{ins.name}</h4>
-                    <div className="text-xs text-indigo-400 font-bold mt-0.5">{ins.subject}</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-1">{ins.studentsCount.toLocaleString()} Enrolled Students</div>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-amber-400 text-xs font-bold pt-2 border-t border-slate-900">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>{ins.rating} Rating ({ins.reviewsCount} reviews)</span>
-                  </div>
-                </div>
+        <div className="lg:col-span-7 min-w-0 relative">
+          <figure>
+            <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-2xl overflow-hidden bg-slate-200">
+              {HERO_SLIDES.map((s, idx) => (
+                <img
+                  key={s.url}
+                  src={s.url}
+                  alt={`${s.stream} class`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === slideIndex ? 'opacity-100' : 'opacity-0'}`}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                />
               ))}
             </div>
+            <figcaption className="mt-3 flex items-center justify-between gap-4 text-sm sm:pl-[22rem] lg:pl-[21rem]">
+              <span className="text-slate-600 truncate">
+                <span className="font-medium text-slate-900">{slide.stream}</span>, {slide.tagline.toLowerCase()}
+              </span>
+              <span className="flex gap-1.5 shrink-0" role="tablist" aria-label="Hero photos">
+                {HERO_SLIDES.map((s, idx) => (
+                  <button
+                    key={s.stream}
+                    role="tab"
+                    aria-selected={idx === slideIndex}
+                    aria-label={s.stream}
+                    onClick={() => setSlideIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === slideIndex ? 'w-6 bg-slate-900' : 'w-1.5 bg-slate-300 hover:bg-slate-400'}`}
+                  />
+                ))}
+              </span>
+            </figcaption>
+          </figure>
+
+          {/* Next live class, overlapping the photo */}
+          {featured && (
+            <div className="relative sm:absolute sm:bottom-2 sm:-left-8 lg:-left-12 mt-4 sm:mt-0 sm:w-[21rem] bg-white rounded-2xl shadow-lift ring-1 ring-slate-200/70 p-5">
+              <div className="flex items-center gap-2 text-xs font-medium text-rose-700">
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-60"></span>
+                  <span className="relative w-2 h-2 rounded-full bg-rose-500"></span>
+                </span>
+                Next live class
+              </div>
+              <h2 className="mt-2 text-base font-semibold text-slate-900 leading-snug">
+                Combined Maths: Theory Masterclass (අනුකලනය)
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">{featured.name}, Sunday 7:30 AM</p>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-mono">
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  02h 45m
+                </span>
+                <button
+                  onClick={() => handleProtectedZoomAccess({
+                    batchId: 'd0000000-0000-0000-0000-000000000001',
+                    title: 'Combined Maths: Theory Masterclass',
+                    instructor: featured
+                  })}
+                  className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-colors"
+                >
+                  <Video className="w-4 h-4" />
+                  Join class
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS: asymmetric bento, one large photo cell plus two tinted cells */}
+      <AnimatedSection className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 max-w-[22ch]">
+          Everything a tuition class runs on
+        </h2>
+        <div className="mt-10 grid gap-4 md:grid-cols-5 md:grid-rows-2">
+          <article className="md:col-span-3 md:row-span-2 relative rounded-2xl overflow-hidden bg-slate-900 min-h-[22rem] flex items-end">
+            <img
+              src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1400&auto=format&fit=crop&q=80"
+              alt="Students attending a lecture"
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+            <div className="relative p-6 sm:p-8 max-w-md">
+              <ShieldCheck className="w-6 h-6 text-accent-300" strokeWidth={1.75} />
+              <h3 className="mt-4 text-xl sm:text-2xl font-semibold text-white">Recordings that stay yours</h3>
+              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+                Every lesson plays with a moving watermark of the student's name and index number, so screen recordings trace back.
+              </p>
+            </div>
+          </article>
+
+          <article className="md:col-span-2 rounded-2xl bg-accent-50 ring-1 ring-accent-100 p-6 sm:p-7">
+            <QrCode className="w-6 h-6 text-accent-700" strokeWidth={1.75} />
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">QR pass at the hall gate</h3>
+            <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              Students scan their digital ID. The terminal checks the month's fee and marks attendance on the spot.
+            </p>
+          </article>
+
+          <article className="md:col-span-2 rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7">
+            <Receipt className="w-6 h-6 text-amber-600" strokeWidth={1.75} />
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">Bank slips, approved in one click</h3>
+            <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">
+              Upload a BOC, Commercial, Sampath or HNB deposit slip. Your teacher approves it and the class unlocks.
+            </p>
+          </article>
+        </div>
+      </AnimatedSection>
+
+      {/* CLASS DIRECTORY */}
+      <AnimatedSection className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <div id="classes" className="scroll-mt-24">
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Find your class</h2>
+          <p className="mt-3 text-slate-600 max-w-[60ch]">Filter by subject, A/L year or teacher.</p>
+        </div>
+
+        <div className="mt-8 flex flex-col lg:flex-row lg:items-center gap-3">
+          <div className="flex gap-1 p-1 rounded-xl bg-slate-100 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label="Subjects">
+            {SUBJECT_TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={selectedSubject === id}
+                onClick={() => setSelectedSubject(id)}
+                className={`shrink-0 h-9 px-3.5 rounded-lg text-sm font-medium transition-colors ${
+                  selectedSubject === id ? 'bg-white text-slate-900 shadow-soft' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        </AnimatedSection>
 
+          <div className="flex-1 grid sm:grid-cols-[1fr_auto] gap-3">
+            <div className="relative">
+              <label htmlFor="catalog-search-input" className="sr-only">Search by teacher, unit or subject</label>
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                id="catalog-search-input"
+                name="catalogSearchQuery"
+                type="search"
+                placeholder="Search by teacher, unit or subject"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`${fieldClass} pl-10 pr-4`}
+              />
+            </div>
+            <div>
+              <label htmlFor="catalog-grade-select" className="sr-only">A/L year</label>
+              <select
+                id="catalog-grade-select"
+                name="catalogGradeFilter"
+                value={selectedGrade}
+                onChange={(e) => setSelectedGrade(e.target.value)}
+                className={`${fieldClass} px-3.5 sm:w-56`}
+              >
+                <option value="all">All A/L years</option>
+                <option value="2025">2025 A/L (theory / revision)</option>
+                <option value="2026">2026 A/L (theory)</option>
+                <option value="2027">2027 A/L (new batch)</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-
-        {/* ========================================================================= */}
-        {/* 6. FUTURISTIC DEEP SPACE GLASS FOOTER */}
-        {/* ========================================================================= */}
-        <footer className="bg-slate-950/90 backdrop-blur-2xl text-white pt-12 pb-8 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-xs text-slate-400">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-400 text-white flex items-center justify-center font-black text-xs">
-                    LL
+        {filteredInstructors.length === 0 ? (
+          <div className="mt-10 rounded-2xl border border-dashed border-slate-300 py-16 px-6 text-center">
+            <SearchX className="w-8 h-8 text-slate-400 mx-auto" strokeWidth={1.5} />
+            <h3 className="mt-4 font-semibold text-slate-900">No classes match these filters</h3>
+            <p className="mt-1 text-sm text-slate-500">Try another subject or clear the search.</p>
+            <button
+              onClick={() => { setSelectedSubject('all'); setSelectedGrade('all'); setSearchQuery(''); }}
+              className="mt-5 h-10 px-4 rounded-lg ring-1 ring-slate-300 text-sm font-medium text-slate-800 hover:bg-white transition"
+            >
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            {filteredInstructors.map((ins) => {
+              const primaryBatch = ins.batches[0];
+              return (
+                <article
+                  key={ins.id}
+                  className="group bg-white rounded-2xl ring-1 ring-slate-200/80 hover:ring-slate-300 hover:shadow-lift transition-all duration-300 flex flex-col overflow-hidden"
+                >
+                  <div className="relative aspect-[16/9] overflow-hidden bg-slate-200">
+                    <img
+                      src={ins.cover}
+                      alt={`${ins.subject} class cover`}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
                   </div>
-                  <span className="font-black text-base text-white">Lyntrix Learn</span>
+
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-accent-700">{ins.subject}</span>
+                      <span className="text-slate-500">{primaryBatch?.gradeYear || '2026'} A/L</span>
+                    </div>
+
+                    <h3 className="mt-2 font-semibold text-slate-900 leading-snug line-clamp-2">
+                      {primaryBatch?.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-slate-600 leading-relaxed line-clamp-2">
+                      {primaryBatch?.description}
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-3">
+                      <img src={ins.avatar} alt={ins.name} className="w-9 h-9 rounded-lg object-cover bg-slate-200" loading="lazy" />
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-slate-900 truncate">{ins.name}</div>
+                        <div className="text-xs text-slate-500 flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          <span className="tabular-nums">{ins.rating}</span>
+                          <span>({ins.reviewsCount.toLocaleString()} reviews)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-5 flex items-end justify-between gap-3">
+                      <div>
+                        <div className="text-xs text-slate-500">Monthly fee</div>
+                        <div className="text-lg font-semibold text-slate-900 tabular-nums">
+                          LKR {ins.monthlyFee.toLocaleString()}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleProtectedEnroll(ins)}
+                        className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-accent-600 hover:bg-accent-700 text-white text-sm font-semibold transition-colors"
+                      >
+                        Enroll
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </AnimatedSection>
+
+      {/* TEACHERS: horizontal scroll strip */}
+      <AnimatedSection className="py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 max-w-[24ch]">
+            Teachers who produced island rankers
+          </h2>
+        </div>
+        <div className="mt-10 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none]">
+          <div className="flex gap-5 w-max px-4 sm:px-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))]">
+            {instructors.map((ins) => (
+              <figure key={ins.id} className="snap-start w-64 sm:w-72 shrink-0">
+                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-200">
+                  <img src={ins.avatar} alt={ins.name} className="w-full h-full object-cover" loading="lazy" />
                 </div>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Sri Lanka's preeminent tuition LMS platform empowering Sri Lankan A/L students with structured academic mastery.
-                </p>
-              </div>
+                <figcaption className="mt-4">
+                  <div className="font-semibold text-slate-900">{ins.name}</div>
+                  <div className="text-sm text-slate-500 mt-0.5">{ins.subject}</div>
+                  <div className="mt-3 flex items-center gap-4 text-sm text-slate-600">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-slate-400" strokeWidth={1.75} />
+                      <span className="tabular-nums">{ins.studentsCount.toLocaleString()}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      <span className="tabular-nums">{ins.rating}</span>
+                    </span>
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
 
-              <div className="space-y-2">
-                <div className="font-bold text-indigo-400 uppercase text-[11px] tracking-wider mb-2">Academic Policies</div>
-                <div><a href="#terms" className="hover:text-white transition">Student Honor Code</a></div>
-                <div><a href="#privacy" className="hover:text-white transition">Anti-Piracy & DRM Policy</a></div>
-                <div><a href="#slips" className="hover:text-white transition">Bank Slip Approval Guidelines</a></div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="font-bold text-indigo-400 uppercase text-[11px] tracking-wider mb-2">Instructor Directory</div>
-                <div><a href="#maths" className="hover:text-white transition">Combined Mathematics Masters</a></div>
-                <div><a href="#physics" className="hover:text-white transition">Physics Department</a></div>
-                <div><a href="#chem" className="hover:text-white transition">Chemistry Faculty</a></div>
-                <div><a href="#ict" className="hover:text-white transition">A/L ICT School</a></div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="font-bold text-indigo-400 uppercase text-[11px] tracking-wider mb-2">Help & Support</div>
-                <div><span>Hotline: +94 11 234 5678</span></div>
-                <div><span>Email: support@lyntrix.learn</span></div>
-                <div><span>Station: Colombo, Sri Lanka</span></div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500 font-sans">
-              <div>© 2026 Lyntrix Learn Technologies (Pvt) Ltd. All rights reserved.</div>
-              <div className="flex gap-4">
-                <span>🇱🇰 Sri Lanka National A/L Standard</span>
-                <span>ISO/IEC 27001 Security Compliant</span>
-              </div>
+      {/* FOR TEACHERS */}
+      <AnimatedSection className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="relative grain rounded-2xl bg-accent-900 text-white overflow-hidden grid lg:grid-cols-2">
+          <div className="relative p-8 sm:p-12 lg:p-14">
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight max-w-[18ch]">
+              Run your tuition class on Lyntrix
+            </h2>
+            <p className="mt-4 text-accent-100/80 max-w-[48ch] leading-relaxed">
+              Your own subdomain, a slip approval queue, a gate scanner and protected video hosting. Plans start at LKR 4,500 a month.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                onClick={() => openPlanCheckout()}
+                className="inline-flex items-center gap-2 h-12 px-5 rounded-xl bg-white text-accent-900 hover:bg-accent-50 text-sm font-semibold transition-colors"
+              >
+                See teacher plans
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setCurrentRole('teacher-login')}
+                className="inline-flex items-center h-12 px-5 rounded-xl text-sm font-semibold text-white ring-1 ring-white/30 hover:bg-white/10 transition-colors"
+              >
+                Teacher sign in
+              </button>
             </div>
           </div>
-        </footer>
-      </div>
+          <div className="relative min-h-[16rem] lg:min-h-full">
+            <img
+              src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop&q=80"
+              alt="A teacher writing on a whiteboard"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </AnimatedSection>
     </div>
   );
 };

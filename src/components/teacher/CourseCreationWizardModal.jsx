@@ -130,22 +130,22 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[140] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 z-[140] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-lift animate-in zoom-in-95 my-auto max-h-[90vh] overflow-y-auto relative">
         {/* Top bar */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center font-black shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-accent-50 border border-accent-200 text-accent-600 flex items-center justify-center font-semibold shadow-sm">
               <Sparkles className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-base">Course Creation Wizard</h3>
+              <h3 className="font-semibold text-slate-900 text-base">Course Creation Wizard</h3>
               <p className="text-xs text-slate-500">Design & Publish New Curriculum Batch</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-bold"
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold"
           >
             ✕
           </button>
@@ -155,19 +155,19 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
         <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs">
           <button
             onClick={() => setStep(1)}
-            className={`py-2 rounded-xl font-bold transition ${step === 1 ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600'}`}
+            className={`py-2 rounded-xl font-semibold transition ${step === 1 ? 'bg-accent-600 text-white shadow-sm' : 'text-slate-600'}`}
           >
             1. Basic Information
           </button>
           <button
             onClick={() => setStep(2)}
-            className={`py-2 rounded-xl font-bold transition ${step === 2 ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600'}`}
+            className={`py-2 rounded-xl font-semibold transition ${step === 2 ? 'bg-accent-600 text-white shadow-sm' : 'text-slate-600'}`}
           >
             2. Curriculum Builder
           </button>
           <button
             onClick={() => setStep(3)}
-            className={`py-2 rounded-xl font-bold transition ${step === 3 ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600'}`}
+            className={`py-2 rounded-xl font-semibold transition ${step === 3 ? 'bg-accent-600 text-white shadow-sm' : 'text-slate-600'}`}
           >
             3. Pricing & Access
           </button>
@@ -177,40 +177,40 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <label htmlFor="wizard-course-title" className="block text-xs font-bold text-slate-700 mb-1">Course Batch Title:</label>
+              <label htmlFor="wizard-course-title" className="block text-xs font-semibold text-slate-700 mb-1">Course Batch Title:</label>
               <input
                 id="wizard-course-title"
                 name="courseTitle"
                 type="text"
                 required
-                placeholder="e.g. 2026 A/L Combined Maths — Integral Calculus & Revision"
+                placeholder="e.g. 2026 A/L Combined Maths: Integral Calculus & Revision"
                 value={basicInfo.title}
                 onChange={(e) => setBasicInfo({ ...basicInfo, title: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label htmlFor="wizard-subject-category" className="block text-xs font-bold text-slate-700 mb-1">Subject Category:</label>
+                <label htmlFor="wizard-subject-category" className="block text-xs font-semibold text-slate-700 mb-1">Subject Category:</label>
                 <input
                   id="wizard-subject-category"
                   name="subjectCategory"
                   type="text"
                   value={basicInfo.category}
                   onChange={(e) => setBasicInfo({ ...basicInfo, category: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="wizard-target-batch" className="block text-xs font-bold text-slate-700 mb-1">Target Batch Year:</label>
+                <label htmlFor="wizard-target-batch" className="block text-xs font-semibold text-slate-700 mb-1">Target Batch Year:</label>
                 <select
                   id="wizard-target-batch"
                   name="targetBatchYear"
                   value={basicInfo.gradeYear}
                   onChange={(e) => setBasicInfo({ ...basicInfo, gradeYear: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
                 >
                   <option value="2025 A/L">2025 A/L (Theory / Revision)</option>
                   <option value="2026 A/L">2026 A/L (Theory)</option>
@@ -220,7 +220,7 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <label htmlFor="wizard-course-description" className="block text-xs font-bold text-slate-700 mb-1">Course Overview & Description:</label>
+              <label htmlFor="wizard-course-description" className="block text-xs font-semibold text-slate-700 mb-1">Course Overview & Description:</label>
               <textarea
                 id="wizard-course-description"
                 name="courseDescription"
@@ -228,12 +228,12 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
                 placeholder="Comprehensive unit coverage, past paper dissections, and monthly tutes..."
                 value={basicInfo.description}
                 onChange={(e) => setBasicInfo({ ...basicInfo, description: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-accent-500"
               />
             </div>
 
             <div>
-              <label htmlFor="wizard-thumbnail-url" className="block text-xs font-bold text-slate-700 mb-1">Course Thumbnail Cover URL:</label>
+              <label htmlFor="wizard-thumbnail-url" className="block text-xs font-semibold text-slate-700 mb-1">Course Thumbnail Cover URL:</label>
               <div className="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-2xl flex items-center gap-3">
                 <img src={basicInfo.thumbnail} alt="Thumbnail preview" className="w-16 h-12 rounded-lg object-cover border" />
                 <input
@@ -250,7 +250,7 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-end pt-3 border-t border-slate-100">
               <button
                 onClick={() => setStep(2)}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-500/20"
+                className="px-6 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-soft"
               >
                 <span>Continue to Curriculum Builder</span>
                 <ArrowRight className="w-4 h-4" />
@@ -263,10 +263,10 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
         {step === 2 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-800">Modules & Video Lesson Slots ({modules.length}):</h4>
+              <h4 className="text-xs font-semibold text-slate-800">Modules & Video Lesson Slots ({modules.length}):</h4>
               <button
                 onClick={handleAddModule}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold border border-blue-200 transition flex items-center gap-1"
+                className="px-3 py-1.5 bg-accent-50 hover:bg-accent-100 text-accent-700 rounded-xl text-xs font-semibold border border-accent-200 transition flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Module</span>
@@ -287,7 +287,7 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
                           updated[mIdx].title = e.target.value;
                           setModules(updated);
                         }}
-                        className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-bold flex-1"
+                        className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-semibold flex-1"
                       />
                     </div>
                     <button
@@ -304,11 +304,11 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
                     {mod.lessons.map((les, lIdx) => (
                       <div key={les.id} className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs">
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <Video className="w-4 h-4 text-blue-600 shrink-0" />
+                          <Video className="w-4 h-4 text-accent-600 shrink-0" />
                           <span className="font-medium text-slate-900 truncate">{les.title}</span>
                           <span className="text-[10px] font-mono text-slate-400 shrink-0">{les.duration}</span>
                         </div>
-                        <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                        <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
                           {les.notesPdf}
                         </span>
                       </div>
@@ -316,7 +316,7 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
 
                     <button
                       onClick={() => handleAddLesson(mIdx)}
-                      className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1 pt-1"
+                      className="text-xs text-accent-600 font-semibold hover:underline flex items-center gap-1 pt-1"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Video Lecture to this Module</span>
@@ -329,13 +329,13 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <button
                 onClick={() => setStep(1)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
               >
                 ← Back
               </button>
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-500/20"
+                className="px-6 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-soft"
               >
                 <span>Continue to Pricing</span>
                 <ArrowRight className="w-4 h-4" />
@@ -348,18 +348,18 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
         {step === 3 && (
           <form onSubmit={handleFinishWizard} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">Access & Pricing Tier:</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">Access & Pricing Tier:</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setPricing({ ...pricing, pricingType: 'paid' })}
                   className={`p-4 rounded-2xl border text-left transition ${
                     pricing.pricingType === 'paid'
-                      ? 'bg-blue-50 border-blue-500 text-blue-950 font-bold shadow-sm'
+                      ? 'bg-accent-50 border-accent-500 text-accent-950 font-semibold shadow-sm'
                       : 'bg-slate-50 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="font-bold text-sm">Paid Monthly Tuition</div>
+                  <div className="font-semibold text-sm">Paid Monthly Tuition</div>
                   <div className="text-xs text-slate-500 mt-1">Requires monthly bank slip or instant card payment.</div>
                 </button>
 
@@ -368,11 +368,11 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
                   onClick={() => setPricing({ ...pricing, pricingType: 'free' })}
                   className={`p-4 rounded-2xl border text-left transition ${
                     pricing.pricingType === 'free'
-                      ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold shadow-sm'
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-semibold shadow-sm'
                       : 'bg-slate-50 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="font-bold text-sm">Free Open Batch</div>
+                  <div className="font-semibold text-sm">Free Open Batch</div>
                   <div className="text-xs text-slate-500 mt-1">Accessible by all registered students instantly.</div>
                 </button>
               </div>
@@ -380,13 +380,13 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
 
             {pricing.pricingType === 'paid' && (
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Monthly Tuition Fee (LKR):</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Monthly Tuition Fee (LKR):</label>
                 <div className="relative">
                   <input
                     type="number"
                     value={pricing.monthlyFee}
                     onChange={(e) => setPricing({ ...pricing, monthlyFee: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-accent-500"
                     required
                   />
                   <DollarSign className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -398,13 +398,13 @@ export const CourseCreationWizardModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
               >
                 ← Back
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center gap-2"
+                className="px-8 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs font-semibold shadow-soft transition flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Publish Batch to Portal</span>

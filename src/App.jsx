@@ -1,7 +1,8 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/common/Navbar';
-import { Sidebar } from './components/common/Sidebar';
+import { Sidebar, MobileTabBar } from './components/common/Sidebar';
+import { Logo } from './components/common/Logo';
 import { LandingPage } from './components/landing/LandingPage';
 import { TeacherDashboard } from './components/teacher/TeacherDashboard';
 import { StudentPortal } from './components/student/StudentPortal';
@@ -14,7 +15,7 @@ import { TeacherPlanCheckoutModal } from './components/auth/TeacherPlanCheckoutM
 import { FeePaymentModal } from './components/student/FeePaymentModal';
 import { DigitalStudentCard } from './components/student/DigitalStudentCard';
 import { TeacherLoginPage } from './components/auth/TeacherLoginPage';
-import { CheckCircle2, AlertCircle, Info, GraduationCap, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, ShieldCheck } from 'lucide-react';
 import { sound } from './utils/soundEffects';
 
 const AppContent = () => {
@@ -37,7 +38,7 @@ const AppContent = () => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'T' || e.key === 't')) {
         e.preventDefault();
         sound.playChimeApproved();
-        showToast("🔒 Secret Master Gateway Unlocked!", "success");
+        showToast("Secret Master Gateway Unlocked!", "success");
         setCurrentRole('teacher-login');
       }
     };
@@ -49,24 +50,24 @@ const AppContent = () => {
   const isDashboardRole = currentRole === 'teacher' || currentRole === 'student';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 bg-mesh selection:bg-blue-600 selection:text-white overflow-x-hidden w-full max-w-full relative">
-      {/* 1. Context Branded Navbar */}
+    <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 w-full max-w-full relative">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-toast focus:px-3 focus:py-2 focus:rounded-lg focus:bg-white focus:shadow-lift focus:text-sm">
+        Skip to content
+      </a>
+
       <Navbar />
 
-      {/* 3. Main Workspace Layout */}
       {isDashboardRole ? (
-        <div className="flex-1 flex max-w-7xl w-full mx-auto">
-          {/* Persistent LMS Left Sidebar */}
+        <div className="flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           <Sidebar />
-
-          {/* Main Portal View */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <main id="main" className="flex-1 min-w-0 py-6 md:pl-8 lg:pl-10">
+            <MobileTabBar />
             {currentRole === 'teacher' && <TeacherDashboard />}
             {currentRole === 'student' && <StudentPortal />}
           </main>
         </div>
       ) : (
-        <main className="flex-1">
+        <main id="main" className="flex-1">
           {currentRole === 'landing' && <LandingPage />}
           {currentRole === 'auth' && <AuthPage />}
           {currentRole === 'teacher-login' && <TeacherLoginPage />}
@@ -77,23 +78,17 @@ const AppContent = () => {
         </main>
       )}
 
-      {/* 4. Global Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-xl backdrop-blur-xl ${
-            toast.type === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-900 shadow-emerald-500/10' :
-            toast.type === 'error' ? 'bg-rose-50 border-rose-300 text-rose-900 shadow-rose-500/10' :
-            'bg-blue-50 border-blue-300 text-blue-900 shadow-blue-500/10'
-          }`}>
-            {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
-            {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />}
-            {toast.type === 'info' && <Info className="w-5 h-5 text-blue-600 shrink-0" />}
-            <span className="text-xs font-bold">{toast.message}</span>
+        <div role="status" aria-live="polite" className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:bottom-6 sm:right-6 z-toast animate-in">
+          <div className="flex items-start gap-3 pl-3.5 pr-4 py-3 rounded-xl bg-slate-900 text-white shadow-lift sm:max-w-sm">
+            {toast.type === 'success' && <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400 shrink-0 mt-px" strokeWidth={2} />}
+            {toast.type === 'error' && <AlertCircle className="w-[18px] h-[18px] text-rose-400 shrink-0 mt-px" strokeWidth={2} />}
+            {toast.type === 'info' && <Info className="w-[18px] h-[18px] text-accent-300 shrink-0 mt-px" strokeWidth={2} />}
+            <span className="text-sm leading-snug">{toast.message}</span>
           </div>
         </div>
       )}
 
-      {/* 5. Root Level Portal Modals */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -108,31 +103,29 @@ const AppContent = () => {
       <FeePaymentModal />
       <DigitalStudentCard />
 
-      {/* 6. Modern LMS Footer with Protected Admin Access link */}
-      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-              <GraduationCap className="w-3.5 h-3.5" />
-            </div>
-            <span className="font-extrabold text-slate-800">Lyntrix Learn</span>
-            <span>— Multi-Tenant Tuition & LMS SaaS</span>
+      <footer className="border-t border-slate-200/80 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 text-sm text-slate-500">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+            <Logo />
+            <span>Tuition classes for Sri Lankan A/L students and teachers.</span>
           </div>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-slate-500">
-              Crafted for Sri Lankan Tuition Masters & Academies
-            </span>
-            {/* Protected Admin Access trigger */}
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a href="#terms" className="hover:text-slate-900 transition-colors">Terms</a>
+            <a href="#privacy" className="hover:text-slate-900 transition-colors">Privacy</a>
+            <a href="mailto:support@lyntrix.learn" className="hover:text-slate-900 transition-colors">Support</a>
             <button
               onClick={() => setCurrentRole('admin')}
-              className="inline-flex items-center gap-1 text-slate-400 hover:text-purple-600 font-bold transition px-2 py-1 rounded hover:bg-purple-50"
-              title="Platform Administrator Login"
+              className="inline-flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+              title="Platform administrator login"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Admin Login</span>
+              <ShieldCheck className="w-4 h-4" strokeWidth={1.75} />
+              <span>Admin login</span>
             </button>
           </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 text-xs text-slate-400">
+          &copy; 2026 Lyntrix Learn Technologies (Pvt) Ltd.
         </div>
       </footer>
     </div>

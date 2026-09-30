@@ -35,10 +35,10 @@ export const AnimatedSection = ({ children, className = '', delay = 0 }) => {
     <div
       ref={domRef}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ease-out transform ${
+      className={`transition-[opacity,transform] duration-700 ease-out ${
         isVisible
-          ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 translate-y-8 scale-[0.98]'
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 translate-y-6'
       } ${className}`}
     >
       {children}

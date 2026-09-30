@@ -52,7 +52,7 @@ export const INITIAL_INSTRUCTORS = [
       {
         id: "batch-km-2025-theory",
         code: "KM-2025-TH",
-        title: "2025 A/L Combined Maths — Full Theory Masterclass",
+        title: "2025 A/L Combined Maths: Full Theory Masterclass",
         grade: "2025 A/L",
         gradeYear: "2025",
         medium: "Sinhala / English Medium",
@@ -106,7 +106,7 @@ export const INITIAL_INSTRUCTORS = [
       {
         id: "batch-km-2026-theory",
         code: "KM-2026-TH",
-        title: "2026 A/L Combined Maths — Foundation & Theory",
+        title: "2026 A/L Combined Maths: Foundation & Theory",
         grade: "2026 A/L",
         gradeYear: "2026",
         medium: "Sinhala / English Medium",
@@ -149,7 +149,7 @@ export const INITIAL_INSTRUCTORS = [
       {
         id: "batch-ds-2025-theory",
         code: "PHY-2025-TH",
-        title: "2025 A/L Physics — Complete Theory & Mechanics",
+        title: "2025 A/L Physics: Complete Theory & Mechanics",
         grade: "2025 A/L",
         gradeYear: "2025",
         medium: "Sinhala Medium",
@@ -192,7 +192,7 @@ export const INITIAL_INSTRUCTORS = [
       {
         id: "batch-dw-2025-ict",
         code: "ICT-2025-TH",
-        title: "2025 A/L ICT — Theory, Python & Database Architecture",
+        title: "2025 A/L ICT: Theory, Python & Database Architecture",
         grade: "2025 A/L",
         gradeYear: "2025",
         medium: "English / Sinhala Mixed",
@@ -235,7 +235,7 @@ export const INITIAL_INSTRUCTORS = [
       {
         id: "batch-ap-2025-chem",
         code: "CHE-2025-TH",
-        title: "2025 A/L Chemistry — Organic Synthesis & Equilibrium",
+        title: "2025 A/L Chemistry: Organic Synthesis & Equilibrium",
         grade: "2025 A/L",
         gradeYear: "2025",
         medium: "Sinhala Medium",
@@ -510,7 +510,7 @@ export const INITIAL_BANK_SLIPS = [
     studentPhone: "+94 77 123 4567",
     instructorId: "ins-dilshan-ict",
     batchId: "batch-dw-2025-ict",
-    batchTitle: "2025 A/L ICT — Theory & Database",
+    batchTitle: "2025 A/L ICT: Theory & Database",
     amount: 3200,
     depositDate: "2026-08-11",
     uploadedAt: "2026-08-11 14:32",
@@ -528,7 +528,7 @@ export const INITIAL_BANK_SLIPS = [
     studentPhone: "+94 71 889 9123",
     instructorId: "ins-amila-chemistry",
     batchId: "batch-ap-2025-chem",
-    batchTitle: "2025 A/L Chemistry — Organic Synthesis",
+    batchTitle: "2025 A/L Chemistry: Organic Synthesis",
     amount: 3500,
     depositDate: "2026-08-11",
     uploadedAt: "2026-08-11 16:15",
