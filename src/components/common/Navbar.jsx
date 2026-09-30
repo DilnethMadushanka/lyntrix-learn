@@ -1,45 +1,49 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  GraduationCap, 
-  Bell, 
-  Search, 
-  CreditCard, 
-  QrCode, 
-  Video, 
-  ExternalLink,
-  ChevronRight,
-  Sparkles,
-  BookOpen,
-  CheckCircle2,
+import {
+  Bell,
+  Search,
+  QrCode,
   AlertCircle,
   LogIn,
-  UserCheck,
   UserPlus,
   LogOut,
   ShieldCheck,
-  Layers,
   ArrowLeft,
   Menu,
-  X
+  X,
+  Languages,
+  BookOpenCheck
 } from 'lucide-react';
 import { sound } from '../../utils/soundEffects';
+import { Logo } from './Logo';
+
+const ghostBtn = 'inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors';
+const iconBtn = 'relative inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors';
+const primaryBtn = 'inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-semibold bg-accent-600 hover:bg-accent-700 text-white transition-colors';
+
+const Popover = ({ title, action, children }) => (
+  <div className="absolute right-0 mt-2 w-80 bg-white ring-1 ring-slate-200 rounded-xl shadow-lift p-2 z-overlay animate-in">
+    <div className="flex items-center justify-between px-2 py-1.5">
+      <span className="text-sm font-semibold text-slate-900">{title}</span>
+      {action}
+    </div>
+    <div className="max-h-64 overflow-y-auto">{children}</div>
+  </div>
+);
 
 export const Navbar = () => {
-  const { 
-    currentRole, 
+  const {
+    currentRole,
     setCurrentRole,
-    activeTab,
     setActiveTab,
-    currentTeacher, 
+    currentTeacher,
     currentStudent,
     bankSlips,
     setShowIdCardModal,
     setShowAuthModal,
     adminLogout,
     showToast,
-    theme,
-    setTheme,
     lang,
     setLang
   } = useApp();
@@ -64,13 +68,6 @@ export const Navbar = () => {
     showToast('Exited Sir Studio', 'info');
   };
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'royal' : 'light';
-    setTheme(nextTheme);
-    sound.playClick();
-    showToast(`Switched to ${nextTheme === 'royal' ? 'Dark' : 'Light'} Mode`, 'info');
-  };
-
   const toggleLanguage = () => {
     const nextLang = lang === 'en' ? 'si' : 'en';
     setLang(nextLang);
@@ -78,357 +75,267 @@ export const Navbar = () => {
     showToast(`Language switched to ${nextLang === 'si' ? 'සිංහල' : 'English'}`, 'info');
   };
 
+  const isPublic = currentRole === 'landing' || currentRole === 'auth' || currentRole === 'teacher-login';
+  const suffix =
+    currentRole === 'teacher' ? 'Studio' :
+    currentRole === 'admin' ? 'Admin' :
+    currentRole === 'scanner' ? 'Scanner' : 'Learn';
+
   return (
-    <nav className="border-b border-indigo-500/20 bg-[#090D16]/85 backdrop-blur-2xl sticky top-0 z-40 shadow-2xl transition-all duration-300">
+    <nav className="sticky top-0 z-nav bg-slate-50/85 backdrop-blur-xl border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          
-          {/* 1. Left: Electric Indigo Insignia Brand (With Secret Teacher Gateway Double Click) */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => {
-                sound.playChimeApproved();
-                setCurrentRole('teacher-login');
-                showToast("🔒 Master Gateway: Opening Teacher Sign In Portal...", "info");
-              }}
-              className="flex items-center gap-2.5 group text-left cursor-pointer select-none"
-              title="Electric Indigo Insignia - Master Studio Login Gateway"
-            >
-              {/* Electric Indigo Logo Emblem */}
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-blue-500 to-cyan-400 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-500/30 border border-indigo-400/40">
-                LL
+        <div className="flex items-center justify-between h-16 gap-4">
+          {/* Brand. Clicking it opens the teacher sign in gateway. */}
+          <button
+            onClick={() => {
+              sound.playChimeApproved();
+              setCurrentRole('teacher-login');
+              showToast('Opening the teacher sign in page', 'info');
+            }}
+            className="shrink-0 rounded-lg"
+            title="Teacher sign in"
+          >
+            <Logo suffix={suffix} />
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {isPublic && (
+              <div className="hidden lg:flex items-center relative mr-1">
+                <label htmlFor="nav-search" className="sr-only">Search masters and subjects</label>
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="nav-search"
+                  type="search"
+                  placeholder="Search masters, subjects"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 w-56 bg-white ring-1 ring-slate-200 focus:ring-2 focus:ring-accent-500 rounded-lg pl-9 pr-3 text-sm text-slate-900 placeholder-slate-500 outline-none transition"
+                />
               </div>
+            )}
 
-              <div>
-                <div className="flex items-center gap-1">
-                  <span className="font-black text-base tracking-tight text-white">
-                    Lyntrix
-                  </span>
-                  <span className="font-black text-base text-indigo-400">
-                    {currentRole === 'teacher' ? 'Studio' :
-                     currentRole === 'student' ? 'Learn' :
-                     currentRole === 'admin' ? 'Admin' :
-                     currentRole === 'scanner' ? 'Scanner' : 'Learn'}
-                  </span>
-                </div>
-              </div>
+            <button onClick={toggleLanguage} className={`${ghostBtn} hidden sm:inline-flex`} title="Switch language">
+              <Languages className="w-4 h-4" strokeWidth={1.75} />
+              <span className="font-mono text-xs">{lang === 'en' ? 'EN' : 'සි'}</span>
             </button>
 
-            {/* Radiant Emerald Certified Pill */}
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 tracking-wider uppercase backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>🇱🇰 Sri Lanka A/L Master Portal</span>
-            </span>
-          </div>
-
-          {/* 2. Middle & Right: Glass Search & Controls */}
-          <div className="flex items-center gap-2.5">
-            {/* Quick Search */}
-            <div className="hidden lg:flex items-center relative">
-              <input
-                type="text"
-                placeholder="Search masters, subjects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-slate-900/80 border border-indigo-500/30 rounded-xl pl-8 pr-3 py-1 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 w-48 font-medium backdrop-blur-md"
-              />
-              <Search className="w-3.5 h-3.5 text-indigo-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-            </div>
-
-            {/* Language Selector */}
-            <button
-              onClick={toggleLanguage}
-              className="px-2.5 py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-indigo-500/30 text-[11px] font-bold text-white transition flex items-center gap-1 backdrop-blur-md"
-              title="Toggle Language"
-            >
-              <span>🌐</span>
-              <span className="text-indigo-400 font-mono">{lang === 'en' ? 'EN' : 'SI'}</span>
-            </button>
-
-            {/* Dark/Light Mode Switcher */}
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-indigo-500/30 text-white text-xs font-bold transition flex items-center justify-center backdrop-blur-md"
-              title="Toggle Theme"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            </button>
-
-            {/* Role Navigation CTAs */}
-            {(currentRole === 'landing' || currentRole === 'auth') && (
+            {/* Public visitors */}
+            {isPublic && (
               <>
-                <button
-                  onClick={() => setCurrentRole('student')}
-                  className="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/40 text-white text-xs font-bold transition backdrop-blur-md"
-                >
-                  Student Portal
+                <button onClick={() => setCurrentRole('student')} className={`${ghostBtn} hidden md:inline-flex`}>
+                  Student portal
                 </button>
-
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/25 active:scale-95"
-                >
-                  Log In
+                <button onClick={() => setShowAuthModal(true)} className={`${primaryBtn} hidden md:inline-flex`}>
+                  Log in
                 </button>
               </>
             )}
 
-            {/* =================================================== */}
-            {/* B. STUDENT ROLE (Enrolled Student Hub)              */}
-            {/* =================================================== */}
+            {/* Student */}
             {currentRole === 'student' && (
               <>
-                <button
-                  onClick={() => setShowIdCardModal(true)}
-                  className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-md shadow-blue-500/20 transition active:scale-95"
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>My Digital Student ID</span>
+                <button onClick={() => setShowIdCardModal(true)} className={`${ghostBtn} hidden md:inline-flex`}>
+                  <QrCode className="w-4 h-4" strokeWidth={1.75} />
+                  <span>Student ID</span>
                 </button>
 
-                {/* Notifications Bell */}
                 <div className="relative">
-                  <button
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200 transition"
-                  >
-                    <Bell className="w-4 h-4" />
+                  <button onClick={() => setShowNotifications(!showNotifications)} className={iconBtn} aria-label="Notifications" aria-expanded={showNotifications}>
+                    <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
                   </button>
-
                   {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2">
-                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-                        <span className="text-xs font-bold text-slate-800">Student Notifications</span>
-                        <span className="text-[10px] text-blue-600 font-bold cursor-pointer">Mark all read</span>
+                    <Popover
+                      title="Notifications"
+                      action={<button className="text-xs font-medium text-accent-700 hover:text-accent-800">Mark all read</button>}
+                    >
+                      <div className="p-2.5 rounded-lg hover:bg-slate-50">
+                        <div className="text-sm font-medium text-slate-900">August theory lessons are open</div>
+                        <p className="text-xs text-slate-500 mt-0.5">All video recordings and theory notes for August 2026 are unlocked.</p>
                       </div>
-                      <div className="space-y-2 max-h-60 overflow-y-auto">
-                        <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-xs">
-                          <div className="flex items-center gap-2 text-blue-800 font-bold mb-1">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>August Theory Active</span>
-                          </div>
-                          <p className="text-slate-600 text-[11px]">All video recordings and theory notes unlocked for August 2026.</p>
-                        </div>
-                      </div>
-                    </div>
+                    </Popover>
                   )}
                 </div>
 
-                {/* Student Avatar + Logout */}
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                  <img
-                    src={currentStudent.avatar}
-                    alt={currentStudent.name}
-                    className="w-8 h-8 rounded-xl object-cover border border-blue-200 shadow-sm"
-                  />
-                  <button
-                    onClick={handleStudentLogout}
-                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 transition"
-                    title="Log out of Student Hub"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Logout</span>
+                <div className="hidden sm:flex items-center gap-1.5 pl-2 ml-1 border-l border-slate-200">
+                  <img src={currentStudent.avatar} alt={currentStudent.name} className="w-8 h-8 rounded-lg object-cover bg-slate-200" />
+                  <button onClick={handleStudentLogout} className={ghostBtn} title="Log out of Student Hub">
+                    <LogOut className="w-4 h-4" strokeWidth={1.75} />
+                    <span>Log out</span>
                   </button>
                 </div>
               </>
             )}
 
-            {/* =================================================== */}
-            {/* C. TEACHER / SIR ROLE (Master Studio)               */}
-            {/* =================================================== */}
+            {/* Teacher */}
             {currentRole === 'teacher' && (
               <>
-                <button
-                  onClick={() => setCurrentRole('scanner')}
-                  className="hidden md:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 transition"
-                >
-                  <QrCode className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>QR Gate Scanner</span>
+                <button onClick={() => setCurrentRole('scanner')} className={`${ghostBtn} hidden md:inline-flex`}>
+                  <QrCode className="w-4 h-4" strokeWidth={1.75} />
+                  <span>Gate scanner</span>
                 </button>
 
-                {/* Slip Notifications */}
                 <div className="relative">
-                  <button
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200 transition"
-                  >
-                    <Bell className="w-4 h-4" />
+                  <button onClick={() => setShowNotifications(!showNotifications)} className={iconBtn} aria-label="Studio alerts" aria-expanded={showNotifications}>
+                    <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
                     {pendingSlipsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+                      <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-600 ring-2 ring-slate-50 text-[10px] font-semibold text-white flex items-center justify-center tabular-nums">
                         {pendingSlipsCount}
                       </span>
                     )}
                   </button>
-
                   {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2">
-                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-                        <span className="text-xs font-bold text-slate-800">Master Studio Alerts</span>
-                      </div>
-                      <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {pendingSlipsCount > 0 ? (
-                          <div 
-                            onClick={() => { setActiveTab('slips'); setShowNotifications(false); }}
-                            className="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-xs hover:bg-blue-100/60 cursor-pointer transition"
-                          >
-                            <div className="flex items-center gap-2 text-blue-800 font-bold mb-1">
-                              <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                              <span>{pendingSlipsCount} Pending Bank Slips</span>
-                            </div>
-                            <p className="text-slate-600 text-[11px]">Click here to review and activate student admissions.</p>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-slate-500 p-2 text-center">No pending bank slips.</p>
-                        )}
-                      </div>
-                    </div>
+                    <Popover title="Studio alerts">
+                      {pendingSlipsCount > 0 ? (
+                        <button
+                          onClick={() => { setActiveTab('slips'); setShowNotifications(false); }}
+                          className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 flex gap-2.5"
+                        >
+                          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.75} />
+                          <span>
+                            <span className="block text-sm font-medium text-slate-900">{pendingSlipsCount} bank slips waiting</span>
+                            <span className="block text-xs text-slate-500 mt-0.5">Review them to activate student admissions.</span>
+                          </span>
+                        </button>
+                      ) : (
+                        <p className="text-sm text-slate-500 p-3">No pending bank slips.</p>
+                      )}
+                    </Popover>
                   )}
                 </div>
 
-                {/* Teacher Avatar + Exit Studio */}
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                  <img
-                    src={currentTeacher.avatar}
-                    alt={currentTeacher.name}
-                    className="w-8 h-8 rounded-xl object-cover border border-emerald-200 shadow-sm"
-                  />
-                  <button
-                    onClick={handleTeacherLogout}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 transition"
-                    title="Exit Sir Studio"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Exit</span>
+                <div className="hidden sm:flex items-center gap-1.5 pl-2 ml-1 border-l border-slate-200">
+                  <img src={currentTeacher.avatar} alt={currentTeacher.name} className="w-8 h-8 rounded-lg object-cover bg-slate-200" />
+                  <button onClick={handleTeacherLogout} className={ghostBtn} title="Exit Sir Studio">
+                    <LogOut className="w-4 h-4" strokeWidth={1.75} />
+                    <span>Exit</span>
                   </button>
                 </div>
               </>
             )}
 
-            {/* =================================================== */}
-            {/* D. SUPER ADMIN ROLE                                 */}
-            {/* =================================================== */}
+            {/* Super admin */}
             {currentRole === 'admin' && (
               <>
-                <div className="hidden sm:flex items-center gap-2 bg-purple-50 border border-purple-200 px-3 py-1 rounded-full text-xs text-purple-800 font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Super Admin Mode Active</span>
-                </div>
-
-                <button
-                  onClick={adminLogout}
-                  className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
-                  title="Logout from Super Admin Console"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Admin Logout</span>
+                <span className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 text-sm text-slate-600">
+                  <ShieldCheck className="w-4 h-4 text-accent-600" strokeWidth={1.75} />
+                  Super admin
+                </span>
+                <button onClick={adminLogout} className={ghostBtn} title="Log out of the admin console">
+                  <LogOut className="w-4 h-4" strokeWidth={1.75} />
+                  <span>Log out</span>
                 </button>
               </>
             )}
 
-            {/* =================================================== */}
-            {/* E. SCANNER TERMINAL ROLE                            */}
-            {/* =================================================== */}
+            {/* Scanner terminal */}
             {currentRole === 'scanner' && (
               <>
-                <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full text-xs text-rose-800 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                  <span>Scanner Terminal Live</span>
-                </div>
-
-                <button
-                  onClick={() => setCurrentRole('teacher')}
-                  className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Studio</span>
+                <span className="hidden sm:inline-flex items-center gap-2 h-9 px-3 text-sm text-slate-600">
+                  <span className="relative flex w-2 h-2">
+                    <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-60"></span>
+                    <span className="relative w-2 h-2 rounded-full bg-rose-500"></span>
+                  </span>
+                  Scanner live
+                </span>
+                <button onClick={() => setCurrentRole('teacher')} className={ghostBtn}>
+                  <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
+                  <span>Back to studio</span>
                 </button>
               </>
             )}
 
-            {/* Mobile Hamburger Menu Toggle Button */}
-            <div className="flex md:hidden items-center ml-2">
+            {(isPublic || currentRole === 'student' || currentRole === 'teacher') && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 transition"
-                title="Toggle Mobile Menu"
+                className={`${iconBtn} md:hidden`}
+                aria-label="Menu"
+                aria-expanded={mobileMenuOpen}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5 text-slate-900" />}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-            </div>
-
+            )}
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 py-3 px-3 space-y-2.5 bg-white/95 backdrop-blur-xl animate-in slide-in-from-top-3 shadow-xl">
-            {/* Student Actions on Mobile */}
+          <div className="md:hidden border-t border-slate-200 py-4 space-y-2 animate-in">
             {currentRole === 'student' && (
-              <div className="space-y-2">
-                <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs">
-                  <span className="font-bold text-blue-900">Enrolled Student</span>
-                  <span className="font-mono text-blue-600 font-bold text-[11px]">Index: {currentStudent.indexNumber}</span>
+              <>
+                <div className="flex items-center justify-between px-1 pb-2 text-sm">
+                  <span className="font-medium text-slate-900">{currentStudent.name}</span>
+                  <span className="font-mono text-xs text-slate-500">{currentStudent.indexNumber}</span>
                 </div>
                 <button
                   onClick={() => { setShowIdCardModal(true); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-xl shadow-md shadow-blue-500/20 transition active:scale-95"
+                  className={`${primaryBtn} w-full justify-center h-11`}
                 >
                   <QrCode className="w-4 h-4" />
-                  <span>My Digital Student ID</span>
+                  <span>Show student ID</span>
                 </button>
                 <button
                   onClick={() => { handleStudentLogout(); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold py-2 px-3 rounded-xl transition active:scale-95"
+                  className={`${ghostBtn} w-full justify-center h-11 ring-1 ring-slate-200 bg-white`}
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Logout from Student Hub</span>
+                  <LogOut className="w-4 h-4" />
+                  <span>Log out</span>
                 </button>
-              </div>
+              </>
             )}
 
-            {/* Teacher Actions on Mobile */}
             {currentRole === 'teacher' && (
-              <div className="space-y-2">
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs">
-                  <div className="font-bold text-emerald-900">{currentTeacher.name}</div>
-                  <div className="text-emerald-700 text-[11px]">Subdomain: {currentTeacher.id.replace('ins-', '')}.dilnethmadushanka.online</div>
+              <>
+                <div className="px-1 pb-2">
+                  <div className="text-sm font-medium text-slate-900">{currentTeacher.name}</div>
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">{currentTeacher.id.replace('ins-', '')}.dilnethmadushanka.online</div>
                 </div>
                 <button
                   onClick={() => { setCurrentRole('scanner'); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-xl shadow-md shadow-emerald-500/20 transition active:scale-95"
+                  className={`${primaryBtn} w-full justify-center h-11`}
                 >
                   <QrCode className="w-4 h-4" />
-                  <span>QR Gate Scanner Terminal</span>
+                  <span>Open gate scanner</span>
                 </button>
                 <button
                   onClick={() => { handleTeacherLogout(); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold py-2 px-3 rounded-xl transition active:scale-95"
+                  className={`${ghostBtn} w-full justify-center h-11 ring-1 ring-slate-200 bg-white`}
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Exit Sir Studio</span>
+                  <LogOut className="w-4 h-4" />
+                  <span>Exit studio</span>
                 </button>
-              </div>
+              </>
             )}
 
-            {/* Public Visitors on Mobile */}
-            {(currentRole === 'landing' || currentRole === 'auth') && (
+            {isPublic && (
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => { setCurrentRole('auth'); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold py-2 px-3 rounded-xl transition shadow-sm active:scale-95"
+                  className={`${ghostBtn} justify-center h-11 ring-1 ring-slate-200 bg-white`}
                 >
-                  <UserCheck className="w-3.5 h-3.5" />
+                  <UserPlus className="w-4 h-4" />
                   <span>Register</span>
                 </button>
                 <button
                   onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-xl shadow-md shadow-blue-500/20 transition active:scale-95"
+                  className={`${primaryBtn} justify-center h-11`}
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Student Login</span>
+                  <LogIn className="w-4 h-4" />
+                  <span>Log in</span>
+                </button>
+                <button
+                  onClick={() => { setCurrentRole('student'); setMobileMenuOpen(false); }}
+                  className={`${ghostBtn} col-span-2 justify-center h-11`}
+                >
+                  <BookOpenCheck className="w-4 h-4" />
+                  <span>Student portal</span>
                 </button>
               </div>
             )}
+
+            <button onClick={toggleLanguage} className={`${ghostBtn} w-full justify-center sm:hidden`}>
+              <Languages className="w-4 h-4" />
+              <span>{lang === 'en' ? 'සිංහල' : 'English'}</span>
+            </button>
           </div>
         )}
       </div>

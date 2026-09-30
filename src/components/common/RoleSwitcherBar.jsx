@@ -28,13 +28,12 @@ export const RoleSwitcherBar = () => {
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
         {/* Left: Brand Identity & Live Mode Indicator */}
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 px-2.5 py-1 rounded-lg text-white font-black tracking-wider shadow-sm">
+          <div className="flex items-center gap-1.5 bg-accent-600 px-2.5 py-1 rounded-lg text-white font-semibold tracking-wider shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>LYNTRIX LEARN</span>
-            <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded font-mono font-bold">LMS</span>
+            <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded font-mono font-semibold">LMS</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
             <span className="text-slate-800 font-semibold text-[11px]">Multi-Master Platform</span>
           </div>
         </div>
@@ -43,9 +42,9 @@ export const RoleSwitcherBar = () => {
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 overflow-x-auto">
           <button
             onClick={() => setCurrentRole('landing')}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-semibold transition-all ${
               currentRole === 'landing'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-accent-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
@@ -55,9 +54,9 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('student')}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-semibold transition-all ${
               currentRole === 'student'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
@@ -67,7 +66,7 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('teacher')}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-semibold transition-all ${
               currentRole === 'teacher'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -79,7 +78,7 @@ export const RoleSwitcherBar = () => {
 
           <button
             onClick={() => setCurrentRole('scanner')}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-lg font-semibold transition-all ${
               currentRole === 'scanner'
                 ? 'bg-rose-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
@@ -95,11 +94,11 @@ export const RoleSwitcherBar = () => {
           {/* Teacher Selector */}
           {currentRole === 'teacher' && (
             <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg text-emerald-800">
-              <span className="text-[10px] text-emerald-600 font-bold uppercase">Sir:</span>
+              <span className="text-[10px] text-emerald-600 font-semibold uppercase">Sir:</span>
               <select
                 value={currentTeacherId}
                 onChange={(e) => setCurrentTeacherId(e.target.value)}
-                className="bg-transparent text-emerald-900 font-bold text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent text-emerald-900 font-semibold text-xs focus:outline-none cursor-pointer"
               >
                 {instructors.map(ins => (
                   <option key={ins.id} value={ins.id} className="bg-white text-slate-800">
@@ -112,12 +111,12 @@ export const RoleSwitcherBar = () => {
 
           {/* Student Selector */}
           {currentRole === 'student' && (
-            <div className="flex items-center gap-1 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded-lg text-cyan-800">
-              <span className="text-[10px] text-cyan-600 font-bold uppercase">Student:</span>
+            <div className="flex items-center gap-1 bg-accent-50 border border-accent-200 px-2 py-0.5 rounded-lg text-accent-800">
+              <span className="text-[10px] text-accent-600 font-semibold uppercase">Student:</span>
               <select
                 value={currentStudentId}
                 onChange={(e) => setCurrentStudentId(e.target.value)}
-                className="bg-transparent text-cyan-900 font-bold text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent text-accent-900 font-semibold text-xs focus:outline-none cursor-pointer"
               >
                 {students.map(std => (
                   <option key={std.id} value={std.id} className="bg-white text-slate-800">
@@ -131,24 +130,24 @@ export const RoleSwitcherBar = () => {
           {/* Language Toggle */}
           <button
             onClick={() => setLang(lang === 'en' ? 'si' : 'en')}
-            className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 transition font-bold"
+            className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 transition font-semibold"
             title="Toggle English / Sinhala"
           >
-            <Languages className="w-3.5 h-3.5 text-blue-600" />
+            <Languages className="w-3.5 h-3.5 text-accent-600" />
             <span>{lang === 'en' ? 'EN' : 'සිං'}</span>
           </button>
 
           {/* Quick Admin Portal Access */}
           <button
             onClick={() => setCurrentRole('admin')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition font-bold text-xs ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition font-semibold text-xs ${
               currentRole === 'admin' 
-                ? 'bg-purple-600 text-white border-purple-600 shadow-sm' 
-                : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+                ? 'bg-accent-600 text-white border-accent-600 shadow-sm' 
+                : 'bg-accent-50 hover:bg-accent-100 text-accent-700 border-accent-200'
             }`}
             title="Open Lyntrix Super Admin Console"
           >
-            <span>👑 Admin</span>
+            <span>Admin</span>
           </button>
         </div>
       </div>

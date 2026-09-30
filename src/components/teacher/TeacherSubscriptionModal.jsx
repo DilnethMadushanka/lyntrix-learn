@@ -51,20 +51,20 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95 my-auto relative">
+    <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-lift animate-in zoom-in-95 my-auto relative">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-accent-600 text-white flex items-center justify-center font-semibold shadow-sm">
               <Sparkles className="w-5 h-5 text-amber-300" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-base">Lyntrix SaaS Subscription & Free Trial</h3>
+              <h3 className="font-semibold text-slate-900 text-base">Lyntrix SaaS Subscription & Free Trial</h3>
               <p className="text-xs text-slate-500">Academy Studio for {currentTeacher.name}</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-bold">
+          <button aria-label="Close" onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center font-semibold">
             ✕
           </button>
         </div>
@@ -76,7 +76,7 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-bold text-amber-800">
+              <div className="text-xs font-semibold text-amber-800">
                 14-Day Free Trial Active ({currentSub.trialDaysLeft} Days Remaining)
               </div>
               <p className="text-[11px] text-slate-600">
@@ -84,14 +84,14 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold shrink-0">
+          <span className="px-2.5 py-1 rounded-full bg-amber-200 text-amber-900 text-[10px] font-semibold shrink-0">
             Trial Mode
           </span>
         </div>
 
         {/* Plan Selector Grid */}
         <div className="space-y-3">
-          <label className="block text-xs font-bold text-slate-700">Select Your Monthly SaaS Tier:</label>
+          <label className="block text-xs font-semibold text-slate-700">Select Your Monthly SaaS Tier:</label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {SAAS_PRICING_PLANS.map(plan => {
               const isSelected = selectedPlanId === plan.id;
@@ -101,20 +101,20 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
                   onClick={() => setSelectedPlanId(plan.id)}
                   className={`p-4 rounded-2xl border cursor-pointer transition flex flex-col justify-between ${
                     isSelected
-                      ? 'bg-blue-50/80 border-blue-500 shadow-md shadow-blue-500/10'
+                      ? 'bg-accent-50/80 border-accent-500 shadow-soft'
                       : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">{plan.name}</span>
+                      <span className="text-xs font-semibold text-slate-900">{plan.name}</span>
                       {plan.popular && (
-                        <span className="text-[9px] font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded">
+                        <span className="text-[9px] font-semibold bg-accent-600 text-white px-1.5 py-0.5 rounded">
                           POPULAR
                         </span>
                       )}
                     </div>
-                    <div className="text-lg font-black text-slate-900">
+                    <div className="text-lg font-semibold text-slate-900">
                       LKR {plan.priceLKR}
                       <span className="text-[10px] text-slate-400 font-normal"> /mo</span>
                     </div>
@@ -129,8 +129,8 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className="mt-3 pt-2">
-                    <span className={`w-full py-1 rounded-lg text-[10px] font-bold text-center block ${
-                      isSelected ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'
+                    <span className={`w-full py-1 rounded-lg text-[10px] font-semibold text-center block ${
+                      isSelected ? 'bg-accent-600 text-white' : 'bg-slate-200 text-slate-700'
                     }`}>
                       {isSelected ? 'Selected' : 'Choose Plan'}
                     </span>
@@ -143,13 +143,13 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
 
         {/* Payment Method Selector */}
         <div className="space-y-3 pt-2 border-t border-slate-100">
-          <label className="block text-xs font-bold text-slate-700">Payment Method for Lyntrix Subscription:</label>
+          <label className="block text-xs font-semibold text-slate-700">Payment Method for Lyntrix Subscription:</label>
           <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
             <button
               type="button"
               onClick={() => setPaymentMethod('card')}
-              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
-                paymentMethod === 'card' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 ${
+                paymentMethod === 'card' ? 'bg-white text-slate-900 shadow-soft ring-1 ring-slate-200/60' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
@@ -159,8 +159,8 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => setPaymentMethod('bank_transfer')}
-              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
-                paymentMethod === 'bank_transfer' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 ${
+                paymentMethod === 'bank_transfer' ? 'bg-white text-slate-900 shadow-soft ring-1 ring-slate-200/60' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
 
           {paymentMethod === 'bank_transfer' && (
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-700">
-              <div className="font-bold text-slate-900">Lyntrix Platform Bank Account:</div>
+              <div className="font-semibold text-slate-900">Lyntrix Platform Bank Account:</div>
               <div>Bank: <strong>Commercial Bank of Ceylon (Head Office)</strong></div>
               <div>Account Name: <strong>Lyntrix SaaS Technologies (Pvt) Ltd</strong></div>
               <div>Account Number: <strong className="text-emerald-600 font-mono">10008492019</strong></div>
@@ -182,7 +182,7 @@ export const TeacherSubscriptionModal = ({ isOpen, onClose }) => {
         <button
           onClick={handleUpgrade}
           disabled={isProcessing}
-          className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-soft transition flex items-center justify-center gap-2"
         >
           <Zap className="w-4 h-4 text-amber-300" />
           <span>{isProcessing ? 'Activating Subscription...' : 'Confirm Subscription & Activate Ongoing Access'}</span>

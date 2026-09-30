@@ -169,9 +169,23 @@ export const supabaseDbService = {
           payment_status: 'Paid',
           paid_date: new Date().toISOString(),
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        });
+        }, { onConflict: 'student_id,batch_id' });
 
       return { data: { slipData, enrData }, error: enrError };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // 5b. Reject bank slip
+  async rejectBankSlip(slipId, reason) {
+    try {
+      const { data, error } = await supabase
+        .from('bank_slips')
+        .update({ status: 'rejected', rejection_reason: reason })
+        .eq('id', slipId)
+        .select();
+      return { data, error };
     } catch (err) {
       return { data: null, error: err };
     }

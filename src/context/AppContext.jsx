@@ -178,7 +178,7 @@ export const AppProvider = ({ children }) => {
               {
                 id: `batch-${t.subdomain}-2026-theory`,
                 code: `${(t.subdomain || 'TH').toUpperCase()}-2026-TH`,
-                title: `2026 A/L ${t.subject} — Full Theory & Revision`,
+                title: `2026 A/L ${t.subject}: Full Theory & Revision`,
                 grade: "2026 A/L",
                 gradeYear: "2026",
                 medium: "Sinhala Medium",
@@ -230,7 +230,7 @@ export const AppProvider = ({ children }) => {
         };
         setBankSlips(prev => [newSlip, ...prev.filter(s => s.id !== newSlip.id)]);
         sound.playChimeApproved();
-        showToast('⚡ Realtime: New Bank Slip received in Supabase!', 'info');
+        showToast('Realtime: New Bank Slip received in Supabase!', 'info');
       } else if (payload.eventType === 'UPDATE') {
         setBankSlips(prev => prev.map(s => s.id === payload.new.id ? { ...s, status: payload.new.status } : s));
       }
@@ -252,7 +252,7 @@ export const AppProvider = ({ children }) => {
           feeStatus: payload.new.fee_status || 'Paid'
         };
         setAttendanceLogs(prev => [newLog, ...prev.filter(a => a.id !== newLog.id)]);
-        showToast('⚡ Realtime: Entrance Attendance Recorded!', 'info');
+        showToast('Realtime: Entrance Attendance Recorded!', 'info');
       }
     });
 
@@ -260,7 +260,7 @@ export const AppProvider = ({ children }) => {
     const unsubLessons = supabaseDbService.subscribeToRealtime('lessons', (payload) => {
       if (payload.eventType === 'INSERT') {
         setLessons(prev => [payload.new, ...prev]);
-        showToast('⚡ Realtime: New Video Lecture Added to Supabase!', 'success');
+        showToast('Realtime: New Video Lecture Added to Supabase!', 'success');
       }
     });
 
@@ -280,7 +280,7 @@ export const AppProvider = ({ children }) => {
           }
           return ins;
         }));
-        showToast(`⚡ Realtime: Academy Subscription updated to ${payload.new.subscription_status}!`, 'info');
+        showToast(`Realtime: Academy Subscription updated to ${payload.new.subscription_status}!`, 'info');
       }
     });
 
@@ -312,9 +312,10 @@ export const AppProvider = ({ children }) => {
   };
 
   const showToast = (message, type = 'success') => {
-    setToast({ message, type, id: Date.now() });
+    const id = Date.now() + Math.random();
+    setToast({ message, type, id });
     setTimeout(() => {
-      setToast((prev) => (prev && prev.id === toast?.id ? null : prev));
+      setToast((prev) => (prev && prev.id === id ? null : prev));
     }, 4500);
   };
 
@@ -356,12 +357,14 @@ export const AppProvider = ({ children }) => {
       address: studentData.address || 'Sri Lanka',
       indexNumber,
       qrToken,
+      // Kept in memory only, so the demo login can check it this session.
+      password: studentData.password,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
       activeMonth: 'August 2026',
       enrollments: [
         {
-          instructorId: 'ins-kasun-maths',
-          batchId: 'batch-kasun-2025',
+          instructorId: instructors[0]?.id,
+          batchId: instructors[0]?.batches?.[0]?.id,
           paymentStatus: 'Pending',
           progress: 0,
           attendanceRate: 100,
@@ -378,7 +381,7 @@ export const AppProvider = ({ children }) => {
     setStudents(prev => [newStudent, ...prev]);
     setCurrentStudentId(newStudent.id);
 
-    // ⚡ Live Supabase Auth & Database Synchronization
+    // Live Supabase Auth & Database Synchronization
     if (isSupabaseConfigured()) {
       (async () => {
         try {
@@ -455,7 +458,7 @@ export const AppProvider = ({ children }) => {
 
     setStudents(prev => [newStudent, ...prev]);
 
-    // ⚡ Live Supabase Sync
+    // Live Supabase Sync
     if (isSupabaseConfigured()) {
       (async () => {
         try {
@@ -593,7 +596,7 @@ export const AppProvider = ({ children }) => {
       setStudents(prevStudents => prevStudents.map(std => {
         if (std.id === slip.studentId) {
           const updatedEnrollments = std.enrollments.map(enr => {
-            if (enr.batchId === slip.batchId || !enr.batchId) {
+            if (enr.batchId === slip.batchId || (!enr.batchId && enr.instructorId === slip.instructorId)) {
               return { ...enr, paymentStatus: 'Paid', paidDate: new Date().toISOString().split('T')[0] };
             }
             return enr;
@@ -629,6 +632,24 @@ export const AppProvider = ({ children }) => {
       }
       return slip;
     }));
+    const slip = bankSlips.find(s => s.id === slipId);
+    if (slip) {
+      // The fee is still unpaid, so move the enrollment out of "Pending" review.
+      setStudents(prevStudents => prevStudents.map(std => {
+        if (std.id !== slip.studentId) return std;
+        return {
+          ...std,
+          enrollments: std.enrollments.map(enr =>
+            enr.batchId === slip.batchId && enr.paymentStatus === 'Pending'
+              ? { ...enr, paymentStatus: 'Overdue' }
+              : enr
+          )
+        };
+      }));
+      if (isSupabaseConfigured()) {
+        supabaseDbService.rejectBankSlip(slip.id, reason).catch(() => {});
+      }
+    }
     showToast(`Bank Slip Rejected: ${reason}`, 'error');
     setSelectedSlipForReview(null);
   };
@@ -668,7 +689,10 @@ export const AppProvider = ({ children }) => {
         amount: Number(amount) || 3500,
         bank_name: bank || 'Commercial Bank',
         reference_no: newSlip.referenceNo,
-        slip_url: newSlip.slipImage,
+        slip_image_url: newSlip.slipImage,
+        student_name: newSlip.studentName,
+        student_index: newSlip.studentIndex,
+        student_phone: newSlip.studentPhone,
         status: 'pending'
       }).catch(() => {});
     }
@@ -747,6 +771,7 @@ export const AppProvider = ({ children }) => {
         studentId: student.id,
         studentName: student.name,
         studentIndex: student.indexNumber,
+        instructorId: currentTeacherId,
         batchId: enrollment?.batchId || 'N/A',
         batchCode: 'ATT-CHECK',
         timestamp: new Date().toLocaleTimeString(),
@@ -759,7 +784,7 @@ export const AppProvider = ({ children }) => {
         success: false,
         student,
         feeStatus: enrollment?.paymentStatus || 'Not Enrolled',
-        message: `⚠️ Access Warning: ${student.name}'s August class fee is ${enrollment?.paymentStatus || 'Not Paid'}.`
+        message: `Access Warning: ${student.name}'s August class fee is ${enrollment?.paymentStatus || 'Not Paid'}.`
       };
     }
 
@@ -769,8 +794,11 @@ export const AppProvider = ({ children }) => {
       studentId: student.id,
       studentName: student.name,
       studentIndex: student.indexNumber,
+      instructorId: currentTeacherId,
       batchId: enrollment.batchId,
-      batchCode: 'KM-2025-TH',
+      batchCode: instructors
+        .find(ins => ins.id === enrollment.instructorId)
+        ?.batches.find(b => b.id === enrollment.batchId)?.code || 'N/A',
       timestamp: new Date().toLocaleTimeString(),
       type: 'Hall Laser Scanner',
       status: 'Present - Verified',
@@ -782,7 +810,7 @@ export const AppProvider = ({ children }) => {
       success: true,
       student,
       feeStatus: 'Paid',
-      message: `✅ Access Granted: ${student.name} (${student.indexNumber}) marked PRESENT.`
+      message: `Access Granted: ${student.name} (${student.indexNumber}) marked PRESENT.`
     };
   };
 
@@ -828,7 +856,8 @@ export const AppProvider = ({ children }) => {
 
   const registerTeacherSaaS = (teacherData) => {
     const cleanSubdomain = (teacherData.subdomain || 'master').toLowerCase().replace(/[^a-z0-9-]/g, '');
-    const teacherId = `ins-${cleanSubdomain}`;
+    const baseId = `ins-${cleanSubdomain || 'master'}`;
+    const teacherId = instructors.some(ins => ins.id === baseId) ? `${baseId}-${Date.now()}` : baseId;
     
     const newInstructor = {
       id: teacherId,
@@ -847,6 +876,7 @@ export const AppProvider = ({ children }) => {
       activeBatchesCount: 1,
       email: teacherData.email,
       phone: teacherData.phone,
+      password: teacherData.password,
       bankDetails: {
         bank: "Commercial Bank of Ceylon",
         accountName: teacherData.name,
@@ -857,9 +887,9 @@ export const AppProvider = ({ children }) => {
       features: ["Anti-Piracy Moving Watermark Player", "High-Speed Laser QR Attendance Terminal", "Automated Bank Slip Queue"],
       batches: [
         {
-          id: `batch-${cleanSubdomain}-2026-theory`,
+          id: `batch-${teacherId.replace(/^ins-/, '')}-2026-theory`,
           code: `${cleanSubdomain.toUpperCase()}-2026-TH`,
-          title: `2026 A/L ${teacherData.subject} — Full Theory & Revision`,
+          title: `2026 A/L ${teacherData.subject}: Full Theory & Revision`,
           grade: "2026 A/L",
           gradeYear: "2026",
           medium: "Sinhala / English Medium",
@@ -902,13 +932,13 @@ export const AppProvider = ({ children }) => {
         if (error) {
           console.error("Error saving teacher to Supabase database:", error);
         } else {
-          console.log("⚡ Teacher saved to Supabase teachers table successfully!");
+          console.log("Teacher saved to Supabase teachers table successfully!");
         }
       });
     }
 
     sound.playChimeApproved();
-    showToast(`🎉 Master ${teacherData.name} profile created! Saved to Database & Live at ${cleanSubdomain}.dilnethmadushanka.online`, 'success');
+    showToast(`Master ${teacherData.name} profile created! Saved to Database & Live at ${cleanSubdomain}.dilnethmadushanka.online`, 'success');
     return newInstructor;
   };
 
@@ -939,6 +969,16 @@ export const AppProvider = ({ children }) => {
     sound.playChimeApproved();
     showToast("Live Scheduled Class Zoom Link updated successfully!", "success");
   };
+
+  // Tabs differ per portal; a tab left over from another role would render an empty page.
+  useEffect(() => {
+    const tabsByRole = {
+      student: ['overview', 'explore', 'videos', 'deliveries', 'quizzes', 'payments'],
+      teacher: ['overview', 'batches', 'slips', 'students', 'live', 'exams']
+    };
+    const valid = tabsByRole[currentRole];
+    if (valid && !valid.includes(activeTab)) setActiveTab('overview');
+  }, [currentRole]);
 
   const switchRole = (role) => {
     sound.playClick();
